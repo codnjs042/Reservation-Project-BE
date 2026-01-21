@@ -20,28 +20,28 @@ public class Store {
     @Column
     private String name;
 
-    @Column
-    private String address;
-
-    @Column
-    private String businessNumber;
-
     @Enumerated(EnumType.STRING)
     private StoreCategory category;
 
     @Column
+    private String address;
+
+    @Column
     private String phone;
-
-    @Column(nullable = false)
-    private LocalTime openTime;
-
-    @Column(nullable = false)
-    private LocalTime closeTime;
-
-    @Column(nullable = false)
-    private LocalTime lastOrderTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User owner;
+
+    @Column
+    private String businessNumber;
+
+    @Column
+    private int slotInterval;
+
+    @Column
+    private int usageTime;
+
+    @Enumerated(EnumType.STRING)
+    private StoreStatus status;
 }

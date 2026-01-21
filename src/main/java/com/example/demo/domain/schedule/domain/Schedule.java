@@ -1,0 +1,36 @@
+package com.example.demo.domain.schedule.domain;
+
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalTime;
+
+@Entity
+@Table(name = "schedules")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Schedule {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private ScheduleDayOfWeek dayOfWeek;
+
+    @Column
+    private LocalTime startTime;
+
+    @Column
+    private LocalTime endTime;
+
+    @Column
+    private LocalTime lastOrderTime;
+
+    @Enumerated(EnumType.STRING)
+    private ScheduleType type;
+
+    @Enumerated(EnumType.STRING)
+    private ScheduleStatus status;
+}
