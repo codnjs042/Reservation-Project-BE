@@ -2,6 +2,7 @@ package com.example.demo.domain.favorite.domain;
 
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.user.domain.User;
+import com.example.demo.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "favorites")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Favorite {
+public class Favorite extends BaseEntity {
     @Id
     @GeneratedValue
     private Long id;

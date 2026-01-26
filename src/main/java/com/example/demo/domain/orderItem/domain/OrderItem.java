@@ -2,6 +2,7 @@ package com.example.demo.domain.orderItem.domain;
 
 import com.example.demo.domain.menu.domain.Menu;
 import com.example.demo.domain.reservation.domain.Reservation;
+import com.example.demo.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "order_items")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OrderItem {
+public class OrderItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

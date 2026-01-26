@@ -2,6 +2,7 @@ package com.example.demo.domain.reservation.domain;
 
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.user.domain.User;
+import com.example.demo.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import java.time.LocalTime;
 @Table(name="reservations")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Reservation {
+public class Reservation extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

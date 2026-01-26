@@ -1,6 +1,7 @@
 package com.example.demo.domain.storeTable.domain;
 
 import com.example.demo.domain.store.domain.Store;
+import com.example.demo.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "storeTables")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StoreTable {
+public class StoreTable extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -1,5 +1,6 @@
 package com.example.demo.domain.schedule.domain;
 
+import com.example.demo.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import java.time.LocalTime;
 @Table(name = "schedules")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Schedule {
+public class Schedule extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
