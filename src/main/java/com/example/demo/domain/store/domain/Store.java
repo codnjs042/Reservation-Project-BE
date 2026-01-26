@@ -18,29 +18,29 @@ public class Store extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false, length=50)
     private String name;
 
     @Enumerated(EnumType.STRING)
     private StoreCategory category;
 
-    @Column
+    @Column(nullable = false, length=50)
     private String address;
 
-    @Column
+    @Column(nullable = false, length=11)
     private String phone;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User owner;
 
-    @Column
+    @Column(nullable = false, unique = true, length=10)
     private String businessNumber;
 
-    @Column
+    @Column(nullable = false)
     private int slotInterval;
 
-    @Column
+    @Column(nullable = false)
     private int usageTime;
 
     @Enumerated(EnumType.STRING)

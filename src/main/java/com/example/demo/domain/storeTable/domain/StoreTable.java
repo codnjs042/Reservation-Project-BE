@@ -20,18 +20,18 @@ public class StoreTable extends BaseEntity {
     @JoinColumn(name = "store_id")
     private Store store;
 
-    @Column
+    @Column(nullable = false)
     private String tableName;
 
-    @Column
+    @Column(nullable = false)
     private int maxCapacity;
 
-    @Column
+    @Column(nullable = false)
     private int minCapacity;
 
-    @Column
+    @Column(nullable = false)
     private int count;
 
-    @Column
+    @Enumerated(EnumType.STRING)
     private StoreTableStatus status;
 }

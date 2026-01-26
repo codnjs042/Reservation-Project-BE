@@ -20,13 +20,13 @@ public class Menu extends BaseEntity {
     @JoinColumn(name = "store_id")
     private Store store;
 
-    @Column
+    @Column(nullable = false, unique = true, length=50)
     private String name;
 
-    @Column
+    @Column(nullable = false)
     private int price;
 
-    @Column
+    @Column(nullable = false)
     private int limit;
 
     @Enumerated(EnumType.STRING)

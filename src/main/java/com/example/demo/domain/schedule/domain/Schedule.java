@@ -20,13 +20,13 @@ public class Schedule extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ScheduleDayOfWeek dayOfWeek;
 
-    @Column
+    @Column(nullable = false)
     private LocalTime startTime;
 
-    @Column
+    @Column(nullable = false)
     private LocalTime endTime;
 
-    @Column
+    @Column(nullable = false)
     private LocalTime lastOrderTime;
 
     @Enumerated(EnumType.STRING)

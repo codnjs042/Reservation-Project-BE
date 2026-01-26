@@ -33,6 +33,6 @@ public class Reservation extends BaseEntity {
     @Column(nullable = false)
     private LocalTime time;
 
-    @Column
+    @Enumerated(EnumType.STRING)
     private ReservationStatus status;
 }

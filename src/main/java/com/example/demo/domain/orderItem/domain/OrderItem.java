@@ -25,10 +25,10 @@ public class OrderItem extends BaseEntity {
     @JoinColumn(name = "Menu_id")
     private Menu menu;
 
-    @Column
+    @Column(nullable = false)
     private int price;
 
-    @Column
+    @Column(nullable = false)
     private int count;
 
     @Enumerated(EnumType.STRING)
