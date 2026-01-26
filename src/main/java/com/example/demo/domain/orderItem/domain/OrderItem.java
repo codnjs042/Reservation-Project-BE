@@ -5,6 +5,7 @@ import com.example.demo.domain.reservation.domain.Reservation;
 import com.example.demo.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -33,4 +34,13 @@ public class OrderItem extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private OrderItemStatus status;
+
+    @Builder
+    public OrderItem(Reservation reservation, Menu menu, int price, int count, OrderItemStatus status){
+        this.reservation = reservation;
+        this.menu = menu;
+        this.price = price;
+        this.count = count;
+        this.status = status;
+    }
 }

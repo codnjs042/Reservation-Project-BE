@@ -4,6 +4,7 @@ import com.example.demo.domain.store.domain.Store;
 import com.example.demo.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -31,4 +32,13 @@ public class Menu extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private MenuStatus status;
+
+    @Builder
+    public Menu(Store store, String name, int price, int limit, MenuStatus status){
+        this.store = store;
+        this.name = name;
+        this.price = price;
+        this.limit = limit;
+        this.status = status;
+    }
 }

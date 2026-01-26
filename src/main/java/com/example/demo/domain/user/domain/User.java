@@ -3,6 +3,7 @@ package com.example.demo.domain.user.domain;
 import com.example.demo.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,5 +30,18 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
+
+    @Builder
+    public User(String email, String password, UserLoginType loginType, String providerId, UserRole role, UserStatus status){
+        this.email = email;
+        this.password = password;
+        this.loginType = loginType;
+        this.providerId = providerId;
+        this.role = role;
+        this.status = status;
+    }
 }
 

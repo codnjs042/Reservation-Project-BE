@@ -4,6 +4,7 @@ import com.example.demo.domain.store.domain.Store;
 import com.example.demo.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,4 +35,14 @@ public class StoreTable extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private StoreTableStatus status;
+
+    @Builder
+    public StoreTable(Store store, String tableName, int maxCapacity, int minCapacity, int count, StoreTableStatus status){
+        this.store = store;
+        this.tableName = tableName;
+        this.maxCapacity = maxCapacity;
+        this.minCapacity = minCapacity;
+        this.count = count;
+        this.status = status;
+    }
 }

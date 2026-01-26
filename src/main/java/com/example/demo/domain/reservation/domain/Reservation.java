@@ -5,6 +5,7 @@ import com.example.demo.domain.user.domain.User;
 import com.example.demo.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -35,4 +36,13 @@ public class Reservation extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;
+
+    @Builder
+    public Reservation(User user, Store store, int headCount, LocalTime time, ReservationStatus status){
+        this.user = user;
+        this.store = store;
+        this.headCount = headCount;
+        this.time = time;
+        this.status = status;
+    }
 }

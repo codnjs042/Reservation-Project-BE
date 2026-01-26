@@ -4,6 +4,7 @@ import com.example.demo.domain.user.domain.User;
 import com.example.demo.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -45,4 +46,17 @@ public class Store extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private StoreStatus status;
+
+    @Builder
+    public Store(String name, StoreCategory category, String address, String phone, User owner, String businessNumber, int slotInterval, int usageTime, StoreStatus status){
+        this.name = name;
+        this.category = category;
+        this.address = address;
+        this.phone = phone;
+        this.owner = owner;
+        this.businessNumber = businessNumber;
+        this.slotInterval = slotInterval;
+        this.usageTime = usageTime;
+        this.status = status;
+    }
 }

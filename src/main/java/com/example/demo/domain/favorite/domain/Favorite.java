@@ -5,6 +5,7 @@ import com.example.demo.domain.user.domain.User;
 import com.example.demo.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,4 +28,11 @@ public class Favorite extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private FavoriteStatus status;
+
+    @Builder
+    public Favorite(User user, Store store, FavoriteStatus status){
+        this.user = user;
+        this.store = store;
+        this.status = status;
+    }
 }

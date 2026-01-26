@@ -3,6 +3,7 @@ package com.example.demo.domain.schedule.domain;
 import com.example.demo.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,4 +35,14 @@ public class Schedule extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private ScheduleStatus status;
+
+    @Builder
+    public Schedule(ScheduleDayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, LocalTime lastOrderTime, ScheduleType type, ScheduleStatus status){
+        this.dayOfWeek = dayOfWeek;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.lastOrderTime = lastOrderTime;
+        this.type = type;
+        this.status = status;
+    }
 }
