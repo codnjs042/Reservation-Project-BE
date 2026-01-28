@@ -1,0 +1,11 @@
+server:
+  port: 8081
+
+spring:
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  config:
+    import:
+      - "classpath:application-private.yml"
