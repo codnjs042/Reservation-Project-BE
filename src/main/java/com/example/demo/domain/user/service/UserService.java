@@ -4,6 +4,8 @@ import com.example.demo.domain.user.domain.User;
 import com.example.demo.domain.user.domain.UserLoginType;
 import com.example.demo.domain.user.domain.UserRole;
 import com.example.demo.domain.user.domain.UserStatus;
+import com.example.demo.domain.user.dto.UserLoginRequest;
+import com.example.demo.domain.user.dto.UserLoginResponse;
 import com.example.demo.domain.user.dto.UserSignupRequest;
 import com.example.demo.domain.user.dto.UserSignupResponse;
 import com.example.demo.domain.user.repository.UserRepository;
@@ -30,7 +32,7 @@ public class UserService {
         Optional<User> existing = userRepository.findByEmail(dto.email());
 
         if(existing.isPresent())
-            throw new IllegalArgumentException("이미 존재하는 사용자입니다");
+            throw new IllegalArgumentException("이미 존재하는 사용자입니다.");
 
         String encode = passwordEncoder.encode(dto.password());
 
@@ -45,5 +47,15 @@ public class UserService {
         userRepository.save(user);
 
         return UserSignupResponse.from(user);
+    }
+
+    public UserLoginResponse login(UserLoginRequest dto){
+        User user = userRepository.findByEmail(dto.email())
+                .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+
+        if(!passwordEncoder.matches(dto.password(), user.getPassword()))
+            throw new IllegalArgumentException("잘못된 비밀번호입니다.");
+
+
     }
 }

@@ -1,5 +1,7 @@
 package com.example.demo.domain.user.controller;
 
+import com.example.demo.domain.user.dto.UserLoginRequest;
+import com.example.demo.domain.user.dto.UserLoginResponse;
 import com.example.demo.domain.user.dto.UserSignupRequest;
 import com.example.demo.domain.user.dto.UserSignupResponse;
 import com.example.demo.domain.user.service.UserService;
@@ -21,8 +23,8 @@ public class UserController {
     @Operation(summary="이메일 중복 검사", description="입력 받은 이메일이 DB에 존재하는지 확인. 중복 시 true 반환.")
     @GetMapping("/check-email")
     public ResponseEntity<Boolean> checkEmail(@RequestParam @Schema(example="test1234@test.com") String email){
-        boolean isDuplicate = userService.check(email);
-        return ResponseEntity.ok(isDuplicate);
+        boolean response = userService.check(email);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary="회원 가입", description="입력 받은 유저 정보를 DB에 저장. 성공 시 유저 정보 반환.")
@@ -33,4 +35,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Operation(summary="로그인", description="입력 받은 이메일, 비밀 번호가 DB에 존재하는지 확인. 성공 시 유저 정보 반환.")
+    @PostMapping("/login")
+    public ResponseEntity<UserLoginResponse> login(@RequestBody UserLoginRequest dto){
+        UserLoginResponse response = userService.login(dto);
+        return ResponseEntity.ok(response);
+    }
 }

@@ -14,11 +14,14 @@ public class securityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/user/signup").permitAll()
+                        .requestMatchers(
+                                "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**",
+                                "/user/signup", "/user/login").permitAll()
                         .anyRequest().permitAll())
                 .headers(headers -> headers
-                        .frameOptions(frame -> frame.sameOrigin())
-                );
+                        .frameOptions(frame -> frame.sameOrigin()))
+                .formLogin(login -> login.disable())
+                .logout(logout -> logout.disable());
 
         return http.build();
     }
