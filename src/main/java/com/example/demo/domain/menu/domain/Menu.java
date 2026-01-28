@@ -28,17 +28,17 @@ public class Menu extends BaseEntity {
     private int price;
 
     @Column(nullable = false)
-    private int limit;
+    private int limitCount;
 
     @Enumerated(EnumType.STRING)
     private MenuStatus status;
 
     @Builder
-    public Menu(Store store, String name, int price, int limit, MenuStatus status){
+    public Menu(Store store, String name, int price, int limitCount, MenuStatus status){
         this.store = store;
         this.name = name;
         this.price = price;
-        this.limit = limit;
+        this.limitCount = limitCount;
         this.status = status;
     }
 }
