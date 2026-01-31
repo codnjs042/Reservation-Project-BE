@@ -38,6 +38,7 @@ public class UserService {
 
         User user = User.builder()
                 .email(dto.email())
+                .nickname(dto.nickname())
                 .password(encode)
                 .loginType(UserLoginType.LOCAL)
                 .role(UserRole.USER)

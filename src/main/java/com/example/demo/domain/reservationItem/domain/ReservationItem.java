@@ -1,4 +1,4 @@
-package com.example.demo.domain.orderItem.domain;
+package com.example.demo.domain.reservationItem.domain;
 
 import com.example.demo.domain.menu.domain.Menu;
 import com.example.demo.domain.reservation.domain.Reservation;
@@ -10,10 +10,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "order_items")
+@Table(name = "reservation_items")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OrderItem extends BaseEntity {
+public class ReservationItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,10 +33,10 @@ public class OrderItem extends BaseEntity {
     private int count;
 
     @Enumerated(EnumType.STRING)
-    private OrderItemStatus status;
+    private ReservationItemStatus status;
 
     @Builder
-    public OrderItem(Reservation reservation, Menu menu, int price, int count, OrderItemStatus status){
+    public ReservationItem(Reservation reservation, Menu menu, int price, int count, ReservationItemStatus status){
         this.reservation = reservation;
         this.menu = menu;
         this.price = price;
