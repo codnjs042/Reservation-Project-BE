@@ -9,4 +9,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     boolean existsByBusinessNumber(String businessNumber);
 
     Optional<Store> findByBusinessNumber(String businessNumber);
+
+    Optional<Store> findByIdAndOwnerId(Long userId, Long storeId);
 }
