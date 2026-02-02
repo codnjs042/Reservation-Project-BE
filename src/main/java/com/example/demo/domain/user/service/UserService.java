@@ -47,4 +47,11 @@ public class UserService {
 
         return UserSignupResponse.from(user);
     }
+
+    @Transactional
+    public void updateNickname(Long userId, String nickname){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+        user.updateNickname(nickname);
+    }
 }

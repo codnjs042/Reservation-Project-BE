@@ -4,6 +4,7 @@ import com.example.demo.domain.user.dto.UserLoginRequest;
 import com.example.demo.domain.user.dto.UserSignupRequest;
 import com.example.demo.domain.user.dto.UserSignupResponse;
 import com.example.demo.domain.user.service.UserService;
+import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,5 +62,13 @@ public class UserController {
             session.invalidate();
         SecurityContextHolder.clearContext();
         return ResponseEntity.ok("로그아웃 성공");
+    }
+
+    @Operation(summary="닉네임 변경", description="현재 로그인 상태의 유저에게 입력 받은 닉네임을 db에 적용")
+    @PatchMapping("/nickname")
+    public ResponseEntity<String> updateNickname(@RequestParam @Schema(example="또치") String nickname,
+                                                 @AuthenticationPrincipal CustomUserDetails userDetails){
+        userService.updateNickname(userDetails.getUser().getId(), nickname);
+        return ResponseEntity.ok("닉네임 변경 성공 : "+ nickname);
     }
 }
