@@ -7,6 +7,6 @@ public record UserSignupRequest(
         String email,
         @Schema(example="testUser")
         String nickname,
-        @Schema(example="password1234!")
+        @Schema(example="pw1234!")
         String password
 ) {}

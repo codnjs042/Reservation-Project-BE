@@ -4,6 +4,7 @@ import com.example.demo.domain.user.domain.User;
 import com.example.demo.domain.user.domain.UserLoginType;
 import com.example.demo.domain.user.domain.UserRole;
 import com.example.demo.domain.user.domain.UserStatus;
+import com.example.demo.domain.user.dto.UserPasswordRequest;
 import com.example.demo.domain.user.dto.UserSignupRequest;
 import com.example.demo.domain.user.dto.UserSignupResponse;
 import com.example.demo.domain.user.repository.UserRepository;
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -54,4 +56,25 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
         user.updateNickname(nickname);
     }
+
+    @Transactional
+    public void updatePassword(Long userId, UserPasswordRequest dto){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+
+        if(!passwordEncoder.matches(dto.currentPw(), user.getPassword()))
+            throw new IllegalArgumentException("현재 비밀번호와 일치하지 않습니다.");
+
+        if(dto.newPw().equals(dto.currentPw()))
+            throw new IllegalArgumentException("새로운 비밀번호를 입력하세요.");
+
+        if(!dto.confirmPw().equals(dto.newPw()))
+            throw new IllegalArgumentException("새 비밀번호가 일치하지 않습니다.");
+
+        String encode = passwordEncoder.encode(dto.newPw());
+
+        user.updatePassword(encode);
+    }
+
+
 }

@@ -22,6 +22,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**",
                                 "/user/signup", "/user/login", "/user/logout").permitAll()
+                        .requestMatchers("/user/nickname", "/user/password").authenticated()
                         .anyRequest().permitAll())
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.sameOrigin()))

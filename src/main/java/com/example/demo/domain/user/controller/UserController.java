@@ -1,6 +1,7 @@
 package com.example.demo.domain.user.controller;
 
 import com.example.demo.domain.user.dto.UserLoginRequest;
+import com.example.demo.domain.user.dto.UserPasswordRequest;
 import com.example.demo.domain.user.dto.UserSignupRequest;
 import com.example.demo.domain.user.dto.UserSignupResponse;
 import com.example.demo.domain.user.service.UserService;
@@ -70,5 +71,13 @@ public class UserController {
                                                  @AuthenticationPrincipal CustomUserDetails userDetails){
         userService.updateNickname(userDetails.getUser().getId(), nickname);
         return ResponseEntity.ok("닉네임 변경 성공 : "+ nickname);
+    }
+
+    @Operation(summary="비밀번호 변경", description="현재 로그인 상태의 유저에게 입력 받은 비밀번호를 db에 적용")
+    @PatchMapping("/password")
+    public ResponseEntity<String> updateNickname(@RequestBody UserPasswordRequest dto,
+                                                 @AuthenticationPrincipal CustomUserDetails userDetails){
+        userService.updatePassword(userDetails.getUser().getId(), dto);
+        return ResponseEntity.ok("비밀번호 변경 성공");
     }
 }
