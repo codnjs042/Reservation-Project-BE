@@ -1,16 +1,21 @@
 package com.example.demo.domain.user.controller;
 
 import com.example.demo.domain.user.dto.UserLoginRequest;
-import com.example.demo.domain.user.dto.UserLoginResponse;
 import com.example.demo.domain.user.dto.UserSignupRequest;
 import com.example.demo.domain.user.dto.UserSignupResponse;
 import com.example.demo.domain.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name="User API", description ="회원가입 및 로그인 관련 API")
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
 
     @Operation(summary="이메일 중복 검사", description="입력 받은 이메일이 DB에 존재하는지 확인. 중복 시 true 반환.")
     @GetMapping("/check-email")
@@ -35,10 +41,24 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary="로그인", description="입력 받은 이메일, 비밀 번호가 DB에 존재하는지 확인. 성공 시 유저 정보 반환.")
+    @Operation(summary="로그인", description="입력 받은 이메일, 비밀 번호가 DB에 존재하는지 확인")
     @PostMapping("/login")
-    public ResponseEntity<UserLoginResponse> login(@RequestBody UserLoginRequest dto){
-        UserLoginResponse response = userService.login(dto);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<String> login(@RequestBody UserLoginRequest dto, HttpServletRequest request){
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(dto.email(), dto.password());
+        Authentication authentication = authenticationManager.authenticate(token);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        HttpSession session = request.getSession(true);
+        session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+        return ResponseEntity.ok("로그인 성공");
+    }
+
+    @Operation(summary="로그아웃", description="현재 세션을 무효화하여 로그아웃 처리")
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request){
+        HttpSession session = request.getSession(false);
+        if(session!=null)
+            session.invalidate();
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok("로그아웃 성공");
     }
 }
