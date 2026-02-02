@@ -1,4 +1,12 @@
 package com.example.demo.domain.store.repository;
 
-public class StoreRepository {
+import com.example.demo.domain.store.domain.Store;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface StoreRepository extends JpaRepository<Store, Long> {
+    boolean existsByBusinessNumber(String businessNumber);
+
+    Optional<Store> findByBusinessNumber(String businessNumber);
 }

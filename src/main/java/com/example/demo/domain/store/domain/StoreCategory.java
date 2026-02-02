@@ -6,5 +6,4 @@ public enum StoreCategory {
     CHINESE,
     WESTERN,
     ASIAN
-
 }

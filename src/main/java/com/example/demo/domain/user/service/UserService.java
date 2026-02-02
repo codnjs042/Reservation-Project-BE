@@ -41,7 +41,7 @@ public class UserService {
                 .nickname(dto.nickname())
                 .password(encode)
                 .loginType(UserLoginType.LOCAL)
-                .role(UserRole.USER)
+                .role(dto.role())
                 .status(UserStatus.ACTIVE)
                 .build();
 

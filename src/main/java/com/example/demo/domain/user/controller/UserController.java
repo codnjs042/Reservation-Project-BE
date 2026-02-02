@@ -69,7 +69,7 @@ public class UserController {
     @PatchMapping("/nickname")
     public ResponseEntity<String> updateNickname(@RequestParam @Schema(example="또치") String nickname,
                                                  @AuthenticationPrincipal CustomUserDetails userDetails){
-        userService.updateNickname(userDetails.getUser().getId(), nickname);
+        userService.updateNickname(userDetails.getId(), nickname);
         return ResponseEntity.ok("닉네임 변경 성공 : "+ nickname);
     }
 
@@ -77,7 +77,7 @@ public class UserController {
     @PatchMapping("/password")
     public ResponseEntity<String> updateNickname(@RequestBody UserPasswordRequest dto,
                                                  @AuthenticationPrincipal CustomUserDetails userDetails){
-        userService.updatePassword(userDetails.getUser().getId(), dto);
+        userService.updatePassword(userDetails.getId(), dto);
         return ResponseEntity.ok("비밀번호 변경 성공");
     }
 }
