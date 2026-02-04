@@ -1,6 +1,7 @@
 package com.example.demo.domain.reservation.domain;
 
 import com.example.demo.domain.store.domain.Store;
+import com.example.demo.domain.storeTable.domain.StoreTable;
 import com.example.demo.domain.user.domain.User;
 import com.example.demo.global.common.BaseEntity;
 import jakarta.persistence.*;
@@ -9,8 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalTime;
-
+import java.time.LocalDateTime;
 @Entity
 @Table(name="reservations")
 @Getter
@@ -29,20 +29,25 @@ public class Reservation extends BaseEntity {
     private Store store;
 
     @Column(nullable = false)
-    private int headCount;
+    private LocalDateTime targetDateTime;
 
     @Column(nullable = false)
-    private LocalTime time;
+    private int headCount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tableId")
+    private StoreTable storeTable;
 
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;
 
     @Builder
-    public Reservation(User user, Store store, int headCount, LocalTime time, ReservationStatus status){
+    public Reservation(User user, Store store, LocalDateTime targetDateTime, int headCount, StoreTable storeTable, ReservationStatus status){
         this.user = user;
         this.store = store;
+        this.targetDateTime=targetDateTime;
         this.headCount = headCount;
-        this.time = time;
+        this.storeTable = storeTable;
         this.status = status;
     }
 }

@@ -20,7 +20,8 @@ public class ScheduleService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
 
         Schedule schedule = Schedule.builder()
-                .dayOfWeek(dto.dayOfWeek())
+                .store(store)
+                .dayofWeek(dto.dayOfWeek())
                 .startTime(dto.startTime())
                 .endTime(dto.endTime())
                 .lastOrderTime(dto.lastOrderTime())

@@ -22,8 +22,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**",
                                 "/user/signup", "/user/login", "/user/logout").permitAll()
-                        .requestMatchers("/user/nickname", "/user/password").authenticated()
-                        .requestMatchers("/store/register", "/store/*/menu/register", "/store/*/table/register", "/store/*/schedule/register").hasRole("OWNER")
+                        .requestMatchers("/user/nickname", "/user/password", "/store/*/reservation").authenticated()
+                        .requestMatchers("/store/register", "/store/*/menu/register", "/store/*/table/register",
+                                "/store/*/schedule/register").hasRole("OWNER")
                         .anyRequest().permitAll())
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.sameOrigin()))
