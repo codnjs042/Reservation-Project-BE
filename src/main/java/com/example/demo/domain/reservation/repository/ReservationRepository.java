@@ -8,5 +8,5 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-    List<Reservation> findByStoreIdAndTargetDateTimeAndStatusNotIn(Long storeId, LocalDateTime targetDateTime, List<ReservationStatus> invalidStatus);
+    List<Reservation> findByStoreIdAndTargetDateTimeAndStatus(Long storeId, LocalDateTime targetDateTime, ReservationStatus status);
 }

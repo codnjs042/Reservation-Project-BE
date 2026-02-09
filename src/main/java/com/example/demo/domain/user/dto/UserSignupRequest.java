@@ -10,6 +10,6 @@ public record UserSignupRequest(
         String nickname,
         @Schema(example="pw1234!")
         String password,
-        @Schema(description="사용자 권한", example="USER", allowableValues = {"USER", "OWNER"})
+        @Schema(description="사용자 권한", example="OWNER", allowableValues = {"USER", "OWNER"})
         UserRole role
 ) {}

@@ -1,15 +1,11 @@
 package com.example.demo.domain.reservation.service;
 
-import com.example.demo.domain.menu.domain.Menu;
-import com.example.demo.domain.menu.repository.MenuRepository;
 import com.example.demo.domain.reservation.domain.Reservation;
 import com.example.demo.domain.reservation.domain.ReservationStatus;
-import com.example.demo.domain.reservation.dto.ReservationAvailableResponse;
-import com.example.demo.domain.reservation.dto.ReservationWhoWhenRequest;
+import com.example.demo.domain.reservation.dto.ReservationCreateRequest;
+import com.example.demo.domain.reservation.dto.ReservationTimeSlotResponse;
+import com.example.demo.domain.reservation.dto.ReservationTimeSlotRequest;
 import com.example.demo.domain.reservation.repository.ReservationRepository;
-import com.example.demo.domain.reservationItem.domain.ReservationItem;
-import com.example.demo.domain.reservationItem.domain.ReservationItemStatus;
-import com.example.demo.domain.reservationItem.repository.ReservationItemRepository;
 import com.example.demo.domain.schedule.domain.Schedule;
 import com.example.demo.domain.schedule.domain.ScheduleType;
 import com.example.demo.domain.schedule.repository.ScheduleRepository;
@@ -22,10 +18,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -34,20 +29,16 @@ import java.util.stream.Collectors;
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final StoreRepository storeRepository;
-    private final MenuRepository menuRepository;
-    private final ReservationItemRepository reservationItemRepository;
     private final ScheduleRepository scheduleRepository;
     private final StoreTableRepository storeTableRepository;
 
-    public List<ReservationAvailableResponse> reserveWhen(User user, Long storeId, ReservationWhoWhenRequest dto){
+    public List<ReservationTimeSlotResponse> getTimeSlot(Long storeId, ReservationTimeSlotRequest dto){
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
 
-        int headCount = dto.headCount();
+        List<StoreTable> tables = storeTableRepository.findBySeat(storeId, dto.headCount(), dto.headCount());
 
-        List<StoreTable> tables = storeTableRepository.findBySeat(storeId, headCount, headCount);
-
-        List<ReservationAvailableResponse> slotTimes = new ArrayList<>();
+        List<ReservationTimeSlotResponse> slotTimes = new ArrayList<>();
         int interval = store.getSlotInterval();
 
         if(tables.isEmpty())
@@ -59,12 +50,47 @@ public class ReservationService {
             for(Schedule schedule: schedules){
                 LocalTime slotTime = schedule.getStartTime();
                 while(slotTime.isBefore(schedule.getEndTime())){
-                    boolean isAvailable = checkTime(slotTime, headCount);
-                    slotTimes.add(new ReservationAvailableResponse(slotTime, isAvailable));
+                    LocalDateTime targetDateTime = LocalDateTime.of(dto.targetDate(), slotTime);
+                    boolean isAvailable = findTable(storeId, targetDateTime, dto.headCount(), tables).isPresent();
+                    slotTimes.add(new ReservationTimeSlotResponse(slotTime, isAvailable));
                     slotTime = slotTime.plusMinutes(interval);
                 }
             }
         }
         return slotTimes;
+    }
+
+    public Optional<StoreTable> findTable(Long storeId, LocalDateTime targetDateTime, int headCount, List<StoreTable> tables){
+        List<Reservation> reservations = reservationRepository.findByStoreIdAndTargetDateTimeAndStatus(storeId, targetDateTime, ReservationStatus.CONFIRMED);
+
+        Map<Long, Long> reservationMap = reservations.stream()
+                .collect(Collectors.groupingBy(r->r.getStoreTable().getId(), Collectors.counting()));
+
+        return tables.stream()
+                .filter(t -> t.getMinCapacity()<=headCount && t.getMaxCapacity()>=headCount)
+                .sorted(Comparator.comparingInt(StoreTable::getMaxCapacity))
+                .filter(t -> reservationMap.getOrDefault(t.getId(), 0L) < t.getCount())
+                .findFirst();
+    }
+
+    public void reserveTime(User user, Long storeId, ReservationCreateRequest dto){
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+
+        List<StoreTable> tables = storeTableRepository.findBySeat(storeId, dto.headCount(), dto.headCount());
+
+        StoreTable storeTable = findTable(storeId, dto.targetDateTime(), dto.headCount(), tables)
+                .orElseThrow(() -> new IllegalArgumentException("해당 시간은 예약이 마감되었습니다."));
+
+        Reservation reservation = Reservation.builder()
+                .user(user)
+                .store(store)
+                .targetDateTime(dto.targetDateTime())
+                .headCount(dto.headCount())
+                .storeTable(storeTable)
+                .status(ReservationStatus.CONFIRMED)
+                .build();
+
+        reservationRepository.save(reservation);
     }
 }

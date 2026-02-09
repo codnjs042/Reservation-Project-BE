@@ -13,8 +13,8 @@ public interface StoreTableRepository extends JpaRepository<StoreTable, Long> {
 
     Optional<StoreTable> findByStoreIdAndTableName(Long storeId, String tableName);
 
-    @Query("select * from storeTables t " +
-            "where t.store_id = :storeId " +
+    @Query("select t from StoreTable t " +
+            "where t.store.id = :storeId " +
             "and t.minCapacity <= :minCapacity " +
             "and t.maxCapacity >= :maxCapacity")
     List<StoreTable> findBySeat(@Param("storeId") Long storeId,

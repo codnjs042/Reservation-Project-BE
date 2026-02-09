@@ -21,10 +21,11 @@ public class ScheduleService {
 
         Schedule schedule = Schedule.builder()
                 .store(store)
-                .dayofWeek(dto.dayOfWeek())
+                .dayOfWeek(dto.dayOfWeek())
                 .startTime(dto.startTime())
                 .endTime(dto.endTime())
                 .lastOrderTime(dto.lastOrderTime())
+                .type(dto.type())
                 .status(ScheduleStatus.ACTIVE)
                 .build();
 

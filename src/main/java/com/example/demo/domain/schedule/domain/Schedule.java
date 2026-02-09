@@ -20,7 +20,7 @@ public class Schedule extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="store_id")
     private Store store;
 
@@ -43,7 +43,7 @@ public class Schedule extends BaseEntity {
     private ScheduleStatus status;
 
     @Builder
-    public Schedule(Store store, DayOfWeek dayofWeek, LocalTime startTime, LocalTime endTime, LocalTime lastOrderTime, ScheduleType type, ScheduleStatus status){
+    public Schedule(Store store, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, LocalTime lastOrderTime, ScheduleType type, ScheduleStatus status){
         this.store = store;
         this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
