@@ -15,7 +15,9 @@ public interface StoreTableRepository extends JpaRepository<StoreTable, Long> {
 
     @Query("select * from storeTables t " +
             "where t.store_id = :storeId " +
-            "and t.minCapacity <= :minCapacity")
+            "and t.minCapacity <= :minCapacity " +
+            "and t.maxCapacity >= :maxCapacity")
     List<StoreTable> findBySeat(@Param("storeId") Long storeId,
-                                @Param("minCapacity") int minCapacity);
+                                @Param("minCapacity") int minCapacity,
+                                @Param("maxCapacity") int maxCapacity);
 }
