@@ -25,10 +25,10 @@ public class StoreTable extends BaseEntity {
     private String tableName;
 
     @Column(nullable = false)
-    private int maxCapacity;
+    private int minCapacity;
 
     @Column(nullable = false)
-    private int minCapacity;
+    private int maxCapacity;
 
     @Column(nullable = false)
     private int count;
@@ -37,11 +37,19 @@ public class StoreTable extends BaseEntity {
     private StoreTableStatus status;
 
     @Builder
-    public StoreTable(Store store, String tableName, int maxCapacity, int minCapacity, int count, StoreTableStatus status){
+    public StoreTable(Store store, String tableName, int minCapacity, int maxCapacity, int count, StoreTableStatus status){
         this.store = store;
         this.tableName = tableName;
-        this.maxCapacity = maxCapacity;
         this.minCapacity = minCapacity;
+        this.maxCapacity = maxCapacity;
+        this.count = count;
+        this.status = status;
+    }
+
+    public void modify(String tableName, int minCapacity, int maxCapacity, int count, StoreTableStatus status){
+        this.tableName = tableName;
+        this.minCapacity = minCapacity;
+        this.maxCapacity = maxCapacity;
         this.count = count;
         this.status = status;
     }

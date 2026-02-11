@@ -2,6 +2,7 @@ package com.example.demo.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +24,7 @@ public class SecurityConfig {
                                 "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**",
                                 "/user/signup", "/user/login", "/user/logout").permitAll()
                         .requestMatchers("/user/nickname", "/user/password", "/store/*/reservation").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/store/*/table").hasRole("OWNER")
                         .requestMatchers("/store/register", "/store/*/menu/register", "/store/*/table/register",
                                 "/store/*/schedule/register").hasRole("OWNER")
                         .anyRequest().permitAll())
