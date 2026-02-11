@@ -8,5 +8,5 @@ import java.time.DayOfWeek;
 import java.util.List;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-    List<Schedule> findByStoreIdAndDayOfWeekAndType(Long storeId, DayOfWeek dayOfWeek, ScheduleType type);
+    List<Schedule> findByStoreIdAndDayOfWeekAndTypeOrderByStartTimeAsc(Long storeId, DayOfWeek dayOfWeek, ScheduleType type);
 }

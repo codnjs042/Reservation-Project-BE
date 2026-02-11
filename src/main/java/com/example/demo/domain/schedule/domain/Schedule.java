@@ -33,9 +33,6 @@ public class Schedule extends BaseEntity {
     @Column(nullable = false)
     private LocalTime endTime;
 
-    @Column(nullable = false)
-    private LocalTime lastOrderTime;
-
     @Enumerated(EnumType.STRING)
     private ScheduleType type;
 
@@ -43,12 +40,11 @@ public class Schedule extends BaseEntity {
     private ScheduleStatus status;
 
     @Builder
-    public Schedule(Store store, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, LocalTime lastOrderTime, ScheduleType type, ScheduleStatus status){
+    public Schedule(Store store, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, ScheduleType type, ScheduleStatus status){
         this.store = store;
         this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.lastOrderTime = lastOrderTime;
         this.type = type;
         this.status = status;
     }

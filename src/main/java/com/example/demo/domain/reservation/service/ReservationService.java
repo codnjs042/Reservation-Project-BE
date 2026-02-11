@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,13 +40,12 @@ public class ReservationService {
         List<StoreTable> tables = storeTableRepository.findBySeat(storeId, dto.headCount(), dto.headCount());
 
         List<ReservationTimeSlotResponse> slotTimes = new ArrayList<>();
-        int interval = store.getSlotInterval();
 
         if(tables.isEmpty())
             return new ArrayList<>();
 
         else{
-            List<Schedule> schedules = scheduleRepository.findByStoreIdAndDayOfWeekAndType(storeId, dto.targetDate().getDayOfWeek(), ScheduleType.OPEN);
+            List<Schedule> schedules = scheduleRepository.findByStoreIdAndDayOfWeekAndTypeOrderByStartTimeAsc(storeId, dto.targetDate().getDayOfWeek(), ScheduleType.OPEN);
 
             for(Schedule schedule: schedules){
                 LocalTime slotTime = schedule.getStartTime();
@@ -53,7 +53,7 @@ public class ReservationService {
                     LocalDateTime targetDateTime = LocalDateTime.of(dto.targetDate(), slotTime);
                     boolean isAvailable = findTable(storeId, targetDateTime, dto.headCount(), tables).isPresent();
                     slotTimes.add(new ReservationTimeSlotResponse(slotTime, isAvailable));
-                    slotTime = slotTime.plusMinutes(interval);
+                    slotTime = slotTime.plusMinutes(store.getSlotInterval());
                 }
             }
         }
@@ -76,6 +76,25 @@ public class ReservationService {
     public void reserveTime(User user, Long storeId, ReservationCreateRequest dto){
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+
+        List<Schedule> schedules = scheduleRepository.findByStoreIdAndDayOfWeekAndTypeOrderByStartTimeAsc(storeId, dto.targetDateTime().getDayOfWeek(), ScheduleType.OPEN);
+
+        LocalTime time = dto.targetDateTime().toLocalTime();
+        boolean isAvailable = false;
+
+        for(Schedule schedule: schedules){
+            if(!time.isBefore(schedule.getStartTime()) && time.isBefore(schedule.getEndTime())) {
+                if (ChronoUnit.MINUTES.between(schedule.getStartTime(), time) % store.getSlotInterval() == 0) {
+                    isAvailable = true;
+                    break;
+                }
+            }
+            else
+                break;
+        }
+
+        if(!isAvailable)
+            throw new IllegalArgumentException("예약 가능한 시간이 아닙니다.");
 
         List<StoreTable> tables = storeTableRepository.findBySeat(storeId, dto.headCount(), dto.headCount());
 

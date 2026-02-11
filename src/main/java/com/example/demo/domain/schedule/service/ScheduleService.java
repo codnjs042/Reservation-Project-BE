@@ -24,7 +24,6 @@ public class ScheduleService {
                 .dayOfWeek(dto.dayOfWeek())
                 .startTime(dto.startTime())
                 .endTime(dto.endTime())
-                .lastOrderTime(dto.lastOrderTime())
                 .type(dto.type())
                 .status(ScheduleStatus.ACTIVE)
                 .build();

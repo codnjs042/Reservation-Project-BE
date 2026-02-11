@@ -13,8 +13,6 @@ public record ScheduleRegisterRequest(
         LocalTime startTime,
         @Schema(description="종료 시간", example="21:00:00")
         LocalTime endTime,
-        @Schema(description="라스트 오더", example="20:00:00")
-        LocalTime lastOrderTime,
         @Schema(description="운영 상태", example="OPEN")
         ScheduleType type
 ) {
