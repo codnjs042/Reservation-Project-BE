@@ -3,6 +3,7 @@ package com.example.demo.domain.reservation.service;
 import com.example.demo.domain.reservation.domain.Reservation;
 import com.example.demo.domain.reservation.domain.ReservationStatus;
 import com.example.demo.domain.reservation.dto.ReservationCreateRequest;
+import com.example.demo.domain.reservation.dto.ReservationSearchResponse;
 import com.example.demo.domain.reservation.dto.ReservationTimeSlotResponse;
 import com.example.demo.domain.reservation.dto.ReservationTimeSlotRequest;
 import com.example.demo.domain.reservation.repository.ReservationRepository;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -112,5 +114,14 @@ public class ReservationService {
                 .build();
 
         reservationRepository.save(reservation);
+    }
+
+    public List<ReservationSearchResponse> getList(Long userId, Long storeId){
+        Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+
+        return reservationRepository.getReservation(null, storeId, LocalDate.now(), null).stream()
+                .map(ReservationSearchResponse::new)
+                .toList();
     }
 }

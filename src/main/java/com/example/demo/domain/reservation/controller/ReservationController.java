@@ -1,6 +1,7 @@
 package com.example.demo.domain.reservation.controller;
 
 import com.example.demo.domain.reservation.dto.ReservationCreateRequest;
+import com.example.demo.domain.reservation.dto.ReservationSearchRequest;
 import com.example.demo.domain.reservation.dto.ReservationTimeSlotResponse;
 import com.example.demo.domain.reservation.dto.ReservationTimeSlotRequest;
 import com.example.demo.domain.reservation.service.ReservationService;
@@ -8,7 +9,6 @@ import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -37,5 +37,15 @@ public class ReservationController {
                                               @AuthenticationPrincipal CustomUserDetails userDetails){
         reservationService.reserveTime(userDetails.getUser(), storeId, dto);
         return ResponseEntity.ok("완료");
+    }
+
+    @Operation(summary="예약 조회", description="입력 받은 가게의 예약 조회")
+    @GetMapping
+    public ResponseEntity<String> search(
+            @ModelAttribute ReservationSearchRequest dto,
+            @PathVariable Long storeId,
+            @AuthenticationPrincipal CustomUserDetails userDetails){
+        response = reservationService.getReservation(userDetails.getId(), storeId);
+        return ResponseEntity.ok(response);
     }
 }
