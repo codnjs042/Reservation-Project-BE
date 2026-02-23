@@ -67,7 +67,6 @@ public class ReservationService {
                 .collect(Collectors.groupingBy(r->r.getStoreTable().getId(), Collectors.counting()));
 
         return tables.stream()
-                .filter(t -> t.getMinCapacity()<=headCount && t.getMaxCapacity()>=headCount)
                 .sorted(Comparator.comparingInt(StoreTable::getMaxCapacity))
                 .filter(t -> reservationMap.getOrDefault(t.getId(), 0L) < t.getCount())
                 .findFirst();
