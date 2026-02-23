@@ -1,6 +1,5 @@
 package com.example.demo.domain.store.controller;
 
-import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.dto.StoreRegisterRequest;
 import com.example.demo.domain.store.dto.StoreRegisterResponse;
 import com.example.demo.domain.store.service.StoreService;
@@ -25,8 +24,9 @@ public class StoreController {
 
     @Operation(summary="가게 등록", description="입력 받은 가게 정보를 DB에 저장. 성공 시 가게 정보 반환.")
     @PostMapping("/register")
-    public ResponseEntity<StoreRegisterResponse> register(@RequestBody StoreRegisterRequest dto,
-                                          @AuthenticationPrincipal CustomUserDetails userDetails){
+    public ResponseEntity<StoreRegisterResponse> register(
+            @RequestBody StoreRegisterRequest dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails){
         StoreRegisterResponse response = storeService.register(userDetails.getUser(), dto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
