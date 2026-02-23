@@ -6,6 +6,8 @@ import com.example.demo.domain.store.dto.StoreRegisterRequest;
 import com.example.demo.domain.store.dto.StoreRegisterResponse;
 import com.example.demo.domain.store.repository.StoreRepository;
 import com.example.demo.domain.user.domain.User;
+import com.example.demo.global.exception.BusinessException;
+import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +22,7 @@ public class StoreService {
         Optional<Store> existing= storeRepository.findByBusinessNumber(dto.businessNumber());
 
         if(existing.isPresent())
-            throw new IllegalArgumentException("이미 등록된 사업자 등록번호입니다.");
+            throw new BusinessException(ErrorCode.STORE_ALREADY_EXIST);
 
         Store store = Store.builder()
                 .name(dto.name())
@@ -38,6 +40,4 @@ public class StoreService {
 
         return StoreRegisterResponse.from(store);
     }
-
-
 }

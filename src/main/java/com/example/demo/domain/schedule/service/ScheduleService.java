@@ -6,6 +6,8 @@ import com.example.demo.domain.schedule.dto.ScheduleRegisterRequest;
 import com.example.demo.domain.schedule.repository.ScheduleRepository;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.repository.StoreRepository;
+import com.example.demo.global.exception.BusinessException;
+import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +19,7 @@ public class ScheduleService {
 
     public void register(Long userId, Long storeId, ScheduleRegisterRequest dto){
         Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
 
         Schedule schedule = Schedule.builder()
                 .store(store)

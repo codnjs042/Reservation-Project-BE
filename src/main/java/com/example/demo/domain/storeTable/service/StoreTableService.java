@@ -10,6 +10,8 @@ import com.example.demo.domain.storeTable.dto.StoreTableRegisterRequest;
 import com.example.demo.domain.storeTable.dto.StoreTableResponse;
 import com.example.demo.domain.storeTable.dto.StoreTableUpdateRequest;
 import com.example.demo.domain.storeTable.repository.StoreTableRepository;
+import com.example.demo.global.exception.BusinessException;
+import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,13 +30,13 @@ public class StoreTableService {
 
     public void register(Long userId, Long storeId, List<StoreTableRegisterRequest> dtos){
         Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
 
         for(StoreTableRegisterRequest dto : dtos){
             Optional<StoreTable> existing = storeTableRepository.findByStoreIdAndTableName(storeId, dto.tableName());
 
             if(existing.isPresent())
-                throw new IllegalArgumentException("이미 등록된 테이블 형식입니다. " + dto.tableName());
+                throw new BusinessException(ErrorCode.TABLE_ALREADY_EXIST);
 
             StoreTable storeTable = StoreTable.builder()
                     .store(store)
@@ -51,7 +53,7 @@ public class StoreTableService {
 
     public List<StoreTableResponse> findById(Long storeId){
         Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
 
         List<StoreTable> storeTables = storeTableRepository.findByStoreId(store.getId());
 
@@ -62,14 +64,14 @@ public class StoreTableService {
 
     public void modify(Long userId, Long storeId, List<StoreTableUpdateRequest> dtos){
         Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
 
         Set<String> inputNames = dtos.stream()
                 .map(StoreTableUpdateRequest::tableName)
                 .collect(Collectors.toSet());
 
         if(inputNames.size() != dtos.size())
-            throw new IllegalArgumentException("테이블 형식은 중복 불가입니다.");
+            throw new BusinessException(ErrorCode.DUPLICATE_TABLE_INPUT);
 
         for(StoreTableUpdateRequest dto : dtos){
             if(dto.id()==null) {
@@ -86,15 +88,15 @@ public class StoreTableService {
             }
             else{
                 StoreTable storeTable = storeTableRepository.findById(dto.id())
-                        .orElseThrow(() -> new IllegalArgumentException("해당 테이블을 찾을 수 없습니다."));
+                        .orElseThrow(() -> new BusinessException(ErrorCode.TABLE_NOT_FOUND));
 
                 if(storeTable.getStatus()==StoreTableStatus.ACTIVE && dto.status()==StoreTableStatus.DELETED)
                     if(reservationRepository.hasFutureReservation(LocalDateTime.now(), dto.id(), ReservationStatus.CONFIRMED))
-                        throw new IllegalArgumentException("해당 테이블은 예약 중이므로 삭제할 수 없습니다. " + dto.tableName());
+                        throw new BusinessException(ErrorCode.TABLE_DELETE_RESERVATION_EXIST);
 
                 List<Long> counts = reservationRepository.countFutureReservation(LocalDateTime.now(), dto.id(), ReservationStatus.CONFIRMED);
                 if(!counts.isEmpty() && counts.getFirst()>dto.count())
-                    throw new IllegalArgumentException("해당 테이블의 동시간대 최대 예약 건수보다 적게 수정할 수 없습니다.");
+                    throw new BusinessException(ErrorCode.TABLE_UPDATE_RESERVATION_EXIST);
 
                 storeTable.modify(dto.tableName(), dto.minCapacity(), dto.maxCapacity(), dto.count(), dto.status());
             }

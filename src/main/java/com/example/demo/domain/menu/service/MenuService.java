@@ -7,6 +7,8 @@ import com.example.demo.domain.menu.dto.MenuRegisterResponse;
 import com.example.demo.domain.menu.repository.MenuRepository;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.repository.StoreRepository;
+import com.example.demo.global.exception.BusinessException;
+import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +22,12 @@ public class MenuService {
 
     public MenuRegisterResponse register(Long userId, Long storeId, MenuRegisterRequest dto){
         Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
 
         Optional<Menu> existing = menuRepository.findByStoreIdAndName(storeId, dto.name());
 
         if(existing.isPresent())
-            throw new IllegalArgumentException("이미 존재하는 메뉴입니다.");
+            throw new BusinessException(ErrorCode.MENU_ALREADY_EXIST);
 
         Menu menu = Menu.builder()
                 .store(store)

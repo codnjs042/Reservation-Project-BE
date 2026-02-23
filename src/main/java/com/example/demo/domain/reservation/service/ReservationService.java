@@ -14,6 +14,8 @@ import com.example.demo.domain.store.repository.StoreRepository;
 import com.example.demo.domain.storeTable.domain.StoreTable;
 import com.example.demo.domain.storeTable.repository.StoreTableRepository;
 import com.example.demo.domain.user.domain.User;
+import com.example.demo.global.exception.BusinessException;
+import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,7 +37,7 @@ public class ReservationService {
 
     public List<ReservationTimeSlotResponse> getTimeSlot(Long storeId, ReservationTimeSlotRequest dto){
         Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
 
         List<StoreTable> tables = storeTableRepository.findBySeat(storeId, dto.headCount(), dto.headCount());
 
@@ -74,7 +76,7 @@ public class ReservationService {
 
     public void reserveTime(User user, Long storeId, ReservationCreateRequest dto){
         Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
 
         List<Schedule> schedules = scheduleRepository.findByStoreIdAndDayOfWeekAndTypeOrderByStartTimeAsc(storeId, dto.targetDateTime().getDayOfWeek(), ScheduleType.OPEN);
 
@@ -93,12 +95,12 @@ public class ReservationService {
         }
 
         if(!isAvailable)
-            throw new IllegalArgumentException("예약 가능한 시간이 아닙니다.");
+            throw new BusinessException(ErrorCode.RESERVATION_UNAVAILABLE_TIME);
 
         List<StoreTable> tables = storeTableRepository.findBySeat(storeId, dto.headCount(), dto.headCount());
 
         StoreTable storeTable = findTable(storeId, dto.targetDateTime(), dto.headCount(), tables)
-                .orElseThrow(() -> new IllegalArgumentException("해당 시간은 예약이 마감되었습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_FULL_TIME));
 
         Reservation reservation = Reservation.builder()
                 .user(user)
