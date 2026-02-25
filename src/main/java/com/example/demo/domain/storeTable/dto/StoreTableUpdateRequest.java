@@ -4,6 +4,7 @@ import com.example.demo.domain.storeTable.domain.StoreTableStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record StoreTableUpdateRequest(
+        @Schema(description = "테이블 번호", example="1")
         Long id,
         @Schema(description = "테이블 타입", example="4인석")
         String tableName,

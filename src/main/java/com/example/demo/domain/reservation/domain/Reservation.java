@@ -24,6 +24,9 @@ public class Reservation extends BaseEntity {
     @JoinColumn(name = "userId")
     private User user;
 
+    @Column(nullable = false)
+    private String name;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "storeId")
     private Store store;
@@ -42,8 +45,9 @@ public class Reservation extends BaseEntity {
     private ReservationStatus status;
 
     @Builder
-    public Reservation(User user, Store store, LocalDateTime targetDateTime, int headCount, StoreTable storeTable, ReservationStatus status){
+    public Reservation(User user, String name, Store store, LocalDateTime targetDateTime, int headCount, StoreTable storeTable, ReservationStatus status){
         this.user = user;
+        this.name = name;
         this.store = store;
         this.targetDateTime=targetDateTime;
         this.headCount = headCount;

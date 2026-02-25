@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 public record ReservationSearchResponse(
         @Schema(description="예약 번호")
         Long id,
+        @Schema(description="예약자명")
+        String name,
         @Schema(description="예약 날짜 시간")
         LocalDateTime targetDateTime,
         @Schema(description="인원 수")
@@ -22,6 +24,7 @@ public record ReservationSearchResponse(
     public static ReservationSearchResponse from(Reservation reservation){
         return new ReservationSearchResponse(
                 reservation.getId(),
+                reservation.getName(),
                 reservation.getTargetDateTime(),
                 reservation.getHeadCount(),
                 reservation.getStoreTable(),

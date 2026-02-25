@@ -14,6 +14,7 @@ import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,11 +24,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class StoreTableService {
     private final StoreTableRepository storeTableRepository;
     private final StoreRepository storeRepository;
     private final ReservationRepository reservationRepository;
 
+    @Transactional
     public void register(Long userId, Long storeId, List<StoreTableRegisterRequest> dtos){
         Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
@@ -62,6 +65,7 @@ public class StoreTableService {
                 .toList();
     }
 
+    @Transactional
     public void modify(Long userId, Long storeId, List<StoreTableUpdateRequest> dtos){
         Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));

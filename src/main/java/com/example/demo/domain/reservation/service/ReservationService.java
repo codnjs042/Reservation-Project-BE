@@ -2,10 +2,7 @@ package com.example.demo.domain.reservation.service;
 
 import com.example.demo.domain.reservation.domain.Reservation;
 import com.example.demo.domain.reservation.domain.ReservationStatus;
-import com.example.demo.domain.reservation.dto.ReservationCreateRequest;
-import com.example.demo.domain.reservation.dto.ReservationSearchResponse;
-import com.example.demo.domain.reservation.dto.ReservationTimeSlotResponse;
-import com.example.demo.domain.reservation.dto.ReservationTimeSlotRequest;
+import com.example.demo.domain.reservation.dto.*;
 import com.example.demo.domain.reservation.repository.ReservationRepository;
 import com.example.demo.domain.schedule.domain.Schedule;
 import com.example.demo.domain.schedule.domain.ScheduleType;
@@ -76,7 +73,7 @@ public class ReservationService {
                 .findFirst();
     }
 
-    public void reserveTime(User user, Long storeId, ReservationCreateRequest dto){
+    public ReservationCreateResponse reserveTime(User user, Long storeId, ReservationCreateRequest dto){
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
 
@@ -106,6 +103,7 @@ public class ReservationService {
 
         Reservation reservation = Reservation.builder()
                 .user(user)
+                .name(dto.name())
                 .store(store)
                 .targetDateTime(dto.targetDateTime())
                 .headCount(dto.headCount())
@@ -114,14 +112,21 @@ public class ReservationService {
                 .build();
 
         reservationRepository.save(reservation);
+
+        return ReservationCreateResponse.from(reservation);
     }
 
-    public List<ReservationSearchResponse> getList(Long userId, Long storeId){
+    public List<ReservationSearchResponse> getReservation(Long userId, Long storeId, ReservationSearchRequest dto){
         Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
 
-        return reservationRepository.getReservation(null, storeId, LocalDate.now(), null).stream()
-                .map(ReservationSearchResponse::new)
+        LocalDate startDate = dto.startDate()==null ? LocalDate.now() : dto.startDate();
+        LocalDate endDate = dto.endDate()==null ? LocalDate.now() : dto.endDate();
+
+        List<ReservationStatus> statuses = (dto.status()==null || dto.status().isEmpty()) ? List.of(ReservationStatus.CONFIRMED, ReservationStatus.VISITED) : dto.status();
+
+        return reservationRepository.getReservation(dto.type(), dto.keyword(), store.getId(), startDate, endDate, statuses).stream()
+                .map(ReservationSearchResponse::from)
                 .toList();
     }
 }

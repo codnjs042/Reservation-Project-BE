@@ -41,7 +41,7 @@ public class StoreTableController {
     }
 
     @Operation(summary="테이블 수정", description="입력 받은 가게의 테이블 정보 일괄 수정")
-    @PatchMapping
+    @PutMapping
     public ResponseEntity<String> modify(@RequestBody StoreTableUpdateWrapper wrapper,
                                          @PathVariable Long storeId,
                                          @AuthenticationPrincipal CustomUserDetails userDetails){

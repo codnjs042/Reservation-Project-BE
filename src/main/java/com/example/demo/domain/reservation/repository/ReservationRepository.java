@@ -12,15 +12,20 @@ import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     @Query("select r from Reservation r " +
-            "where (:userId is null or r.user.id = :userId) " +
+            "where (:keyword is null or :keyword='' or " +
+                "(:type='id' and cast(r.id as string) like %:keyword%) or" +
+                "(:type='name' and r.name like %:keyword%))" +
             "and r.store.id = :storeId " +
-            "and cast(r.targetDateTime as date) = :targetDate" +
-            "and (:status is null or r.status = :status)")
+            "and cast(r.targetDateTime as date) >= :startDate " +
+            "and cast(r.targetDateTime as date) <= :endDate " +
+            "and (:status is null or r.status in :status)")
     List<Reservation> getReservation(
-                @Param("userId") Long userId,
+                @Param("type") String type,
+                @Param("keyword") String keyword,
                 @Param("storeId") Long storeId,
-                @Param("targetDate") LocalDate targetDate,
-                @Param("status") ReservationStatus status);
+                @Param("startDate") LocalDate startDate,
+                @Param("endDate") LocalDate endDate,
+                @Param("status") List<ReservationStatus> status);
 
     List<Reservation> findByStoreIdAndTargetDateTimeAndStatus(Long storeId, LocalDateTime targetDateTime, ReservationStatus status);
 
@@ -33,12 +38,14 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("tableId") Long tableId,
             @Param("status") ReservationStatus status);
 
-    @Query("select count(r) from Reservation r " +
-            "where r.targetDateTime > :targetDateTime " +
-            "and r.storeTable.id = :tableId " +
-            "and r.status = :status" +
-            "group by r.targetDateTime" +
-            "order by count(r) desc")
+    @Query("""
+            select count(r) from Reservation r
+            where r.targetDateTime > :targetDateTime
+            and r.storeTable.id = :tableId
+            and r.status = :status
+            group by r.targetDateTime
+            order by count(r) desc
+            """)
     List<Long> countFutureReservation(
             @Param("targetDateTime") LocalDateTime targetDateTime,
             @Param("tableId") Long tableId,
