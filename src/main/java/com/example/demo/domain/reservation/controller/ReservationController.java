@@ -49,6 +49,15 @@ public class ReservationController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary="예약 거부(가게용)", description="현재 로그인된 유저 소유의 가게 예약 상태 변경")
+    @PatchMapping("/{reservationId}/reject")
+    public ResponseEntity<String> reject(
+            @PathVariable Long reservationId,
+            @AuthenticationPrincipal CustomUserDetails userDetails){
+        reservationService.rejectReservation(userDetails.getId(), reservationId);
+        return ResponseEntity.ok("완료");
+    }
+
     @Operation(summary="예약 조회(유저용)", description="현재 로그인된 유저의 예약 목록 조회")
     @GetMapping("/me")
     public ResponseEntity<List<ReservationSearchUserResponse>> searchUser(
@@ -60,7 +69,7 @@ public class ReservationController {
     }
 
 
-    @Operation(summary="예약 취소", description="DB에 저장된 정보의 상태 변경")
+    @Operation(summary="예약 취소(유저용)", description="DB에 저장된 정보의 상태 변경")
     @PatchMapping("/me/{reservationId}")
     public ResponseEntity<String> cancel(
             @PathVariable Long reservationId,

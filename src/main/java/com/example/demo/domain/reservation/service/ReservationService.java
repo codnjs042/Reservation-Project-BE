@@ -135,6 +135,17 @@ public class ReservationService {
                 .toList();
     }
 
+    @Transactional
+    public void rejectReservation(Long userId, Long reservationId){
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        if(!reservation.getStore().getOwner().getId().equals(userId))
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+
+        reservation.updateStatus(ReservationStatus.REJECTED);
+    }
+
     public List<ReservationSearchUserResponse> getMyReservation(Long userId, ReservationSearchUserRequest dto){
         LocalDate startDate = dto.startDate()==null ? LocalDate.now() : dto.startDate();
         LocalDate endDate = dto.endDate()==null ? LocalDate.now() : dto.endDate();
@@ -154,6 +165,6 @@ public class ReservationService {
         if(reservation.getUser().getId().equals(userId))
             throw new BusinessException(ErrorCode.FORBIDDEN);
 
-        reservation.cancel();
+        reservation.updateStatus(ReservationStatus.CANCELED);
     }
 }
