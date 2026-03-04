@@ -62,6 +62,9 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
+        if(user.getProviderId()!=null)
+            throw new BusinessException(ErrorCode.POLICY_VIOLATION);
+
         if(!passwordEncoder.matches(dto.currentPw(), user.getPassword()))
             throw new BusinessException(ErrorCode.MISMATCH);
 

@@ -1,9 +1,6 @@
 package com.example.demo.domain.user.controller;
 
-import com.example.demo.domain.user.dto.UserLoginRequest;
-import com.example.demo.domain.user.dto.UserPasswordRequest;
-import com.example.demo.domain.user.dto.UserSignupRequest;
-import com.example.demo.domain.user.dto.UserSignupResponse;
+import com.example.demo.domain.user.dto.*;
 import com.example.demo.domain.user.service.UserService;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -79,5 +76,12 @@ public class UserController {
                                                  @AuthenticationPrincipal CustomUserDetails userDetails){
         userService.updatePassword(userDetails.getId(), dto);
         return ResponseEntity.ok("비밀번호 변경 성공");
+    }
+
+    @Operation(summary="내 정보 조회", description="현재 로그인한 유저의 정보 반환.")
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        UserProfileResponse response = UserProfileResponse.from(userDetails.getUser());
+        return ResponseEntity.ok(response);
     }
 }
