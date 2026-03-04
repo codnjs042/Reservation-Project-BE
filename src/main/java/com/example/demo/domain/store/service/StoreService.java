@@ -10,14 +10,17 @@ import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class StoreService {
     private final StoreRepository storeRepository;
 
+    @Transactional
     public StoreRegisterResponse register(User user, StoreRegisterRequest dto){
         Optional<Store> existing= storeRepository.findByBusinessNumber(dto.businessNumber());
 

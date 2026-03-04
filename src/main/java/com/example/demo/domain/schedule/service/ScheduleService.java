@@ -10,13 +10,16 @@ import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final StoreRepository storeRepository;
 
+    @Transactional
     public void register(Long userId, Long storeId, ScheduleRegisterRequest dto){
         Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));

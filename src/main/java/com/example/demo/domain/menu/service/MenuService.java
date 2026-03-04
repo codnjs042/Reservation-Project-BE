@@ -11,15 +11,18 @@ import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MenuService {
     private final MenuRepository menuRepository;
     private final StoreRepository storeRepository;
 
+    @Transactional
     public MenuRegisterResponse register(Long userId, Long storeId, MenuRegisterRequest dto){
         Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));

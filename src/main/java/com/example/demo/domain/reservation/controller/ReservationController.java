@@ -35,7 +35,7 @@ public class ReservationController {
             @RequestBody ReservationCreateRequest dto,
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails){
-        ReservationCreateResponse response = reservationService.reserveTime(userDetails.getUser(), storeId, dto);
+        ReservationCreateResponse response = reservationService.reserve(userDetails.getUser(), storeId, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

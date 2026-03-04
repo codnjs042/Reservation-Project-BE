@@ -18,6 +18,7 @@ import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,13 +30,14 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final StoreRepository storeRepository;
     private final ScheduleRepository scheduleRepository;
     private final StoreTableRepository storeTableRepository;
-    private final UserRepository userRepository;
 
+    @Transactional
     public List<ReservationTimeSlotResponse> getTimeSlot(Long storeId, ReservationTimeSlotRequest dto){
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
@@ -75,7 +77,8 @@ public class ReservationService {
                 .findFirst();
     }
 
-    public ReservationCreateResponse reserveTime(User user, Long storeId, ReservationCreateRequest dto){
+    @Transactional
+    public ReservationCreateResponse reserve(User user, Long storeId, ReservationCreateRequest dto){
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
 
@@ -143,6 +146,7 @@ public class ReservationService {
                 .toList();
     }
 
+    @Transactional
     public void cancelReservation(Long userId, Long reservationId){
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
