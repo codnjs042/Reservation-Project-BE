@@ -12,6 +12,7 @@ import com.example.demo.domain.store.repository.StoreRepository;
 import com.example.demo.domain.storeTable.domain.StoreTable;
 import com.example.demo.domain.storeTable.repository.StoreTableRepository;
 import com.example.demo.domain.user.domain.User;
+import com.example.demo.domain.user.repository.UserRepository;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class ReservationService {
     private final StoreRepository storeRepository;
     private final ScheduleRepository scheduleRepository;
     private final StoreTableRepository storeTableRepository;
+    private final UserRepository userRepository;
 
     public List<ReservationTimeSlotResponse> getTimeSlot(Long storeId, ReservationTimeSlotRequest dto){
         Store store = storeRepository.findById(storeId)
@@ -61,7 +63,7 @@ public class ReservationService {
         return slotTimes;
     }
 
-    public Optional<StoreTable> findTable(Long storeId, LocalDateTime targetDateTime, int headCount, List<StoreTable> tables){
+    public Optional<StoreTable> findTable(Long storeId, LocalDateTime targetDateTime, int headCount,  List<StoreTable> tables){
         List<Reservation> reservations = reservationRepository.findByStoreIdAndTargetDateTimeAndStatus(storeId, targetDateTime, ReservationStatus.CONFIRMED);
 
         Map<Long, Long> reservationMap = reservations.stream()
@@ -116,7 +118,7 @@ public class ReservationService {
         return ReservationCreateResponse.from(reservation);
     }
 
-    public List<ReservationSearchResponse> getReservation(Long userId, Long storeId, ReservationSearchRequest dto){
+    public List<ReservationSearchOwnerResponse> getStoreReservation(Long userId, Long storeId, ReservationSearchOwnerRequest dto){
         Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
 
@@ -125,8 +127,29 @@ public class ReservationService {
 
         List<ReservationStatus> statuses = (dto.status()==null || dto.status().isEmpty()) ? List.of(ReservationStatus.CONFIRMED, ReservationStatus.VISITED) : dto.status();
 
-        return reservationRepository.getReservation(dto.type(), dto.keyword(), store.getId(), startDate, endDate, statuses).stream()
-                .map(ReservationSearchResponse::from)
+        return reservationRepository.getStoreReservationList(dto.type(), dto.keyword(), store.getId(), startDate, endDate, statuses).stream()
+                .map(ReservationSearchOwnerResponse::from)
                 .toList();
+    }
+
+    public List<ReservationSearchUserResponse> getMyReservation(Long userId, ReservationSearchUserRequest dto){
+        LocalDate startDate = dto.startDate()==null ? LocalDate.now() : dto.startDate();
+        LocalDate endDate = dto.endDate()==null ? LocalDate.now() : dto.endDate();
+
+        List<ReservationStatus> statuses = (dto.status()==null || dto.status().isEmpty()) ? List.of(ReservationStatus.CONFIRMED, ReservationStatus.VISITED) : dto.status();
+
+        return reservationRepository.getMyReservationList(dto.type(), dto.keyword(), startDate, endDate, statuses).stream()
+                .map(ReservationSearchUserResponse::from)
+                .toList();
+    }
+
+    public void cancelReservation(Long userId, Long reservationId){
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        if(reservation.getUser().getId().equals(userId))
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+
+        reservation.cancel();
     }
 }

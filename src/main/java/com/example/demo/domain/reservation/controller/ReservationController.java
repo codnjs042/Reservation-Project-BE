@@ -39,13 +39,33 @@ public class ReservationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary="예약 조회", description="입력 받은 가게의 예약 조회")
+    @Operation(summary="예약 조회(가게용)", description="현재 로그인된 유저 소유의 가게 예약 목록 조회")
     @GetMapping
-    public ResponseEntity<List<ReservationSearchResponse>> search(
-            @ModelAttribute ReservationSearchRequest dto,
+    public ResponseEntity<List<ReservationSearchOwnerResponse>> searchOwner(
+            @ModelAttribute ReservationSearchOwnerRequest dto,
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails){
-        List<ReservationSearchResponse> response = reservationService.getReservation(userDetails.getId(), storeId, dto);
+        List<ReservationSearchOwnerResponse> response = reservationService.getStoreReservation(userDetails.getId(), storeId, dto);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary="예약 조회(유저용)", description="현재 로그인된 유저의 예약 목록 조회")
+    @GetMapping("/me")
+    public ResponseEntity<List<ReservationSearchUserResponse>> searchUser(
+            @ModelAttribute ReservationSearchUserRequest dto,
+            @PathVariable Long storeId,
+            @AuthenticationPrincipal CustomUserDetails userDetails){
+        List<ReservationSearchUserResponse> response = reservationService.getMyReservation(userDetails.getId(), dto);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @Operation(summary="예약 취소", description="DB에 저장된 정보의 상태 변경")
+    @PatchMapping("/me/{reservationId}")
+    public ResponseEntity<String> cancel(
+            @PathVariable Long reservationId,
+            @AuthenticationPrincipal CustomUserDetails userDetails){
+        reservationService.cancelReservation(userDetails.getId(), reservationId);
+        return ResponseEntity.ok("완료");
     }
 }

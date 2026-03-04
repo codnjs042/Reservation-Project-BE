@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.util.List;
 
-public record ReservationSearchRequest(
+public record ReservationSearchOwnerRequest(
         @Schema(description="검색 타입", example = "name")
         String type,
         @Schema(description="검색어(예약번호 or 예약자명)", example="김둘리")
