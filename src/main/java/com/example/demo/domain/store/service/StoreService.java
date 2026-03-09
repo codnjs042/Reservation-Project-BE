@@ -2,8 +2,7 @@ package com.example.demo.domain.store.service;
 
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.domain.StoreStatus;
-import com.example.demo.domain.store.dto.StoreRegisterRequest;
-import com.example.demo.domain.store.dto.StoreRegisterResponse;
+import com.example.demo.domain.store.dto.*;
 import com.example.demo.domain.store.repository.StoreRepository;
 import com.example.demo.domain.user.domain.User;
 import com.example.demo.global.exception.BusinessException;
@@ -12,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,5 +42,30 @@ public class StoreService {
         storeRepository.save(store);
 
         return StoreRegisterResponse.from(store);
+    }
+
+    public List<StoreSearchResponse> getList(Long userId, StoreSearchRequest dto){
+        List<Store> store = storeRepository.getList(dto.keyword(), StoreStatus.CONFIRMED);
+        return store.stream().map(StoreSearchResponse::from).toList();
+    }
+
+    public void modify(Long userId, Long storeId, StoreUpdateRequest dto){
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+
+        if(!store.getOwner().getId().equals(userId))
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+
+        store.modify(dto.name(), dto.category(), dto.address(), dto.phone(), dto.slotInterval(), dto.usageTime(), dto.status());
+    }
+
+    public void delete(Long userId, Long storeId) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+
+        if (!store.getOwner().getId().equals(userId))
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+
+        store.updateStatus(StoreStatus.DELETED);
     }
 }

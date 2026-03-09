@@ -59,4 +59,18 @@ public class Store extends BaseEntity {
         this.usageTime = usageTime;
         this.status = status;
     }
+
+    public void modify(String name, StoreCategory category, String address, String phone, int slotInterval, int usageTime, StoreStatus status){
+        this.name = name;
+        this.category = category;
+        this.address = address;
+        this.phone = phone;
+        this.slotInterval = slotInterval;
+        this.usageTime = usageTime;
+        this.status = status;
+    }
+
+    public void updateStatus(StoreStatus status){
+        this.status = status;
+    }
 }
