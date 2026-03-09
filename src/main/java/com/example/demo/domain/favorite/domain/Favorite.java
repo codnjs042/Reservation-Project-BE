@@ -35,4 +35,9 @@ public class Favorite extends BaseEntity {
         this.store = store;
         this.status = status;
     }
+
+    public FavoriteStatus updateStatus(FavoriteStatus status){
+        this.status = status;
+        return status;
+    }
 }
