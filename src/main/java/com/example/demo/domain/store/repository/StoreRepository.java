@@ -14,8 +14,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 
     Optional<Store> findByBusinessNumber(String businessNumber);
 
-    Optional<Store> findByIdAndOwnerId(Long userId, Long storeId);
-
     @Query("""
             select s from Store s
             where (:keyword is null or :keyword='' or

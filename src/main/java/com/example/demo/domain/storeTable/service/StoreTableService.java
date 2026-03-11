@@ -32,8 +32,11 @@ public class StoreTableService {
 
     @Transactional
     public void register(Long userId, Long storeId, List<StoreTableRegisterRequest> dtos){
-        Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
+        Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+
+        if(!store.getOwner().getId().equals(userId))
+            throw new BusinessException(ErrorCode.FORBIDDEN);
 
         for(StoreTableRegisterRequest dto : dtos){
             Optional<StoreTable> existing = storeTableRepository.findByStoreIdAndTableName(storeId, dto.tableName());
@@ -67,8 +70,11 @@ public class StoreTableService {
 
     @Transactional
     public void modify(Long userId, Long storeId, List<StoreTableUpdateRequest> dtos){
-        Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
+        Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+
+        if(!store.getOwner().getId().equals(userId))
+            throw new BusinessException(ErrorCode.FORBIDDEN);
 
         Set<String> inputNames = dtos.stream()
                 .map(StoreTableUpdateRequest::tableName)

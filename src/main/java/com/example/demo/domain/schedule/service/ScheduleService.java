@@ -21,8 +21,11 @@ public class ScheduleService {
 
     @Transactional
     public void register(Long userId, Long storeId, ScheduleRegisterRequest dto){
-        Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
+        Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+
+        if(!store.getOwner().getId().equals(userId))
+            throw new BusinessException(ErrorCode.FORBIDDEN);
 
         Schedule schedule = Schedule.builder()
                 .store(store)

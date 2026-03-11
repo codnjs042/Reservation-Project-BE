@@ -122,8 +122,11 @@ public class ReservationService {
     }
 
     public List<ReservationSearchOwnerResponse> getStoreReservation(Long userId, Long storeId, ReservationSearchOwnerRequest dto){
-        Store store = storeRepository.findByIdAndOwnerId(storeId, userId)
+        Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+
+        if(!store.getOwner().getId().equals(userId))
+            throw new BusinessException(ErrorCode.FORBIDDEN);
 
         LocalDate startDate = dto.startDate()==null ? LocalDate.now() : dto.startDate();
         LocalDate endDate = dto.endDate()==null ? LocalDate.now() : dto.endDate();
