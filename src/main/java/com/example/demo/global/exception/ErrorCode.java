@@ -21,7 +21,6 @@ public enum ErrorCode {
     DUPLICATE_TABLE_INPUT(HttpStatus.BAD_REQUEST, "TABLE-003", "동일한 테이블 형식이 중복 입력되었습니다."),
     TABLE_DELETE_RESERVATION_EXIST(HttpStatus.CONFLICT, "TABLE-004", "해당 테이블은 삭제할 수 없습니다."),
     TABLE_UPDATE_RESERVATION_EXIST(HttpStatus.CONFLICT, "TABLE-005", "해당 테이블의 수량을 변경할 수 없습니다."),
-    MENU_ALREADY_EXIST(HttpStatus.CONFLICT, "MENU-001", "이미 등록된 메뉴입니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON-001", "권한이 없습니다.");
 
     private final HttpStatus status;
