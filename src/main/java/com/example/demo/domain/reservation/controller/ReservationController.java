@@ -77,4 +77,22 @@ public class ReservationController {
         reservationService.cancelReservation(userDetails.getId(), reservationId);
         return ResponseEntity.ok("완료");
     }
+
+    @Operation(summary="예약 방문 완료(가게용)", description="현재 로그인된 유저 소유의 가게 예약 상태 변경")
+    @PatchMapping("/{reservationId}/visited")
+    public ResponseEntity<String> visited(
+            @PathVariable Long reservationId,
+            @AuthenticationPrincipal CustomUserDetails userDetails){
+        reservationService.visitedReservation(userDetails.getId(), reservationId);
+        return ResponseEntity.ok("완료");
+    }
+
+    @Operation(summary="예약 노쇼(가게용)", description="현재 로그인된 유저 소유의 가게 예약 상태 변경")
+    @PatchMapping("/{reservationId}/no-show")
+    public ResponseEntity<String> noShow(
+            @PathVariable Long reservationId,
+            @AuthenticationPrincipal CustomUserDetails userDetails){
+        reservationService.noShowReservation(userDetails.getId(), reservationId);
+        return ResponseEntity.ok("완료");
+    }
 }

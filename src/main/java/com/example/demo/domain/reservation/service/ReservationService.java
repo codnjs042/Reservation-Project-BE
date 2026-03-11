@@ -167,4 +167,26 @@ public class ReservationService {
 
         reservation.updateStatus(ReservationStatus.CANCELED);
     }
+
+    @Transactional
+    public void visitedReservation(Long userId, Long reservationId){
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        if(reservation.getUser().getId().equals(userId))
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+
+        reservation.updateStatus(ReservationStatus.VISITED);
+    }
+
+    @Transactional
+    public void noShowReservation(Long userId, Long reservationId){
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        if(reservation.getUser().getId().equals(userId))
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+
+        reservation.updateStatus(ReservationStatus.NO_SHOW);
+    }
 }
