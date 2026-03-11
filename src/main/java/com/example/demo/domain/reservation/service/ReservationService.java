@@ -12,7 +12,6 @@ import com.example.demo.domain.store.repository.StoreRepository;
 import com.example.demo.domain.storeTable.domain.StoreTable;
 import com.example.demo.domain.storeTable.repository.StoreTableRepository;
 import com.example.demo.domain.user.domain.User;
-import com.example.demo.domain.user.repository.UserRepository;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -101,7 +100,7 @@ public class ReservationService {
         if(!isAvailable)
             throw new BusinessException(ErrorCode.RESERVATION_UNAVAILABLE_TIME);
 
-        List<StoreTable> tables = storeTableRepository.findBySeat(storeId, dto.headCount(), dto.headCount());
+        List<StoreTable> tables = storeTableRepository.findBySeatWithLock(storeId, dto.headCount(), dto.headCount());
 
         StoreTable storeTable = findTable(storeId, dto.targetDateTime(), dto.headCount(), tables)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_FULL_TIME));
