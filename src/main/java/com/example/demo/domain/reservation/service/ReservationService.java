@@ -16,6 +16,7 @@ import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -145,6 +146,11 @@ public class ReservationService {
         if(!reservation.getStore().getOwner().getId().equals(userId))
             throw new BusinessException(ErrorCode.FORBIDDEN);
 
+        LocalDateTime deadline = reservation.getTargetDateTime().toLocalDate().atStartOfDay();
+
+        if(deadline.isBefore(LocalDateTime.now()))
+            throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS);
+
         reservation.updateStatus(ReservationStatus.REJECTED);
     }
 
@@ -164,8 +170,13 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
 
-        if(reservation.getUser().getId().equals(userId))
+        if(!reservation.getUser().getId().equals(userId))
             throw new BusinessException(ErrorCode.FORBIDDEN);
+
+        LocalDateTime deadline = reservation.getTargetDateTime().toLocalDate().atStartOfDay();
+
+        if(deadline.isBefore(LocalDateTime.now()))
+            throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS);
 
         reservation.updateStatus(ReservationStatus.CANCELED);
     }
@@ -175,8 +186,11 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
 
-        if(reservation.getUser().getId().equals(userId))
+        if(!reservation.getStore().getOwner().getId().equals(userId))
             throw new BusinessException(ErrorCode.FORBIDDEN);
+
+        if(reservation.getTargetDateTime().isAfter(LocalDateTime.now()))
+            throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS);
 
         reservation.updateStatus(ReservationStatus.VISITED);
     }
@@ -186,8 +200,11 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
 
-        if(reservation.getUser().getId().equals(userId))
+        if(!reservation.getStore().getOwner().getId().equals(userId))
             throw new BusinessException(ErrorCode.FORBIDDEN);
+
+        if(reservation.getTargetDateTime().isAfter(LocalDateTime.now()))
+            throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS);
 
         reservation.updateStatus(ReservationStatus.NO_SHOW);
     }

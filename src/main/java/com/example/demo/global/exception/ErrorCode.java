@@ -16,6 +16,7 @@ public enum ErrorCode {
     RESERVATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "RESERVATION-001", "해당 예약을 찾을 수 없습니다."),
     RESERVATION_UNAVAILABLE_TIME(HttpStatus.BAD_REQUEST, "RESERVATION-002", "해당 시간은 예약 불가합니다."),
     RESERVATION_FULL_TIME(HttpStatus.CONFLICT, "RESERVATION-003", "해당 시간은 예약이 마감되었습니다."),
+    INVALID_RESERVATION_STATUS(HttpStatus.BAD_REQUEST, "RESERVATION-004", "현재는 예약 상태 변경이 불가능합니다."),
     TABLE_ALREADY_EXIST(HttpStatus.CONFLICT, "TABLE-001", "이미 등록된 테이블 형식입니다."),
     TABLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "TABLE-002", "해당 테이블을 찾을 수 없습니다."),
     DUPLICATE_TABLE_INPUT(HttpStatus.BAD_REQUEST, "TABLE-003", "동일한 테이블 형식이 중복 입력되었습니다."),
