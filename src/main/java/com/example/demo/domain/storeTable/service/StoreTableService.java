@@ -27,89 +27,56 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class StoreTableService {
     private final StoreTableRepository storeTableRepository;
-    private final StoreRepository storeRepository;
-    private final ReservationRepository reservationRepository;
 
     @Transactional
-    public void register(Long userId, Long storeId, List<StoreTableRegisterRequest> dtos){
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+    public void register(Store store, StoreTableRegisterRequest dto){
+        Optional<StoreTable> existing = storeTableRepository.findByStoreIdAndTableName(store.getId(), dto.tableName());
 
-        if(!store.getOwner().getId().equals(userId))
-            throw new BusinessException(ErrorCode.FORBIDDEN);
+        if(existing.isPresent())
+            throw new BusinessException(ErrorCode.TABLE_ALREADY_EXIST);
 
-        for(StoreTableRegisterRequest dto : dtos){
-            Optional<StoreTable> existing = storeTableRepository.findByStoreIdAndTableName(storeId, dto.tableName());
+        StoreTable storeTable = StoreTable.builder()
+                .store(store)
+                .tableName(dto.tableName())
+                .maxCapacity(dto.maxCapacity())
+                .minCapacity(dto.minCapacity())
+                .count(dto.count())
+                .status(StoreTableStatus.ACTIVE)
+                .build();
 
-            if(existing.isPresent())
-                throw new BusinessException(ErrorCode.TABLE_ALREADY_EXIST);
-
-            StoreTable storeTable = StoreTable.builder()
-                    .store(store)
-                    .tableName(dto.tableName())
-                    .maxCapacity(dto.maxCapacity())
-                    .minCapacity(dto.minCapacity())
-                    .count(dto.count())
-                    .status(StoreTableStatus.ACTIVE)
-                    .build();
-
-            storeTableRepository.save(storeTable);
-        }
-    }
-
-    public List<StoreTableResponse> findById(Long storeId){
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
-
-        List<StoreTable> storeTables = storeTableRepository.findByStoreId(store.getId());
-
-        return storeTables.stream()
-                .map(StoreTableResponse::from)
-                .toList();
+        storeTableRepository.save(storeTable);
     }
 
     @Transactional
-    public void modify(Long userId, Long storeId, List<StoreTableUpdateRequest> dtos){
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+    public void register(Store store, StoreTableUpdateRequest dto) {
+        StoreTable storeTable = StoreTable.builder()
+                .store(store)
+                .tableName(dto.tableName())
+                .maxCapacity(dto.maxCapacity())
+                .minCapacity(dto.minCapacity())
+                .count(dto.count())
+                .status(StoreTableStatus.ACTIVE)
+                .build();
 
-        if(!store.getOwner().getId().equals(userId))
-            throw new BusinessException(ErrorCode.FORBIDDEN);
+        storeTableRepository.save(storeTable);
+    }
 
-        Set<String> inputNames = dtos.stream()
-                .map(StoreTableUpdateRequest::tableName)
-                .collect(Collectors.toSet());
+    public StoreTable findById(Long storeTableId){
+        return storeTableRepository.findById(storeTableId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TABLE_NOT_FOUND));
+    }
 
-        if(inputNames.size() != dtos.size())
-            throw new BusinessException(ErrorCode.DUPLICATE_TABLE_INPUT);
+    public List<StoreTable> findByIds(Long storeId){
+        return storeTableRepository.findByStoreId(storeId);
+    }
 
-        for(StoreTableUpdateRequest dto : dtos){
-            if(dto.id()==null) {
-                StoreTable storeTable = StoreTable.builder()
-                        .store(store)
-                        .tableName(dto.tableName())
-                        .maxCapacity(dto.maxCapacity())
-                        .minCapacity(dto.minCapacity())
-                        .count(dto.count())
-                        .status(StoreTableStatus.ACTIVE)
-                        .build();
+    //가게 내 예약인원을 허용하는 테이블 찾기
+    public List<StoreTable> findBySeat(Long storeId, int headCount){
+        return storeTableRepository.findBySeat(storeId, headCount, headCount);
+    }
 
-                storeTableRepository.save(storeTable);
-            }
-            else{
-                StoreTable storeTable = storeTableRepository.findById(dto.id())
-                        .orElseThrow(() -> new BusinessException(ErrorCode.TABLE_NOT_FOUND));
-
-                if(storeTable.getStatus()==StoreTableStatus.ACTIVE && dto.status()==StoreTableStatus.DELETED)
-                    if(reservationRepository.hasFutureReservation(LocalDateTime.now(), dto.id(), ReservationStatus.CONFIRMED))
-                        throw new BusinessException(ErrorCode.TABLE_DELETE_RESERVATION_EXIST);
-
-                List<Long> counts = reservationRepository.countFutureReservation(LocalDateTime.now(), dto.id(), ReservationStatus.CONFIRMED);
-                if(!counts.isEmpty() && counts.getFirst()>dto.count())
-                    throw new BusinessException(ErrorCode.TABLE_UPDATE_RESERVATION_EXIST);
-
-                storeTable.modify(dto.tableName(), dto.minCapacity(), dto.maxCapacity(), dto.count(), dto.status());
-            }
-        }
+    //락버전
+    public List<StoreTable> findBySeatWithLock(Long storeId, int headCount){
+        return storeTableRepository.findBySeatWithLock(storeId, headCount, headCount);
     }
 }

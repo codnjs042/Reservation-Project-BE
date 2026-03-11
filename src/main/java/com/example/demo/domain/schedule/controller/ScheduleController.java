@@ -1,6 +1,7 @@
 package com.example.demo.domain.schedule.controller;
 
 import com.example.demo.domain.schedule.dto.ScheduleRegisterRequest;
+import com.example.demo.domain.schedule.service.ScheduleFacade;
 import com.example.demo.domain.schedule.service.ScheduleService;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/store/{storeId}/schedule")
 @RequiredArgsConstructor
 public class ScheduleController {
-    private final ScheduleService scheduleService;
+    private final ScheduleFacade scheduleFacade;
 
     @Operation(summary="영업 시간 등록", description="입력 받은 시간 정보를 DB에 저장")
     @PostMapping("/register")
@@ -24,7 +25,7 @@ public class ScheduleController {
             @RequestBody ScheduleRegisterRequest dto,
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails){
-        scheduleService.register(userDetails.getId(), storeId, dto);
+        scheduleFacade.register(userDetails.getId(), storeId, dto);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

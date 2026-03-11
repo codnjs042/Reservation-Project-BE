@@ -3,6 +3,7 @@ package com.example.demo.domain.storeTable.controller;
 import com.example.demo.domain.storeTable.dto.StoreTableRegisterWrapper;
 import com.example.demo.domain.storeTable.dto.StoreTableResponse;
 import com.example.demo.domain.storeTable.dto.StoreTableUpdateWrapper;
+import com.example.demo.domain.storeTable.service.StoreTableFacade;
 import com.example.demo.domain.storeTable.service.StoreTableService;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,13 +22,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StoreTableController {
     private final StoreTableService storeTableService;
+    private final StoreTableFacade storeTableFacade;
 
     @Operation(summary="테이블 등록", description="입력 받은 테이블 정보를 DB에 저장")
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody StoreTableRegisterWrapper wrapper,
                                            @PathVariable Long storeId,
                                            @AuthenticationPrincipal CustomUserDetails userDetails){
-        storeTableService.register(userDetails.getId(), storeId, wrapper.registerTables());
+        storeTableFacade.register(userDetails.getId(), storeId, wrapper.registerTables());
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -35,7 +37,7 @@ public class StoreTableController {
     @Operation(summary="테이블 조회", description="입력 받은 가게의 테이블 정보 반환")
     @GetMapping
     public ResponseEntity<List<StoreTableResponse>> getTables(@PathVariable Long storeId){
-        List<StoreTableResponse> response = storeTableService.findById(storeId);
+        List<StoreTableResponse> response = storeTableFacade.findByIds(storeId);
 
         return ResponseEntity.ok(response);
     }
@@ -45,7 +47,7 @@ public class StoreTableController {
     public ResponseEntity<String> modify(@RequestBody StoreTableUpdateWrapper wrapper,
                                          @PathVariable Long storeId,
                                          @AuthenticationPrincipal CustomUserDetails userDetails){
-        storeTableService.modify(userDetails.getId(), storeId, wrapper.updateTables());
+        storeTableFacade.modify(userDetails.getId(), storeId, wrapper.updateTables());
 
         return ResponseEntity.ok("완료");
     }

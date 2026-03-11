@@ -50,17 +50,21 @@ public class UserService {
         return UserSignupResponse.from(user);
     }
 
+    public User findById(Long userId){
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    }
+
     @Transactional
     public void updateNickname(Long userId, String nickname){
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        User user = findById(userId);
+
         user.updateNickname(nickname);
     }
 
     @Transactional
     public void updatePassword(Long userId, UserPasswordRequest dto){
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        User user = findById(userId);
 
         if(user.getProviderId()!=null)
             throw new BusinessException(ErrorCode.POLICY_VIOLATION);

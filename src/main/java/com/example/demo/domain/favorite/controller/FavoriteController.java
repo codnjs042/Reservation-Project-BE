@@ -2,6 +2,7 @@ package com.example.demo.domain.favorite.controller;
 
 import com.example.demo.domain.favorite.domain.FavoriteStatus;
 import com.example.demo.domain.favorite.dto.FavoriteResponse;
+import com.example.demo.domain.favorite.serivce.FavoriteFacade;
 import com.example.demo.domain.favorite.serivce.FavoriteService;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,13 +20,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FavoriteController {
     private final FavoriteService favoriteService;
+    private final FavoriteFacade favoriteFacade;
 
     @Operation(summary="관심 가게 설정/해제", description="현재 로그인 상태의 유저가 관심 있는 가게를 설정/해제")
     @PatchMapping("/{storeId}")
-    public ResponseEntity<String> toggleFavoirte(
+    public ResponseEntity<String> toggle(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long storeId){
-        favoriteService.toggleFavorite(userDetails.getUser(), storeId);
+        favoriteFacade.toggle(userDetails.getUser(), storeId);
         return ResponseEntity.ok("완료");
     }
 

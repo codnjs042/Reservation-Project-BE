@@ -1,6 +1,7 @@
 package com.example.demo.domain.reservation.controller;
 
 import com.example.demo.domain.reservation.dto.*;
+import com.example.demo.domain.reservation.service.ReservationFacade;
 import com.example.demo.domain.reservation.service.ReservationService;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,13 +20,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReservationController {
     private final ReservationService reservationService;
+    private final ReservationFacade reservationFacade;
 
     @Operation(summary="예약 타임 슬롯 조회", description="입력 받은 날짜와 인원 수를 토대로 시간대별 예약 가능 현황 반환.")
     @GetMapping("/time-slot")
     public ResponseEntity<List<ReservationTimeSlotResponse>> getTimeSlot(
             @ModelAttribute ReservationTimeSlotRequest dto,
             @PathVariable Long storeId){
-        List<ReservationTimeSlotResponse> response = reservationService.getTimeSlot(storeId, dto);
+        List<ReservationTimeSlotResponse> response = reservationFacade.getTimeSlot(storeId, dto);
         return ResponseEntity.ok(response);
     }
 
@@ -35,7 +37,7 @@ public class ReservationController {
             @RequestBody ReservationCreateRequest dto,
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails){
-        ReservationCreateResponse response = reservationService.reserve(userDetails.getUser(), storeId, dto);
+        ReservationCreateResponse response = reservationFacade.reserve(userDetails.getUser(), storeId, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -45,7 +47,7 @@ public class ReservationController {
             @ModelAttribute ReservationSearchOwnerRequest dto,
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails){
-        List<ReservationSearchOwnerResponse> response = reservationService.getStoreReservation(userDetails.getId(), storeId, dto);
+        List<ReservationSearchOwnerResponse> response = reservationFacade.getStoreReservation(userDetails.getId(), storeId, dto);
         return ResponseEntity.ok(response);
     }
 

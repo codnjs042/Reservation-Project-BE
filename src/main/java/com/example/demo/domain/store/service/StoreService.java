@@ -20,6 +20,11 @@ import java.util.Optional;
 public class StoreService {
     private final StoreRepository storeRepository;
 
+    public Store findById(Long storeId){
+        return storeRepository.findById(storeId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+    }
+
     @Transactional
     public StoreRegisterResponse register(User user, StoreRegisterRequest dto){
         Optional<Store> existing= storeRepository.findByBusinessNumber(dto.businessNumber());
@@ -50,8 +55,7 @@ public class StoreService {
     }
 
     public void modify(Long userId, Long storeId, StoreUpdateRequest dto){
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+        Store store = findById(storeId);
 
         if(!store.getOwner().getId().equals(userId))
             throw new BusinessException(ErrorCode.FORBIDDEN);
@@ -60,8 +64,7 @@ public class StoreService {
     }
 
     public void delete(Long userId, Long storeId) {
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+        Store store = findById(storeId);
 
         if (!store.getOwner().getId().equals(userId))
             throw new BusinessException(ErrorCode.FORBIDDEN);

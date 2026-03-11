@@ -21,14 +21,10 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
-    private final StoreRepository storeRepository;
 
     @Transactional
-    public void toggleFavorite(User user, Long storeId){
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
-
-        Optional<Favorite> existing = favoriteRepository.getFavorite(user.getId(), storeId);
+    public void toggle(User user, Store store){
+        Optional<Favorite> existing = favoriteRepository.getFavorite(user.getId(), store.getId());
 
         if (existing.isEmpty()) {
             Favorite favorite = Favorite.builder()
