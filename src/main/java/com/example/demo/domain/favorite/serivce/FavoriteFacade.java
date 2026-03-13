@@ -1,5 +1,6 @@
 package com.example.demo.domain.favorite.serivce;
 
+import com.example.demo.domain.favorite.domain.FavoriteStatus;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.service.StoreService;
 import com.example.demo.domain.user.domain.User;
@@ -18,6 +19,10 @@ public class FavoriteFacade {
     public void toggle(User user, Long storeId){
         Store store = storeService.findById(storeId);
 
-        favoriteService.toggle(user, store);
+        FavoriteStatus status = favoriteService.toggle(user, store);
+
+        int delta = status == FavoriteStatus.ACTIVE ? 1 : -1;
+
+        storeService.updateFavorites(storeId, delta);
     }
 }

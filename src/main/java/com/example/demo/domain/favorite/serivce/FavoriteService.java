@@ -5,10 +5,7 @@ import com.example.demo.domain.favorite.domain.FavoriteStatus;
 import com.example.demo.domain.favorite.dto.FavoriteResponse;
 import com.example.demo.domain.favorite.repository.FavoriteRepository;
 import com.example.demo.domain.store.domain.Store;
-import com.example.demo.domain.store.repository.StoreRepository;
 import com.example.demo.domain.user.domain.User;
-import com.example.demo.global.exception.BusinessException;
-import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,29 +20,47 @@ public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
 
     @Transactional
-    public void toggle(User user, Store store){
-        Optional<Favorite> existing = favoriteRepository.getFavorite(user.getId(), store.getId());
+    public void create(User user, Store store) {
+        Favorite favorite = Favorite.builder()
+                .user(user)
+                .store(store)
+                .status(FavoriteStatus.ACTIVE)
+                .build();
 
-        if (existing.isEmpty()) {
-            Favorite favorite = Favorite.builder()
-                    .user(user)
-                    .store(store)
-                    .status(FavoriteStatus.ACTIVE)
-                    .build();
-            favoriteRepository.save(favorite);
+        favoriteRepository.save(favorite);
+    }
+
+    @Transactional
+    public FavoriteStatus toggle(User user, Store store){
+        Optional<Favorite> existing = favoriteRepository.findRelation(user.getId(), store.getId());
+
+        if(existing.isPresent()){
+            Favorite favorite = existing.get();
+            return favorite.toggle();
         }
         else{
-            Favorite favorite = existing.get();
-
-            if(favorite.getStatus() == FavoriteStatus.ACTIVE)
-                favorite.updateStatus(FavoriteStatus.DELETED);
-            else
-                favorite.updateStatus(FavoriteStatus.ACTIVE);
+            create(user, store);
+            return FavoriteStatus.ACTIVE;
         }
+
     }
 
     public List<FavoriteResponse> getList(Long userId){
-        List<Favorite> favorite = favoriteRepository.getFavoriteList(userId);
-        return favorite.stream().map(FavoriteResponse::from).toList();
+        List<Favorite> favorites = favoriteRepository.getFavorites(userId, FavoriteStatus.ACTIVE);
+        return favorites.stream().map(FavoriteResponse::from).toList();
+    }
+
+    public long countFans(Long storeId){
+        return favoriteRepository.countFans(storeId, FavoriteStatus.ACTIVE);
+    }
+
+    @Transactional
+    public void updateStatusByUser(Long userId) {
+        favoriteRepository.updateStatusByUser(userId, FavoriteStatus.DELETED);
+    }
+
+    @Transactional
+    public void updateStatusByStore(Long storeId) {
+        favoriteRepository.updateStatusByStore(storeId, FavoriteStatus.DELETED);
     }
 }

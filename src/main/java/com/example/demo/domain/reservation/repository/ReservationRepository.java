@@ -30,10 +30,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     // 유저 예약 목록 조회
     @Query("select r from Reservation r " +
-            "where r.user.id = :userId" +
-            "(:keyword is null or :keyword='' or " +
-            "(:type='id' and cast(r.id as string) like %:keyword%) or" +
-            "(:type='storeName' and r.store.name like %:keyword%))" +
+            "where (:keyword is null or :keyword='' or " +
+                "(:type='id' and cast(r.id as string) like %:keyword%) or" +
+                "(:type='storeName' and r.store.name like %:keyword%))" +
+            "and r.user.id = :userId " +
             "and cast(r.targetDateTime as date) >= :startDate " +
             "and cast(r.targetDateTime as date) <= :endDate " +
             "and (:status is null or r.status in :status)")

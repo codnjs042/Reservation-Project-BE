@@ -1,5 +1,6 @@
 package com.example.demo.domain.store.service;
 
+import com.example.demo.domain.favorite.domain.FavoriteStatus;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.domain.StoreStatus;
 import com.example.demo.domain.store.dto.*;
@@ -41,6 +42,7 @@ public class StoreService {
                 .businessNumber(dto.businessNumber())
                 .slotInterval(dto.slotInterval())
                 .usageTime(dto.usageTime())
+                .favorites(0)
                 .status(StoreStatus.PENDING)
                 .build();
 
@@ -49,11 +51,12 @@ public class StoreService {
         return StoreRegisterResponse.from(store);
     }
 
-    public List<StoreSearchResponse> getList(Long userId, StoreSearchRequest dto){
+    public List<StoreSearchResponse> getList(StoreSearchRequest dto){
         List<Store> store = storeRepository.getList(dto.keyword(), StoreStatus.CONFIRMED);
         return store.stream().map(StoreSearchResponse::from).toList();
     }
 
+    @Transactional
     public void modify(Long userId, Long storeId, StoreUpdateRequest dto){
         Store store = findById(storeId);
 
@@ -63,12 +66,13 @@ public class StoreService {
         store.modify(dto.name(), dto.category(), dto.address(), dto.phone(), dto.slotInterval(), dto.usageTime(), dto.status());
     }
 
-    public void delete(Long userId, Long storeId) {
-        Store store = findById(storeId);
+    @Transactional
+    public void updateFavorites(Long storeId, int delta){
+        storeRepository.updateFavorites(storeId, delta);
+    }
 
-        if (!store.getOwner().getId().equals(userId))
-            throw new BusinessException(ErrorCode.FORBIDDEN);
-
-        store.updateStatus(StoreStatus.DELETED);
+    @Transactional
+    public void updateAllFavorites(Long userId, int delta) {
+        storeRepository.updateAllFavorites(delta, userId, FavoriteStatus.ACTIVE);
     }
 }

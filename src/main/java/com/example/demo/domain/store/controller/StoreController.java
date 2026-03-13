@@ -1,6 +1,7 @@
 package com.example.demo.domain.store.controller;
 
 import com.example.demo.domain.store.dto.*;
+import com.example.demo.domain.store.service.StoreFacade;
 import com.example.demo.domain.store.service.StoreService;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,24 +20,24 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StoreController {
     private final StoreService storeService;
+    private final StoreFacade storeFacade;
 
     @Operation(summary="가게 등록", description="입력 받은 가게 정보를 DB에 저장. 성공 시 가게 정보 반환.")
     @PostMapping("/register")
     public ResponseEntity<StoreRegisterResponse> register(
             @RequestBody StoreRegisterRequest dto,
             @AuthenticationPrincipal CustomUserDetails userDetails){
-        StoreRegisterResponse response = storeService.register(userDetails.getUser(), dto);
 
+        StoreRegisterResponse response = storeService.register(userDetails.getUser(), dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary="가게 목록 조회", description="가게 목록 조회")
     @GetMapping
     public ResponseEntity<List<StoreSearchResponse>> getList(
-            @ModelAttribute StoreSearchRequest dto,
-            @AuthenticationPrincipal CustomUserDetails userDetails){
-        List<StoreSearchResponse> response = storeService.getList(userDetails.getId(), dto);
+            @ModelAttribute StoreSearchRequest dto){
 
+        List<StoreSearchResponse> response = storeService.getList(dto);
         return ResponseEntity.ok(response);
     }
 
@@ -46,8 +47,8 @@ public class StoreController {
             @RequestBody StoreUpdateRequest dto,
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails){
-        storeService.modify(userDetails.getId(), storeId, dto);
 
+        storeService.modify(userDetails.getId(), storeId, dto);
         return ResponseEntity.ok("완료");
     }
 
@@ -56,8 +57,8 @@ public class StoreController {
     public ResponseEntity<String> delete(
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails){
-        storeService.delete(userDetails.getId(), storeId);
 
+        storeFacade.delete(userDetails.getId(), storeId);
         return ResponseEntity.ok("완료");
     }
 }

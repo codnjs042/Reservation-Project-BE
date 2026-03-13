@@ -1,6 +1,9 @@
 package com.example.demo.domain.user.controller;
 
+import com.example.demo.domain.favorite.dto.FavoriteResponse;
+import com.example.demo.domain.favorite.serivce.FavoriteService;
 import com.example.demo.domain.user.dto.*;
+import com.example.demo.domain.user.service.UserFacade;
 import com.example.demo.domain.user.service.UserService;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,32 +21,41 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name="User API", description ="회원가입 및 로그인 관련 API")
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserFacade userFacade;
+    private final FavoriteService favoriteService;
     private final AuthenticationManager authenticationManager;
 
-    @Operation(summary="이메일 중복 검사", description="입력 받은 이메일이 DB에 존재하는지 확인. 중복 시 true 반환.")
+    @Operation(summary="이메일 중복 검사", description="입력 받은 이메일이 DB에 존재하는지 확인. 중복 시 true 반환")
     @GetMapping("/check-email")
-    public ResponseEntity<Boolean> checkEmail(@RequestParam @Schema(example="test1234@test.com") String email){
+    public ResponseEntity<Boolean> checkEmail(
+            @RequestParam @Schema(example="test1234@test.com") String email){
+
         boolean response = userService.check(email);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary="회원 가입", description="입력 받은 유저 정보를 DB에 저장. 성공 시 유저 정보 반환.")
+    @Operation(summary="회원 가입", description="입력 받은 유저 정보를 DB에 저장. 성공 시 유저 정보 반환")
     @PostMapping("/signup")
     public ResponseEntity<UserSignupResponse> signup(@RequestBody UserSignupRequest dto) {
-        UserSignupResponse response = userService.join(dto);
 
+        UserSignupResponse response = userService.join(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary="로그인", description="입력 받은 이메일, 비밀 번호가 DB에 존재하는지 확인")
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserLoginRequest dto, HttpServletRequest request){
+    public ResponseEntity<String> login(
+            @RequestBody UserLoginRequest dto,
+            HttpServletRequest request){
+
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(dto.email(), dto.password());
         Authentication authentication = authenticationManager.authenticate(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -55,6 +67,7 @@ public class UserController {
     @Operation(summary="로그아웃", description="현재 세션을 무효화하여 로그아웃 처리")
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request){
+
         HttpSession session = request.getSession(false);
         if(session!=null)
             session.invalidate();
@@ -64,24 +77,53 @@ public class UserController {
 
     @Operation(summary="닉네임 변경", description="현재 로그인 상태의 유저에게 입력 받은 닉네임을 db에 적용")
     @PatchMapping("/nickname")
-    public ResponseEntity<String> updateNickname(@RequestParam @Schema(example="또치") String nickname,
-                                                 @AuthenticationPrincipal CustomUserDetails userDetails){
+    public ResponseEntity<String> updateNickname(
+            @RequestParam @Schema(example="또치") String nickname,
+            @AuthenticationPrincipal CustomUserDetails userDetails){
+
         userService.updateNickname(userDetails.getId(), nickname);
         return ResponseEntity.ok("닉네임 변경 성공 : "+ nickname);
     }
 
     @Operation(summary="비밀번호 변경", description="현재 로그인 상태의 유저에게 입력 받은 비밀번호를 db에 적용")
     @PatchMapping("/password")
-    public ResponseEntity<String> updateNickname(@RequestBody UserPasswordRequest dto,
-                                                 @AuthenticationPrincipal CustomUserDetails userDetails){
+    public ResponseEntity<String> updateNickname(
+            @RequestBody UserPasswordRequest dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails){
+
         userService.updatePassword(userDetails.getId(), dto);
         return ResponseEntity.ok("비밀번호 변경 성공");
     }
 
-    @Operation(summary="내 정보 조회", description="현재 로그인한 유저의 정보 반환.")
+    @Operation(summary="내 정보 조회", description="현재 로그인한 유저의 정보 반환")
     @GetMapping("/profile")
-    public ResponseEntity<?> getProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<?> getProfile(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
         UserProfileResponse response = UserProfileResponse.from(userDetails.getUser());
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary="관심 가게 목록 조회", description="현재 로그인 상태의 유저의 관심 가게 목록 조회")
+    @GetMapping("/favorite")
+    public ResponseEntity<List<FavoriteResponse>> getFavorite(
+            @AuthenticationPrincipal CustomUserDetails userDetails){
+
+        List<FavoriteResponse> response = favoriteService.getList(userDetails.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary="계정 삭제", description="현재 로그인 상태의 유저의 계정을 비활성화 상태로 변경")
+    @PatchMapping("/delete")
+    public ResponseEntity<String> delete(
+            HttpServletRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails){
+        userFacade.delete(userDetails.getId());
+        HttpSession session = request.getSession(false);
+        if(session!=null)
+            session.invalidate();
+        SecurityContextHolder.clearContext();
+
+        return ResponseEntity.ok("성공");
     }
 }

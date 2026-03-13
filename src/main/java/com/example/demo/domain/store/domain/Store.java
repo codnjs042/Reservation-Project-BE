@@ -8,8 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalTime;
-
 @Entity
 @Table(name="stores")
 @Getter
@@ -44,11 +42,14 @@ public class Store extends BaseEntity {
     @Column(nullable = false)
     private int usageTime;
 
+    @Column(nullable = false)
+    private int favorites;
+
     @Enumerated(EnumType.STRING)
     private StoreStatus status;
 
     @Builder
-    public Store(String name, StoreCategory category, String address, String phone, User owner, String businessNumber, int slotInterval, int usageTime, StoreStatus status){
+    public Store(String name, StoreCategory category, String address, String phone, User owner, String businessNumber, int slotInterval, int usageTime, int favorites, StoreStatus status){
         this.name = name;
         this.category = category;
         this.address = address;
@@ -57,6 +58,7 @@ public class Store extends BaseEntity {
         this.businessNumber = businessNumber;
         this.slotInterval = slotInterval;
         this.usageTime = usageTime;
+        this.favorites = favorites;
         this.status = status;
     }
 
