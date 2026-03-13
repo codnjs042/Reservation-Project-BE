@@ -1,13 +1,9 @@
 package com.example.demo.domain.storeTable.service;
 
-import com.example.demo.domain.reservation.domain.ReservationStatus;
-import com.example.demo.domain.reservation.repository.ReservationRepository;
 import com.example.demo.domain.store.domain.Store;
-import com.example.demo.domain.store.repository.StoreRepository;
 import com.example.demo.domain.storeTable.domain.StoreTable;
 import com.example.demo.domain.storeTable.domain.StoreTableStatus;
 import com.example.demo.domain.storeTable.dto.StoreTableRegisterRequest;
-import com.example.demo.domain.storeTable.dto.StoreTableResponse;
 import com.example.demo.domain.storeTable.dto.StoreTableUpdateRequest;
 import com.example.demo.domain.storeTable.repository.StoreTableRepository;
 import com.example.demo.global.exception.BusinessException;
@@ -16,11 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,32 +21,34 @@ public class StoreTableService {
     private final StoreTableRepository storeTableRepository;
 
     @Transactional
-    public void register(Store store, StoreTableRegisterRequest dto){
-        Optional<StoreTable> existing = storeTableRepository.findByStoreIdAndTableName(store.getId(), dto.tableName());
+    public void create(Store store, StoreTableRegisterRequest dto){
+        boolean isExists= storeTableRepository.hasTable(store.getId(), dto.tableName(), StoreTableStatus.ACTIVE);
 
-        if(existing.isPresent())
+        if(isExists)
             throw new BusinessException(ErrorCode.TABLE_ALREADY_EXIST);
 
-        StoreTable storeTable = StoreTable.builder()
-                .store(store)
-                .tableName(dto.tableName())
-                .maxCapacity(dto.maxCapacity())
-                .minCapacity(dto.minCapacity())
-                .count(dto.count())
-                .status(StoreTableStatus.ACTIVE)
-                .build();
+        //변경 전 테이블에 예약이 잡힌 경우 테이블 변경 불가(코드 작성 필요)
 
-        storeTableRepository.save(storeTable);
+        for(int i=1; i<=dto.count(); i++){
+            StoreTable storeTable = StoreTable.builder()
+                    .store(store)
+                    .tableName(dto.tableName())
+                    .maxCapacity(dto.maxCapacity())
+                    .minCapacity(dto.minCapacity())
+                    .status(StoreTableStatus.ACTIVE)
+                    .build();
+
+            storeTableRepository.save(storeTable);
+        }
     }
 
     @Transactional
-    public void register(Store store, StoreTableUpdateRequest dto) {
+    public void create(Store store, StoreTableUpdateRequest dto) {
         StoreTable storeTable = StoreTable.builder()
                 .store(store)
                 .tableName(dto.tableName())
                 .maxCapacity(dto.maxCapacity())
                 .minCapacity(dto.minCapacity())
-                .count(dto.count())
                 .status(StoreTableStatus.ACTIVE)
                 .build();
 

@@ -33,19 +33,23 @@ public class Schedule extends BaseEntity {
     @Column(nullable = false)
     private LocalTime endTime;
 
-    @Enumerated(EnumType.STRING)
-    private ScheduleType type;
+    @Column(nullable = false)
+    private int intervalMinute;
 
     @Enumerated(EnumType.STRING)
     private ScheduleStatus status;
 
     @Builder
-    public Schedule(Store store, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, ScheduleType type, ScheduleStatus status){
+    public Schedule(Store store, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, int intervalMinute, ScheduleStatus status){
         this.store = store;
         this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.type = type;
+        this.intervalMinute = intervalMinute;
+        this.status = status;
+    }
+
+    public void updateStatus(ScheduleStatus status){
         this.status = status;
     }
 }

@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface StoreRepository extends JpaRepository<Store, Long> {
     boolean existsByBusinessNumber(String businessNumber);
@@ -37,7 +36,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 
     @Modifying
     @Query("""
-            update Store s 
+            update Store s
             set s.favorites = s.favorites + :delta
             where s.id = :id""")
     void updateFavorites(
@@ -46,10 +45,10 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 
     @Modifying
     @Query("""
-            update Store s 
+            update Store s
             set s.favorites = s.favorites + :delta
             where s.id in (
-                select f.store.id from Favorite f 
+                select f.store.id from Favorite f
                 where f.user.id = :userId 
                 and f.status = :status)""")
     void updateAllFavorites(

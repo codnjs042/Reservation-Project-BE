@@ -1,6 +1,5 @@
 package com.example.demo.domain.storeTable.service;
 
-import com.example.demo.domain.reservation.domain.ReservationStatus;
 import com.example.demo.domain.reservation.service.ReservationService;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.service.StoreService;
@@ -15,9 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,14 +34,14 @@ public class StoreTableFacade {
             throw new BusinessException(ErrorCode.FORBIDDEN);
 
         for(StoreTableRegisterRequest dto : dtos){
-            storeTableService.register(store, dto);
+            storeTableService.create(store, dto);
         }
     }
 
     public List<StoreTableResponse> findByIds(Long storeId){
         Store store = storeService.findById(storeId);
 
-        List<StoreTable> storeTables = storeTableService.findByIds(storeId);
+        List<StoreTable> storeTables = storeTableService.findByIds(store.getId());
 
         return storeTables.stream()
                 .map(StoreTableResponse::from)
@@ -67,7 +64,7 @@ public class StoreTableFacade {
 
         for(StoreTableUpdateRequest dto : dtos){
             if(dto.id()==null) {
-                storeTableService.register(store, dto);
+                storeTableService.create(store, dto);
             }
             else{
                 StoreTable storeTable = storeTableService.findById(dto.id());
@@ -80,7 +77,7 @@ public class StoreTableFacade {
                 if(!counts.isEmpty() && counts.getFirst()>dto.count())
                     throw new BusinessException(ErrorCode.TABLE_UPDATE_RESERVATION_EXIST);
 
-                storeTable.modify(dto.tableName(), dto.minCapacity(), dto.maxCapacity(), dto.count(), dto.status());
+                storeTable.modify(dto.tableName(), dto.minCapacity(), dto.maxCapacity(), dto.status());
             }
         }
     }

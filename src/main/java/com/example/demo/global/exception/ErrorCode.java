@@ -13,6 +13,7 @@ public enum ErrorCode {
     POLICY_VIOLATION(HttpStatus.UNPROCESSABLE_CONTENT, "USER-004", "정책상 허용되지 않습니다."),
     STORE_ALREADY_EXIST(HttpStatus.CONFLICT, "STORE-001", "이미 등록된 가게입니다."),
     STORE_NOT_FOUND(HttpStatus.BAD_REQUEST, "STORE-002", "해당 가게를 찾을 수 없습니다."),
+    INVALID_SCHEDULE_TIME(HttpStatus.BAD_REQUEST, "SCHEDULE-001", "유효하지 않은 입력입니다. 시간대는 서로 겹치게 설정할 수 없습니다."),
     RESERVATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "RESERVATION-001", "해당 예약을 찾을 수 없습니다."),
     RESERVATION_UNAVAILABLE_TIME(HttpStatus.BAD_REQUEST, "RESERVATION-002", "해당 시간은 예약 불가합니다."),
     RESERVATION_FULL_TIME(HttpStatus.CONFLICT, "RESERVATION-003", "해당 시간은 예약이 마감되었습니다."),

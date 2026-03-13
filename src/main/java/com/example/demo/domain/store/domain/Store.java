@@ -68,10 +68,6 @@ public class Store extends BaseEntity {
         this.phone = phone;
     }
 
-    public void updateSlotInterval(int slotInterval){
-        this.slotInterval = slotInterval;
-    }
-
     public void updateBusinessInfo(String address, String ownerName, String businessNumber){
         this.address = address;
         this.ownerName = ownerName;

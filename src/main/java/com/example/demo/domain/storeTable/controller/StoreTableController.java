@@ -24,7 +24,7 @@ public class StoreTableController {
     private final StoreTableService storeTableService;
     private final StoreTableFacade storeTableFacade;
 
-    @Operation(summary="테이블 등록", description="입력 받은 테이블 정보를 DB에 저장")
+    @Operation(summary="테이블 추가", description="입력 받은 테이블 정보를 DB에 저장")
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody StoreTableRegisterWrapper wrapper,
                                            @PathVariable Long storeId,

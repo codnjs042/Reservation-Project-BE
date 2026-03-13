@@ -1,6 +1,7 @@
 package com.example.demo.domain.storeTable.repository;
 
 import com.example.demo.domain.storeTable.domain.StoreTable;
+import com.example.demo.domain.storeTable.domain.StoreTableStatus;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +16,16 @@ import java.util.Optional;
 public interface StoreTableRepository extends JpaRepository<StoreTable, Long> {
     List<StoreTable> findByStoreId(Long storeId);
 
-    Optional<StoreTable> findByStoreIdAndTableName(Long storeId, String tableName);
+    @Query("""
+            select count(t)>0 from StoreTable t
+            where t.store.id = :storeId
+            and t.tableName = :tableName
+            and t.status =:status
+            """)
+    boolean hasTable(
+            @Param("storeId") Long storeId,
+            @Param("tableName") String tableName,
+            @Param("status") StoreTableStatus status);
 
     @Query("select t from StoreTable t " +
             "where t.store.id = :storeId " +
