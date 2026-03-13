@@ -26,6 +26,10 @@ public class StoreService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
     }
 
+    public StoreResponse getDetail(Long storeId){
+        return StoreResponse.from(findById(storeId));
+    }
+
     @Transactional
     public StoreRegisterResponse register(User user, StoreRegisterRequest dto){
         Optional<Store> existing= storeRepository.findByBusinessNumber(dto.businessNumber());
@@ -43,7 +47,7 @@ public class StoreService {
                 .slotInterval(dto.slotInterval())
                 .usageTime(dto.usageTime())
                 .favorites(0)
-                .status(StoreStatus.PENDING)
+                .status(StoreStatus.CONFIRMED)
                 .build();
 
         storeRepository.save(store);

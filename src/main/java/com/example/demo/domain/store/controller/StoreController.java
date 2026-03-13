@@ -32,7 +32,15 @@ public class StoreController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary="가게 목록 조회", description="가게 목록 조회")
+    @Operation(summary="가게 상세정보", description="입력 받은 가게의 정보 반환")
+    @GetMapping("/{storeId}")
+    public ResponseEntity<StoreResponse> getDetail(@PathVariable Long storeId){
+
+        StoreResponse response = storeService.getDetail(storeId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary="가게 목록 조회", description="현재 활성화된 가게들을 반환")
     @GetMapping
     public ResponseEntity<List<StoreSearchResponse>> getList(
             @ModelAttribute StoreSearchRequest dto){
