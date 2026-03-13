@@ -24,11 +24,11 @@ public class StoreController {
 
     @Operation(summary="가게 등록", description="입력 받은 가게 정보를 DB에 저장. 성공 시 가게 정보 반환.")
     @PostMapping("/register")
-    public ResponseEntity<StoreRegisterResponse> register(
+    public ResponseEntity<StoreResponse> register(
             @RequestBody StoreRegisterRequest dto,
             @AuthenticationPrincipal CustomUserDetails userDetails){
 
-        StoreRegisterResponse response = storeService.register(userDetails.getUser(), dto);
+        StoreResponse response = storeFacade.register(userDetails.getUser(), dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

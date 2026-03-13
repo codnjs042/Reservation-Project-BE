@@ -50,10 +50,6 @@ public class FavoriteService {
         return favorites.stream().map(FavoriteResponse::from).toList();
     }
 
-    public long countFans(Long storeId){
-        return favoriteRepository.countFans(storeId, FavoriteStatus.ACTIVE);
-    }
-
     @Transactional
     public void updateStatusByUser(Long userId) {
         favoriteRepository.updateStatusByUser(userId, FavoriteStatus.DELETED);

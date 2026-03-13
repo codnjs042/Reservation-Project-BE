@@ -3,6 +3,10 @@ package com.example.demo.domain.store.service;
 import com.example.demo.domain.favorite.serivce.FavoriteService;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.domain.StoreStatus;
+import com.example.demo.domain.store.dto.StoreRegisterRequest;
+import com.example.demo.domain.store.dto.StoreResponse;
+import com.example.demo.domain.user.domain.User;
+import com.example.demo.domain.user.domain.UserRole;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -16,10 +20,13 @@ public class StoreFacade {
     private final FavoriteService favoriteService;
     private final StoreService storeService;
 
-    public long countFans(Long storeId){
-        Store store = storeService.findById(storeId);
+    @Transactional
+    public StoreResponse register(User user, StoreRegisterRequest dto){
+        Store store = storeService.create(user, dto);
 
-        return favoriteService.countFans(store.getId());
+        user.updateRole(UserRole.OWNER);
+
+        return StoreResponse.from(store);
     }
 
     @Transactional

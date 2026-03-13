@@ -29,15 +29,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
             @Param("userId") Long userId,
             @Param("status") FavoriteStatus status);
 
-    @Query("""
-            select count(f) from Favorite f
-            where f.store.id = :storeId
-            and f.status = :status
-            """)
-    long countFans(
-            @Param("storeId") Long storeId,
-            @Param("status") FavoriteStatus status);
-
     @Modifying
     @Query("""
             update Favorite f

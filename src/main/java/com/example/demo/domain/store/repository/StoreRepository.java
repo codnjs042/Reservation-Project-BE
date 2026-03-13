@@ -14,7 +14,14 @@ import java.util.Optional;
 public interface StoreRepository extends JpaRepository<Store, Long> {
     boolean existsByBusinessNumber(String businessNumber);
 
-    Optional<Store> findByBusinessNumber(String businessNumber);
+    @Query("""
+            select s from Store
+            where s.businessNumber = :businessNumber
+            and s.status = :status
+            """)
+    boolean hasStore(
+            @Param("businessNumber") String businessNumber,
+            @Param("status") StoreStatus status);
 
     @Query("""
             select s from Store s

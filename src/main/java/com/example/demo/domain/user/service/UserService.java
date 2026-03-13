@@ -2,6 +2,7 @@ package com.example.demo.domain.user.service;
 
 import com.example.demo.domain.user.domain.User;
 import com.example.demo.domain.user.domain.UserLoginType;
+import com.example.demo.domain.user.domain.UserRole;
 import com.example.demo.domain.user.domain.UserStatus;
 import com.example.demo.domain.user.dto.UserPasswordRequest;
 import com.example.demo.domain.user.dto.UserSignupRequest;
@@ -41,7 +42,7 @@ public class UserService {
                 .nickname(dto.nickname())
                 .password(encode)
                 .loginType(UserLoginType.LOCAL)
-                .role(dto.role())
+                .role(UserRole.USER)
                 .status(UserStatus.ACTIVE)
                 .build();
 

@@ -11,7 +11,6 @@ public record StoreResponse(
         String address,
         String phone,
         int slotInterval,
-        int usageTime,
         int favorites,
         StoreStatus status
 ) {
@@ -23,7 +22,6 @@ public record StoreResponse(
                 store.getAddress(),
                 store.getPhone(),
                 store.getSlotInterval(),
-                store.getUsageTime(),
                 store.getFavorites(),
                 store.getStatus()
         );

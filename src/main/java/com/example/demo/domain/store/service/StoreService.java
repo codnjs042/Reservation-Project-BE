@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,14 +26,16 @@ public class StoreService {
     }
 
     public StoreResponse getDetail(Long storeId){
-        return StoreResponse.from(findById(storeId));
+        Store store = findById(storeId);
+
+        return StoreResponse.from(store);
     }
 
     @Transactional
-    public StoreRegisterResponse register(User user, StoreRegisterRequest dto){
-        Optional<Store> existing= storeRepository.findByBusinessNumber(dto.businessNumber());
+    public Store create(User user, StoreRegisterRequest dto){
+        boolean isExists = storeRepository.hasStore(dto.businessNumber(), StoreStatus.ACTIVE);
 
-        if(existing.isPresent())
+        if(isExists)
             throw new BusinessException(ErrorCode.STORE_ALREADY_EXIST);
 
         Store store = Store.builder()
@@ -43,20 +44,20 @@ public class StoreService {
                 .address(dto.address())
                 .phone(dto.phone())
                 .owner(user)
+                .ownerName(dto.ownerName())
                 .businessNumber(dto.businessNumber())
                 .slotInterval(dto.slotInterval())
-                .usageTime(dto.usageTime())
                 .favorites(0)
-                .status(StoreStatus.CONFIRMED)
+                .status(StoreStatus.ACTIVE)
                 .build();
 
         storeRepository.save(store);
 
-        return StoreRegisterResponse.from(store);
+        return store;
     }
 
     public List<StoreSearchResponse> getList(StoreSearchRequest dto){
-        List<Store> store = storeRepository.getList(dto.keyword(), StoreStatus.CONFIRMED);
+        List<Store> store = storeRepository.getList(dto.keyword(), StoreStatus.ACTIVE);
         return store.stream().map(StoreSearchResponse::from).toList();
     }
 
@@ -67,7 +68,7 @@ public class StoreService {
         if(!store.getOwner().getId().equals(userId))
             throw new BusinessException(ErrorCode.FORBIDDEN);
 
-        store.modify(dto.name(), dto.category(), dto.address(), dto.phone(), dto.slotInterval(), dto.usageTime(), dto.status());
+        store.updateBasicInfo(dto.name(), dto.category(), dto.phone());
     }
 
     @Transactional

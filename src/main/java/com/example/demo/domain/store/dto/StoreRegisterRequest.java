@@ -12,10 +12,10 @@ public record StoreRegisterRequest(
         String address,
         @Schema(description = "전화번호", example="04182829898")
         String phone,
+        @Schema(description = "사업자명", example="김둘리")
+        String ownerName,
         @Schema(description = "사업자 등록 번호", example="0123456789")
         String businessNumber,
         @Schema(description = "예약 간격(단위: 분)", example="90")
-        int slotInterval,
-        @Schema(description = "이용 시간(단위: 분)", example="60")
-        int usageTime
+        int slotInterval
 ) {}

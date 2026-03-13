@@ -33,14 +33,14 @@ public class Store extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User owner;
 
-    @Column(nullable = false, unique = true, length=10)
+    @Column(nullable = false)
+    private String ownerName;
+
+    @Column(nullable = false, length=10)
     private String businessNumber;
 
     @Column(nullable = false)
     private int slotInterval;
-
-    @Column(nullable = false)
-    private int usageTime;
 
     @Column(nullable = false)
     private int favorites;
@@ -49,27 +49,33 @@ public class Store extends BaseEntity {
     private StoreStatus status;
 
     @Builder
-    public Store(String name, StoreCategory category, String address, String phone, User owner, String businessNumber, int slotInterval, int usageTime, int favorites, StoreStatus status){
+    public Store(String name, StoreCategory category, String address, String phone, User owner, String ownerName, String businessNumber, int slotInterval, int favorites, StoreStatus status){
         this.name = name;
         this.category = category;
         this.address = address;
         this.phone = phone;
         this.owner = owner;
+        this.ownerName = ownerName;
         this.businessNumber = businessNumber;
         this.slotInterval = slotInterval;
-        this.usageTime = usageTime;
         this.favorites = favorites;
         this.status = status;
     }
 
-    public void modify(String name, StoreCategory category, String address, String phone, int slotInterval, int usageTime, StoreStatus status){
+    public void updateBasicInfo(String name, StoreCategory category, String phone){
         this.name = name;
         this.category = category;
-        this.address = address;
         this.phone = phone;
+    }
+
+    public void updateSlotInterval(int slotInterval){
         this.slotInterval = slotInterval;
-        this.usageTime = usageTime;
-        this.status = status;
+    }
+
+    public void updateBusinessInfo(String address, String ownerName, String businessNumber){
+        this.address = address;
+        this.ownerName = ownerName;
+        this.businessNumber = businessNumber;
     }
 
     public void updateStatus(StoreStatus status){
