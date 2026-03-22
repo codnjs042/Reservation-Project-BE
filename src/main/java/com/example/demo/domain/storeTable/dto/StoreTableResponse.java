@@ -6,16 +6,14 @@ public record StoreTableResponse(
         Long id,
         String tableName,
         int minCapacity,
-        int maxCapacity,
-        int count
+        int maxCapacity
 ) {
     public static StoreTableResponse from(StoreTable storeTable){
         return new StoreTableResponse(
                 storeTable.getId(),
                 storeTable.getTableName(),
                 storeTable.getMinCapacity(),
-                storeTable.getMaxCapacity(),
-                storeTable.getCount()
+                storeTable.getMaxCapacity()
         );
     }
 }

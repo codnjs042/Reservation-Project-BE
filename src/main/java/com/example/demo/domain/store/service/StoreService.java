@@ -33,7 +33,7 @@ public class StoreService {
 
     @Transactional
     public Store create(User user, StoreRegisterRequest dto){
-        boolean isExists = storeRepository.hasStore(dto.businessNumber(), StoreStatus.ACTIVE);
+        boolean isExists = storeRepository.existsByBusinessNumberAndStatus(dto.businessNumber(), StoreStatus.ACTIVE);
 
         if(isExists)
             throw new BusinessException(ErrorCode.STORE_ALREADY_EXIST);
@@ -46,7 +46,6 @@ public class StoreService {
                 .owner(user)
                 .ownerName(dto.ownerName())
                 .businessNumber(dto.businessNumber())
-                .slotInterval(dto.slotInterval())
                 .favorites(0)
                 .status(StoreStatus.ACTIVE)
                 .build();

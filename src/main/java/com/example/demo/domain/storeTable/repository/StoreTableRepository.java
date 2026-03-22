@@ -1,5 +1,6 @@
 package com.example.demo.domain.storeTable.repository;
 
+import com.example.demo.domain.reservation.domain.ReservationStatus;
 import com.example.demo.domain.storeTable.domain.StoreTable;
 import com.example.demo.domain.storeTable.domain.StoreTableStatus;
 import jakarta.persistence.LockModeType;
@@ -10,40 +11,42 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface StoreTableRepository extends JpaRepository<StoreTable, Long> {
     List<StoreTable> findByStoreId(Long storeId);
 
-    @Query("""
-            select count(t)>0 from StoreTable t
-            where t.store.id = :storeId
-            and t.tableName = :tableName
-            and t.status =:status
-            """)
-    boolean hasTable(
-            @Param("storeId") Long storeId,
-            @Param("tableName") String tableName,
-            @Param("status") StoreTableStatus status);
+    //동일 테이블 존재 여부
+    boolean existsByStore_IdAndTableNameAndStatus(
+            Long storeId,
+            String tableName,
+            StoreTableStatus status);
 
-    @Query("select t from StoreTable t " +
-            "where t.store.id = :storeId " +
-            "and t.minCapacity <= :minCapacity " +
-            "and t.maxCapacity >= :maxCapacity")
-    List<StoreTable> findBySeat(
-            @Param("storeId") Long storeId,
-            @Param("minCapacity") int minCapacity,
-            @Param("maxCapacity") int maxCapacity);
-
+    //예약 가능 테이블 현황
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value="3000")})
-    @Query("select t from StoreTable t " +
-            "where t.store.id = :storeId " +
-            "and t.minCapacity <= :minCapacity " +
-            "and t.maxCapacity >= :maxCapacity")
-    List<StoreTable> findBySeatWithLock(
+    @Query("""
+            select t from StoreTable t
+                where t.store.id = :storeId
+                and :headCount between t.minCapacity and t.maxCapacity
+                and t.status = :storeTableStatus
+                and not exists (
+                    select 1 from Reservation r
+                    where r.targetDateTime = :targetDateTime
+                    and r.storeTable.id = t.id
+                    and r.status = :reservationStatus)
+            """)
+     List<StoreTable> findFreeTable(
             @Param("storeId") Long storeId,
-            @Param("minCapacity") int minCapacity,
-            @Param("maxCapacity") int maxCapacity);
+            @Param("targetDateTime") LocalDateTime targetDateTime,
+            @Param("reservationStatus") ReservationStatus reservationStatus,
+            @Param("headCount") int headCount,
+            @Param("storeTableStatus") StoreTableStatus storeTableStatus);
+
+    //수용 가능한 테이블 존재 여부
+    boolean existsByStore_IdAndMaxCapacityGreaterThanEqualAndStatus(
+            Long storeId,
+            int headCount,
+            StoreTableStatus status);
 }

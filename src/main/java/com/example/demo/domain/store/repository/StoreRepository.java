@@ -11,16 +11,10 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface StoreRepository extends JpaRepository<Store, Long> {
-    boolean existsByBusinessNumber(String businessNumber);
-
-    @Query("""
-            select s from Store
-            where s.businessNumber = :businessNumber
-            and s.status = :status
-            """)
-    boolean hasStore(
-            @Param("businessNumber") String businessNumber,
-            @Param("status") StoreStatus status);
+    //가게 중복 등록 방지용
+    boolean existsByBusinessNumberAndStatus(
+            String businessNumber,
+            StoreStatus status);
 
     @Query("""
             select s from Store s
@@ -38,7 +32,8 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     @Query("""
             update Store s
             set s.favorites = s.favorites + :delta
-            where s.id = :id""")
+            where s.id = :id
+            """)
     void updateFavorites(
             @Param("id") Long id,
             @Param("delta") int delta);
@@ -49,8 +44,9 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             set s.favorites = s.favorites + :delta
             where s.id in (
                 select f.store.id from Favorite f
-                where f.user.id = :userId 
-                and f.status = :status)""")
+                where f.user.id = :userId
+                and f.status = :status)
+            """)
     void updateAllFavorites(
             @Param("delta") int delta,
             @Param("userId") Long userId,

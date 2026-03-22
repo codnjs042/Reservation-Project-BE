@@ -1,7 +1,6 @@
 package com.example.demo.domain.favorite.controller;
 
 import com.example.demo.domain.favorite.serivce.FavoriteFacade;
-import com.example.demo.domain.favorite.serivce.FavoriteService;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name="Favorite API", description ="관심 가게 관리 API")
 @RestController
-@RequestMapping("/favorite")
+@RequestMapping("/favorites")
 @RequiredArgsConstructor
 public class FavoriteController {
     private final FavoriteFacade favoriteFacade;
@@ -21,8 +20,8 @@ public class FavoriteController {
     @PatchMapping("/{storeId}")
     public ResponseEntity<String> toggle(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable Long storeId){
-
+            @PathVariable Long storeId
+    ){
         favoriteFacade.toggle(userDetails.getUser(), storeId);
         return ResponseEntity.ok("완료");
     }

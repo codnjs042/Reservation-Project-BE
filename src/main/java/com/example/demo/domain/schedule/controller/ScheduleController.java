@@ -15,7 +15,7 @@ import java.time.DayOfWeek;
 
 @Tag(name="Schedule API", description ="영업 시간 관리 API")
 @RestController
-@RequestMapping("/store/{storeId}/schedule")
+@RequestMapping("/stores/{storeId}/schedules")
 @RequiredArgsConstructor
 public class ScheduleController {
     private final ScheduleFacade scheduleFacade;
@@ -26,9 +26,9 @@ public class ScheduleController {
             @RequestBody ScheduleUpsertWrapper dto,
             @PathVariable Long storeId,
             @PathVariable DayOfWeek dayOfWeek,
-            @AuthenticationPrincipal CustomUserDetails userDetails){
+            @AuthenticationPrincipal CustomUserDetails userDetails)
+    {
         scheduleFacade.upsert(userDetails.getId(), storeId, dayOfWeek, dto.upsertSchedules());
-
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

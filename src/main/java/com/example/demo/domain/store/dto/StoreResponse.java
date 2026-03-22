@@ -10,7 +10,6 @@ public record StoreResponse(
         StoreCategory category,
         String address,
         String phone,
-        int slotInterval,
         int favorites,
         StoreStatus status
 ) {
@@ -21,7 +20,6 @@ public record StoreResponse(
                 store.getCategory(),
                 store.getAddress(),
                 store.getPhone(),
-                store.getSlotInterval(),
                 store.getFavorites(),
                 store.getStatus()
         );

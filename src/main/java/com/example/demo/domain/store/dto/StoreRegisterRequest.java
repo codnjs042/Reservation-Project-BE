@@ -15,7 +15,5 @@ public record StoreRegisterRequest(
         @Schema(description = "사업자명", example="김둘리")
         String ownerName,
         @Schema(description = "사업자 등록 번호", example="0123456789")
-        String businessNumber,
-        @Schema(description = "예약 간격(단위: 분)", example="90")
-        int slotInterval
+        String businessNumber
 ) {}

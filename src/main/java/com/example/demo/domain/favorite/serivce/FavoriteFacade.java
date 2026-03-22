@@ -21,7 +21,7 @@ public class FavoriteFacade {
 
         FavoriteStatus status = favoriteService.toggle(user, store);
 
-        int delta = status == FavoriteStatus.ACTIVE ? 1 : -1;
+        int delta = (status == FavoriteStatus.ACTIVE) ? 1 : -1;
 
         storeService.updateFavorites(storeId, delta);
     }

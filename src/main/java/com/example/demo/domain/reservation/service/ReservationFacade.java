@@ -3,8 +3,6 @@ package com.example.demo.domain.reservation.service;
 import com.example.demo.domain.reservation.domain.Reservation;
 import com.example.demo.domain.reservation.domain.ReservationStatus;
 import com.example.demo.domain.reservation.dto.*;
-import com.example.demo.domain.schedule.domain.Schedule;
-import com.example.demo.domain.schedule.domain.ScheduleType;
 import com.example.demo.domain.schedule.service.ScheduleService;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.service.StoreService;
@@ -19,11 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -39,60 +34,38 @@ public class ReservationFacade {
     public ReservationCreateResponse reserve(User user, Long storeId, ReservationCreateRequest dto){
         Store store = storeService.findById(storeId);
 
-        List<Schedule> schedules = scheduleService.findDaySchedule(storeId, dto.targetDateTime().getDayOfWeek());
+        //단체 예약 여부
+        storeTableService.validateGroup(store.getId(), dto.headCount());
 
-        LocalTime time = dto.targetDateTime().toLocalTime();
-        boolean isAvailable = false;
+        //특정 요일의 예약 시간대 확인
+        scheduleService.validateTime(store.getId(), dto.targetDateTime());
 
-        for(Schedule schedule: schedules){
-            if(!time.isBefore(schedule.getStartTime()) && time.isBefore(schedule.getEndTime())) {
-                if (ChronoUnit.MINUTES.between(schedule.getStartTime(), time) % store.getSlotInterval() == 0) {
-                    isAvailable = true;
-                    break;
-                }
-            }
-            else
-                break;
-        }
+        //예약 가능 테이블 확인 & 테이블 배정
+        StoreTable storeTable = storeTableService.matchTable(store.getId(), dto.targetDateTime(), dto.headCount());
 
-        if(!isAvailable)
-            throw new BusinessException(ErrorCode.RESERVATION_UNAVAILABLE_TIME);
-
-        List<StoreTable> tables = storeTableService.findBySeatWithLock(storeId, dto.headCount());
-
-        StoreTable storeTable = reservationService.findTable(storeId, dto.targetDateTime(), dto.headCount(), tables)
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_FULL_TIME));
-
+        //예약
         Reservation reservation = reservationService.register(user, store, storeTable, dto);
 
         return ReservationCreateResponse.from(reservation);
     }
 
     @Transactional
-    public List<ReservationTimeSlotResponse> getTimeSlot(Long storeId, ReservationTimeSlotRequest dto) {
+    public List<ReservationTimeSlotResponse> getTimeSlots(Long storeId, ReservationTimeSlotRequest dto) {
         Store store = storeService.findById(storeId);
 
-        List<StoreTable> tables = storeTableService.findBySeat(storeId, dto.headCount());
+        //단체 예약 여부
+        storeTableService.validateGroup(store.getId(), dto.headCount());
 
-        List<ReservationTimeSlotResponse> slotTimes = new ArrayList<>();
+        //특정 요일의 운영 시간표
+        List<LocalTime> allTimes = scheduleService.generateSlots(store.getId(), dto.targetDate().getDayOfWeek());
 
-        if (tables.isEmpty())
-            return new ArrayList<>();
+        //특정 날짜의 예약 마감 시간대
+        Set<LocalTime> fullTimes = reservationService.getFullSlots(store.getId(), dto.targetDate(), dto.headCount());
 
-        else {
-            List<Schedule> schedules = scheduleService.findDaySchedule(storeId, dto.targetDate().getDayOfWeek());
-
-            for (Schedule schedule : schedules) {
-                LocalTime slotTime = schedule.getStartTime();
-                while (slotTime.isBefore(schedule.getEndTime())) {
-                    LocalDateTime targetDateTime = LocalDateTime.of(dto.targetDate(), slotTime);
-                    boolean isAvailable = reservationService.findTable(storeId, targetDateTime, dto.headCount(), tables).isPresent();
-                    slotTimes.add(new ReservationTimeSlotResponse(slotTime, isAvailable));
-                    slotTime = slotTime.plusMinutes(store.getSlotInterval());
-                }
-            }
-        }
-        return slotTimes;
+        //특정 날짜의 운영 시간대별 예약 현황
+        return allTimes.stream()
+                .map(t -> new ReservationTimeSlotResponse(t, !fullTimes.contains(t)))
+                .toList();
     }
 
     public List<ReservationSearchOwnerResponse> getStoreReservation(Long userId, Long storeId, ReservationSearchOwnerRequest dto){

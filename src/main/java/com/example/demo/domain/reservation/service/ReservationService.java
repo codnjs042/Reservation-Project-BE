@@ -4,12 +4,9 @@ import com.example.demo.domain.reservation.domain.Reservation;
 import com.example.demo.domain.reservation.domain.ReservationStatus;
 import com.example.demo.domain.reservation.dto.*;
 import com.example.demo.domain.reservation.repository.ReservationRepository;
-import com.example.demo.domain.schedule.repository.ScheduleRepository;
 import com.example.demo.domain.store.domain.Store;
-import com.example.demo.domain.store.repository.StoreRepository;
 import com.example.demo.domain.storeTable.domain.StoreTable;
-import com.example.demo.domain.storeTable.dto.StoreTableUpdateRequest;
-import com.example.demo.domain.storeTable.repository.StoreTableRepository;
+import com.example.demo.domain.storeTable.domain.StoreTableStatus;
 import com.example.demo.domain.user.domain.User;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
@@ -20,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,16 +50,14 @@ public class ReservationService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
     }
 
-    public Optional<StoreTable> findTable(Long storeId, LocalDateTime targetDateTime, int headCount,  List<StoreTable> tables){
-        List<Reservation> reservations = reservationRepository.findByStoreIdAndTargetDateTimeAndStatus(storeId, targetDateTime, ReservationStatus.CONFIRMED);
+    public Set<LocalTime> getFullSlots(Long storeId, LocalDate targetDate, int headCount){
+        LocalDateTime start = targetDate.atStartOfDay();
+        LocalDateTime end = targetDate.atTime(LocalTime.MAX);
 
-        Map<Long, Long> reservationMap = reservations.stream()
-                .collect(Collectors.groupingBy(r->r.getStoreTable().getId(), Collectors.counting()));
-
-        return tables.stream()
-                .sorted(Comparator.comparingInt(StoreTable::getMaxCapacity))
-                .filter(t -> reservationMap.getOrDefault(t.getId(), 0L) < t.getCount())
-                .findFirst();
+        return reservationRepository.findFullTimes(storeId, start, end, ReservationStatus.CONFIRMED, headCount, StoreTableStatus.ACTIVE)
+                .stream()
+                .map(LocalDateTime::toLocalTime)
+                .collect(Collectors.toSet());
     }
 
     public List<Reservation> getStoreReservation(Long storeId, ReservationSearchOwnerRequest dto, LocalDate startDate, LocalDate endDate, List<ReservationStatus> statuses){
@@ -79,64 +75,65 @@ public class ReservationService {
                 .toList();
     }
 
-    @Transactional
-    public void rejectReservation(Long userId, Long reservationId) {
-        Reservation reservation = findById(reservationId);
-
-        if (!reservation.getStore().getOwner().getId().equals(userId))
+    public void validateOwner(Reservation reservation, Long userId){
+        if(!reservation.getStore().getOwner().getId().equals(userId))
             throw new BusinessException(ErrorCode.FORBIDDEN);
+    }
 
+    public void validateGuest(Reservation reservation, Long userId){
+        if(!reservation.getUser().getId().equals(userId))
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+    }
+
+    public void validateBeforeReservation(Reservation reservation){
         LocalDateTime deadline = reservation.getTargetDateTime().toLocalDate().atStartOfDay();
 
         if (deadline.isBefore(LocalDateTime.now()))
             throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS);
 
+        if(reservation.getStatus()!=ReservationStatus.CONFIRMED)
+            throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS);
+    }
+
+    public void validateAfterReservation(Reservation reservation){
+        if(reservation.getTargetDateTime().isAfter(LocalDateTime.now()))
+            throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS);
+    }
+
+    @Transactional
+    public void rejectReservation(Long userId, Long reservationId) {
+        Reservation reservation = findById(reservationId);
+        validateOwner(reservation, userId);
+        validateBeforeReservation(reservation);
         reservation.updateStatus(ReservationStatus.REJECTED);
     }
 
     @Transactional
     public void cancelReservation(Long userId, Long reservationId){
         Reservation reservation = findById(reservationId);
-
-        if(!reservation.getUser().getId().equals(userId))
-            throw new BusinessException(ErrorCode.FORBIDDEN);
-
-        LocalDateTime deadline = reservation.getTargetDateTime().toLocalDate().atStartOfDay();
-
-        if(deadline.isBefore(LocalDateTime.now()))
-            throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS);
-
+        validateGuest(reservation, userId);
+        validateBeforeReservation(reservation);
         reservation.updateStatus(ReservationStatus.CANCELED);
     }
 
     @Transactional
     public void visitedReservation(Long userId, Long reservationId){
         Reservation reservation = findById(reservationId);
-
-        if(!reservation.getStore().getOwner().getId().equals(userId))
-            throw new BusinessException(ErrorCode.FORBIDDEN);
-
-        if(reservation.getTargetDateTime().isAfter(LocalDateTime.now()))
-            throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS);
-
+        validateOwner(reservation, userId);
+        validateAfterReservation(reservation);
         reservation.updateStatus(ReservationStatus.VISITED);
     }
 
     @Transactional
     public void noShowReservation(Long userId, Long reservationId){
         Reservation reservation = findById(reservationId);
-
-        if(!reservation.getStore().getOwner().getId().equals(userId))
-            throw new BusinessException(ErrorCode.FORBIDDEN);
-
-        if(reservation.getTargetDateTime().isAfter(LocalDateTime.now()))
-            throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS);
-
+        validateOwner(reservation, userId);
+        validateAfterReservation(reservation);
         reservation.updateStatus(ReservationStatus.NO_SHOW);
     }
 
     public boolean hasFutureReservation(Long storeTableId){
-        return reservationRepository.hasFutureReservation(LocalDateTime.now(), storeTableId, ReservationStatus.CONFIRMED);
+        return reservationRepository.existsByTargetDateTimeGreaterThanAndStoreTable_IdAndStatus(LocalDateTime.now(), storeTableId, ReservationStatus.CONFIRMED);
     }
 
     public List<Long> countFutureReservation(Long storeTableId){

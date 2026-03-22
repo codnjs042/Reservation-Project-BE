@@ -1,5 +1,6 @@
 package com.example.demo.domain.storeTable.service;
 
+import com.example.demo.domain.reservation.domain.ReservationStatus;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.storeTable.domain.StoreTable;
 import com.example.demo.domain.storeTable.domain.StoreTableStatus;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -22,7 +25,7 @@ public class StoreTableService {
 
     @Transactional
     public void create(Store store, StoreTableRegisterRequest dto){
-        boolean isExists= storeTableRepository.hasTable(store.getId(), dto.tableName(), StoreTableStatus.ACTIVE);
+        boolean isExists= storeTableRepository.existsByStore_IdAndTableNameAndStatus(store.getId(), dto.tableName(), StoreTableStatus.ACTIVE);
 
         if(isExists)
             throw new BusinessException(ErrorCode.TABLE_ALREADY_EXIST);
@@ -64,13 +67,16 @@ public class StoreTableService {
         return storeTableRepository.findByStoreId(storeId);
     }
 
-    //가게 내 예약인원을 허용하는 테이블 찾기
-    public List<StoreTable> findBySeat(Long storeId, int headCount){
-        return storeTableRepository.findBySeat(storeId, headCount, headCount);
+    public void validateGroup(Long storeId, int headCount){
+        boolean isFit = storeTableRepository.existsByStore_IdAndMaxCapacityGreaterThanEqualAndStatus(storeId, headCount, StoreTableStatus.ACTIVE);
+        if(!isFit)
+            throw new BusinessException(ErrorCode.RESERVATION_GROUP_LIMIT);
     }
 
-    //락버전
-    public List<StoreTable> findBySeatWithLock(Long storeId, int headCount){
-        return storeTableRepository.findBySeatWithLock(storeId, headCount, headCount);
+    public StoreTable matchTable(Long storeId, LocalDateTime targetDateTime, int headCount){
+        return storeTableRepository.findFreeTable(storeId, targetDateTime, ReservationStatus.CONFIRMED, headCount, StoreTableStatus.ACTIVE)
+                .stream()
+                .min(Comparator.comparingInt(StoreTable::getMaxCapacity))
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_FULL_TIME));
     }
 }

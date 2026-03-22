@@ -10,7 +10,6 @@ public record StoreSearchResponse(
         StoreCategory category,
         String address,
         String phone,
-        int slotInterval,
         StoreStatus status
 ) {
     public static StoreSearchResponse from(Store store){
@@ -20,7 +19,6 @@ public record StoreSearchResponse(
                 store.getCategory(),
                 store.getAddress(),
                 store.getPhone(),
-                store.getSlotInterval(),
                 store.getStatus()
         );
     }

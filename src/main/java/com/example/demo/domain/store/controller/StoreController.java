@@ -16,7 +16,7 @@ import java.util.List;
 
 @Tag(name="Store API", description ="가게 관리 API")
 @RestController
-@RequestMapping("/store")
+@RequestMapping("/stores")
 @RequiredArgsConstructor
 public class StoreController {
     private final StoreService storeService;
@@ -26,16 +26,16 @@ public class StoreController {
     @PostMapping("/register")
     public ResponseEntity<StoreResponse> register(
             @RequestBody StoreRegisterRequest dto,
-            @AuthenticationPrincipal CustomUserDetails userDetails){
-
+            @AuthenticationPrincipal CustomUserDetails userDetails)
+    {
         StoreResponse response = storeFacade.register(userDetails.getUser(), dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary="가게 상세 정보", description="입력 받은 가게의 상세 정보 반환")
     @GetMapping("/{storeId}")
-    public ResponseEntity<StoreResponse> getDetail(@PathVariable Long storeId){
-
+    public ResponseEntity<StoreResponse> getDetail(@PathVariable Long storeId)
+    {
         StoreResponse response = storeService.getDetail(storeId);
         return ResponseEntity.ok(response);
     }
@@ -43,8 +43,8 @@ public class StoreController {
     @Operation(summary="가게 목록 조회", description="현재 활성화 상태의 가게 목록 반환")
     @GetMapping
     public ResponseEntity<List<StoreSearchResponse>> getList(
-            @ModelAttribute StoreSearchRequest dto){
-
+            @ModelAttribute StoreSearchRequest dto)
+    {
         List<StoreSearchResponse> response = storeService.getList(dto);
         return ResponseEntity.ok(response);
     }
@@ -54,18 +54,18 @@ public class StoreController {
     public ResponseEntity<String> modify(
             @RequestBody StoreUpdateRequest dto,
             @PathVariable Long storeId,
-            @AuthenticationPrincipal CustomUserDetails userDetails){
-
+            @AuthenticationPrincipal CustomUserDetails userDetails)
+    {
         storeService.modify(userDetails.getId(), storeId, dto);
         return ResponseEntity.ok("완료");
     }
 
     @Operation(summary="가게 삭제", description="입력 받은 가게를 비활성화 상태로 변경")
-    @PatchMapping("/{storeId}/delete")
+    @DeleteMapping("/{storeId}")
     public ResponseEntity<String> delete(
             @PathVariable Long storeId,
-            @AuthenticationPrincipal CustomUserDetails userDetails){
-
+            @AuthenticationPrincipal CustomUserDetails userDetails)
+    {
         storeFacade.delete(userDetails.getId(), storeId);
         return ResponseEntity.ok("완료");
     }

@@ -83,4 +83,10 @@ public class UserService {
 
         user.updatePassword(encode);
     }
+
+    public void updateRole(Long userId, UserRole userRole){
+        User user = findById(userId);
+
+        user.updateRole(userRole);
+    }
 }

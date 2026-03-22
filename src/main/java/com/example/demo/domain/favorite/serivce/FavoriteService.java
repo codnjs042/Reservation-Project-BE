@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,17 +31,12 @@ public class FavoriteService {
 
     @Transactional
     public FavoriteStatus toggle(User user, Store store){
-        Optional<Favorite> existing = favoriteRepository.findRelation(user.getId(), store.getId());
-
-        if(existing.isPresent()){
-            Favorite favorite = existing.get();
-            return favorite.toggle();
-        }
-        else{
-            create(user, store);
-            return FavoriteStatus.ACTIVE;
-        }
-
+        return favoriteRepository.findRelation(user.getId(), store.getId())
+                .map(Favorite::toggle)
+                .orElseGet(() -> {
+                    create(user, store);
+                    return FavoriteStatus.ACTIVE;
+                });
     }
 
     public List<FavoriteResponse> getList(Long userId){

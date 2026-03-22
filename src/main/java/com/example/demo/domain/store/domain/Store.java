@@ -49,7 +49,7 @@ public class Store extends BaseEntity {
     private StoreStatus status;
 
     @Builder
-    public Store(String name, StoreCategory category, String address, String phone, User owner, String ownerName, String businessNumber, int slotInterval, int favorites, StoreStatus status){
+    public Store(String name, StoreCategory category, String address, String phone, User owner, String ownerName, String businessNumber, int favorites, StoreStatus status){
         this.name = name;
         this.category = category;
         this.address = address;
@@ -57,7 +57,6 @@ public class Store extends BaseEntity {
         this.owner = owner;
         this.ownerName = ownerName;
         this.businessNumber = businessNumber;
-        this.slotInterval = slotInterval;
         this.favorites = favorites;
         this.status = status;
     }
