@@ -46,20 +46,24 @@ public class ScheduleService {
     public void upsert(Store store, DayOfWeek dayOfWeek, List<ScheduleUpsertRequest> dtos){
         List<Schedule> schedules = findDaySchedules(store.getId(), dayOfWeek);
 
-        //변경 전 운영 시간대에 예약이 잡힌 경우 시간대 변경 불가(코드 작성 필요)
-
+        //변경 전 해당 요일 스케줄 모두 비활성화
         schedules.forEach(s -> s.updateStatus(ScheduleStatus.DELETED));
 
+        if(dtos==null || dtos.isEmpty())
+            return;
+
+        //새로운 스케줄 시간순 정렬
         List<ScheduleUpsertRequest> sorted = dtos.stream()
                 .sorted(Comparator.comparing(ScheduleUpsertRequest::startTime))
                 .toList();
 
+        //새로운 스케줄 간 운영 시간 충돌 여부 확인
         boolean hasConflict = IntStream.range(0, sorted.size()-1)
                 .anyMatch(i -> !sorted.get(i).endTime().isBefore(sorted.get(i+1).startTime()));
-
         if(hasConflict)
             throw new BusinessException(ErrorCode.INVALID_SCHEDULE_TIME);
 
+        //새로운 스케줄로 업데이트
         List<Schedule> newSchedules = dtos.stream()
                 .map(
                 dto -> Schedule.builder()

@@ -49,7 +49,6 @@ public class ReservationFacade {
         return ReservationCreateResponse.from(reservation);
     }
 
-    @Transactional
     public List<ReservationTimeSlotResponse> getTimeSlots(Long storeId, ReservationTimeSlotRequest dto) {
         Store store = storeService.findById(storeId);
 

@@ -55,6 +55,11 @@ public class StoreService {
         return store;
     }
 
+    public void validateOwner(Store store, Long userId){
+        if(!store.getOwner().getId().equals(userId))
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+    }
+
     public List<StoreSearchResponse> getList(StoreSearchRequest dto){
         List<Store> store = storeRepository.getList(dto.keyword(), StoreStatus.ACTIVE);
         return store.stream().map(StoreSearchResponse::from).toList();

@@ -4,8 +4,7 @@ import com.example.demo.domain.reservation.domain.ReservationStatus;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.storeTable.domain.StoreTable;
 import com.example.demo.domain.storeTable.domain.StoreTableStatus;
-import com.example.demo.domain.storeTable.dto.StoreTableRegisterRequest;
-import com.example.demo.domain.storeTable.dto.StoreTableUpdateRequest;
+import com.example.demo.domain.storeTable.dto.StoreTableBulkUpdateRequest;
 import com.example.demo.domain.storeTable.repository.StoreTableRepository;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
@@ -16,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -24,47 +24,29 @@ public class StoreTableService {
     private final StoreTableRepository storeTableRepository;
 
     @Transactional
-    public void create(Store store, StoreTableRegisterRequest dto){
-        boolean isExists= storeTableRepository.existsByStore_IdAndTableNameAndStatus(store.getId(), dto.tableName(), StoreTableStatus.ACTIVE);
+    public void create(Store store, String tableName, int minCapacity, int maxCapacity, int count){
+        List<StoreTable> storeTables = IntStream.range(0, count)
+                .mapToObj(
+                        i -> StoreTable.builder()
+                                .store(store)
+                                .tableName(tableName)
+                                .minCapacity(minCapacity)
+                                .maxCapacity(maxCapacity)
+                                .status(StoreTableStatus.ACTIVE)
+                                .build())
+                .toList();
 
+        storeTableRepository.saveAll(storeTables);
+    }
+
+    public void validateName(Long storeId, String tableName){
+        boolean isExists = storeTableRepository.existsByStore_IdAndTableNameAndStatus(storeId, tableName, StoreTableStatus.ACTIVE);
         if(isExists)
             throw new BusinessException(ErrorCode.TABLE_ALREADY_EXIST);
-
-        //변경 전 테이블에 예약이 잡힌 경우 테이블 변경 불가(코드 작성 필요)
-
-        for(int i=1; i<=dto.count(); i++){
-            StoreTable storeTable = StoreTable.builder()
-                    .store(store)
-                    .tableName(dto.tableName())
-                    .maxCapacity(dto.maxCapacity())
-                    .minCapacity(dto.minCapacity())
-                    .status(StoreTableStatus.ACTIVE)
-                    .build();
-
-            storeTableRepository.save(storeTable);
-        }
     }
 
-    @Transactional
-    public void create(Store store, StoreTableUpdateRequest dto) {
-        StoreTable storeTable = StoreTable.builder()
-                .store(store)
-                .tableName(dto.tableName())
-                .maxCapacity(dto.maxCapacity())
-                .minCapacity(dto.minCapacity())
-                .status(StoreTableStatus.ACTIVE)
-                .build();
-
-        storeTableRepository.save(storeTable);
-    }
-
-    public StoreTable findById(Long storeTableId){
-        return storeTableRepository.findById(storeTableId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.TABLE_NOT_FOUND));
-    }
-
-    public List<StoreTable> findByIds(Long storeId){
-        return storeTableRepository.findByStoreId(storeId);
+    public List<StoreTable> findAllTables(Long storeId){
+        return storeTableRepository.findAllTables(storeId, StoreTableStatus.ACTIVE);
     }
 
     public void validateGroup(Long storeId, int headCount){
@@ -78,5 +60,41 @@ public class StoreTableService {
                 .stream()
                 .min(Comparator.comparingInt(StoreTable::getMaxCapacity))
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_FULL_TIME));
+    }
+
+    public List<StoreTable> findTableGroup(Long storeId, String tableName){
+        List<StoreTable> storeTables = storeTableRepository.findTableGroup(storeId, tableName, StoreTableStatus.ACTIVE);
+
+        if(storeTables.isEmpty())
+            throw new BusinessException(ErrorCode.TABLE_NOT_FOUND);
+
+        return storeTables;
+    }
+
+    public void validateCount(Long storeId, String oldTableName, int newTableCount){
+        List<StoreTable> oldStoreTables = findTableGroup(storeId, oldTableName);
+        List<StoreTable> unReservedTable = storeTableRepository.findSafeTables(storeId, ReservationStatus.CONFIRMED, oldTableName, StoreTableStatus.ACTIVE);
+
+        int reservedTableCount = oldStoreTables.size() - unReservedTable.size();
+        if(reservedTableCount > newTableCount)  //예약된 테이블 수량 > 신규 수량
+            throw new BusinessException(ErrorCode.TABLE_LOCKED);
+    }
+
+    public void adjust(Store store, String oldTableName, StoreTableBulkUpdateRequest dto){
+        List<StoreTable> oldStoreTables = findTableGroup(store.getId(), oldTableName);
+        List<StoreTable> unReservedTable = storeTableRepository.findSafeTables(store.getId(), ReservationStatus.CONFIRMED, oldTableName, StoreTableStatus.ACTIVE);
+
+        if(dto.count() < oldStoreTables.size()){        //예약된 테이블 수량 < 신규 수량 < 기존 수량
+            unReservedTable.stream()
+                    .limit(oldStoreTables.size() - dto.count())
+                    .forEach(storeTable -> storeTable.updateStatus(StoreTableStatus.DELETED));
+        }
+        else if(dto.count() > oldStoreTables.size())    //예약된 테이블 수량 < 기존 수량 < 신규 수량
+            create(store, dto.newTableName(), dto.minCapacity(), dto.maxCapacity(), dto.count() - oldStoreTables.size());
+
+        oldStoreTables.stream()
+                .filter(t -> t.getStatus() == StoreTableStatus.ACTIVE)
+                .forEach(storeTable -> storeTable.modify(dto.newTableName(), dto.minCapacity(), dto.maxCapacity())
+        );
     }
 }

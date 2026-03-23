@@ -1,8 +1,8 @@
 package com.example.demo.domain.storeTable.controller;
 
-import com.example.demo.domain.storeTable.dto.StoreTableRegisterWrapper;
+import com.example.demo.domain.storeTable.dto.StoreTableCreateRequest;
 import com.example.demo.domain.storeTable.dto.StoreTableResponse;
-import com.example.demo.domain.storeTable.dto.StoreTableUpdateWrapper;
+import com.example.demo.domain.storeTable.dto.StoreTableBulkUpdateRequest;
 import com.example.demo.domain.storeTable.service.StoreTableFacade;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,13 +22,14 @@ import java.util.List;
 public class StoreTableController {
     private final StoreTableFacade storeTableFacade;
 
-    @Operation(summary="테이블 추가", description="입력 받은 테이블 정보를 DB에 저장")
+    @Operation(summary="테이블 초기 등록", description="입력 받은 테이블 정보를 DB에 저장")
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody StoreTableRegisterWrapper wrapper,
-                                           @PathVariable Long storeId,
-                                           @AuthenticationPrincipal CustomUserDetails userDetails)
+    public ResponseEntity<String> register(
+            @RequestBody StoreTableCreateRequest dto,
+            @PathVariable Long storeId,
+            @AuthenticationPrincipal CustomUserDetails userDetails)
     {
-        storeTableFacade.register(userDetails.getId(), storeId, wrapper.registerTables());
+        storeTableFacade.register(userDetails.getId(), storeId, dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -36,17 +37,18 @@ public class StoreTableController {
     @GetMapping
     public ResponseEntity<List<StoreTableResponse>> getTables(@PathVariable Long storeId)
     {
-        List<StoreTableResponse> response = storeTableFacade.findByIds(storeId);
+        List<StoreTableResponse> response = storeTableFacade.findAllTables(storeId);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary="테이블 수정", description="입력 받은 가게의 테이블 정보 일괄 수정")
+    @Operation(summary="테이블 구성 변경", description="입력 받은 가게의 테이블 정보 일괄 수정")
     @PutMapping
-    public ResponseEntity<String> modify(@RequestBody StoreTableUpdateWrapper wrapper,
-                                         @PathVariable Long storeId,
-                                         @AuthenticationPrincipal CustomUserDetails userDetails)
+    public ResponseEntity<String> adjust(
+            @RequestBody StoreTableBulkUpdateRequest dto,
+            @PathVariable Long storeId,
+            @AuthenticationPrincipal CustomUserDetails userDetails)
     {
-        storeTableFacade.modify(userDetails.getId(), storeId, wrapper.updateTables());
+        storeTableFacade.adjust(userDetails.getId(), storeId, dto);
         return ResponseEntity.ok("완료");
     }
 }

@@ -4,19 +4,14 @@ import com.example.demo.domain.reservation.service.ReservationService;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.service.StoreService;
 import com.example.demo.domain.storeTable.domain.StoreTable;
-import com.example.demo.domain.storeTable.domain.StoreTableStatus;
-import com.example.demo.domain.storeTable.dto.StoreTableRegisterRequest;
+import com.example.demo.domain.storeTable.dto.StoreTableCreateRequest;
 import com.example.demo.domain.storeTable.dto.StoreTableResponse;
-import com.example.demo.domain.storeTable.dto.StoreTableUpdateRequest;
-import com.example.demo.global.exception.BusinessException;
-import com.example.demo.global.exception.ErrorCode;
+import com.example.demo.domain.storeTable.dto.StoreTableBulkUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,21 +22,19 @@ public class StoreTableFacade {
     private final ReservationService reservationService;
 
     @Transactional
-    public void register(Long userId, Long storeId, List<StoreTableRegisterRequest> dtos){
+    public void register(Long userId, Long storeId, StoreTableCreateRequest dto){
         Store store = storeService.findById(storeId);
 
-        if(!store.getOwner().getId().equals(userId))
-            throw new BusinessException(ErrorCode.FORBIDDEN);
+        storeService.validateOwner(store, userId);
 
-        for(StoreTableRegisterRequest dto : dtos){
-            storeTableService.create(store, dto);
-        }
+        storeTableService.validateName(store.getId(), dto.tableName());
+        storeTableService.create(store, dto.tableName(), dto.minCapacity(), dto.maxCapacity(), dto.count());
     }
 
-    public List<StoreTableResponse> findByIds(Long storeId){
+    public List<StoreTableResponse> findAllTables(Long storeId){
         Store store = storeService.findById(storeId);
 
-        List<StoreTable> storeTables = storeTableService.findByIds(store.getId());
+        List<StoreTable> storeTables = storeTableService.findAllTables(store.getId());
 
         return storeTables.stream()
                 .map(StoreTableResponse::from)
@@ -49,36 +42,18 @@ public class StoreTableFacade {
     }
 
     @Transactional
-    public void modify(Long userId, Long storeId, List<StoreTableUpdateRequest> dtos){
+    public void adjust(Long userId, Long storeId, StoreTableBulkUpdateRequest dto){
         Store store = storeService.findById(storeId);
 
-        if(!store.getOwner().getId().equals(userId))
-            throw new BusinessException(ErrorCode.FORBIDDEN);
+        storeService.validateOwner(store, userId);
 
-        Set<String> inputNames = dtos.stream()
-                .map(StoreTableUpdateRequest::tableName)
-                .collect(Collectors.toSet());
+        storeTableService.findTableGroup(store.getId(), dto.oldTableName());
 
-        if(inputNames.size() != dtos.size())
-            throw new BusinessException(ErrorCode.DUPLICATE_TABLE_INPUT);
+        if(!dto.oldTableName().equals(dto.newTableName()))
+            storeTableService.validateName(store.getId(), dto.newTableName());
+        reservationService.validateCapacity(store.getId(),dto.minCapacity(), dto.maxCapacity(), dto.oldTableName());
+        storeTableService.validateCount(store.getId(), dto.oldTableName(), dto.count());
 
-        for(StoreTableUpdateRequest dto : dtos){
-            if(dto.id()==null) {
-                storeTableService.create(store, dto);
-            }
-            else{
-                StoreTable storeTable = storeTableService.findById(dto.id());
-
-                if(storeTable.getStatus()==StoreTableStatus.ACTIVE && dto.status()==StoreTableStatus.DELETED)
-                    if(reservationService.hasFutureReservation(dto.id()))
-                        throw new BusinessException(ErrorCode.TABLE_DELETE_RESERVATION_EXIST);
-
-                List<Long> counts = reservationService.countFutureReservation(dto.id());
-                if(!counts.isEmpty() && counts.getFirst()>dto.count())
-                    throw new BusinessException(ErrorCode.TABLE_UPDATE_RESERVATION_EXIST);
-
-                storeTable.modify(dto.tableName(), dto.minCapacity(), dto.maxCapacity(), dto.status());
-            }
-        }
+        storeTableService.adjust(store, dto.oldTableName(), dto);
     }
 }

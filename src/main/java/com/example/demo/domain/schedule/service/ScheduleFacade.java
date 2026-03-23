@@ -1,5 +1,6 @@
 package com.example.demo.domain.schedule.service;
 
+import com.example.demo.domain.reservation.service.ReservationService;
 import com.example.demo.domain.schedule.dto.ScheduleUpsertRequest;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.service.StoreService;
@@ -18,6 +19,7 @@ import java.util.List;
 public class ScheduleFacade {
     private final ScheduleService scheduleService;
     private final StoreService storeService;
+    private final ReservationService reservationService;
 
     @Transactional
     public void upsert(Long userId, Long storeId, DayOfWeek dayOfWeek, List<ScheduleUpsertRequest> dtos){
@@ -26,6 +28,7 @@ public class ScheduleFacade {
         if(!store.getOwner().getId().equals(userId))
             throw new BusinessException(ErrorCode.FORBIDDEN);
 
+        reservationService.validateTime(store.getId(), dayOfWeek);
         scheduleService.upsert(store, dayOfWeek, dtos);
     }
 }

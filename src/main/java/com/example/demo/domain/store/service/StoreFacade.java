@@ -8,8 +8,6 @@ import com.example.demo.domain.store.dto.StoreResponse;
 import com.example.demo.domain.user.domain.User;
 import com.example.demo.domain.user.domain.UserRole;
 import com.example.demo.domain.user.service.UserService;
-import com.example.demo.global.exception.BusinessException;
-import com.example.demo.global.exception.ErrorCode;
 import com.example.demo.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,8 +38,7 @@ public class StoreFacade {
     public void delete(Long userId, Long storeId) {
         Store store = storeService.findById(storeId);
 
-        if (!store.getOwner().getId().equals(userId))
-            throw new BusinessException(ErrorCode.FORBIDDEN);
+        storeService.validateOwner(store, userId);
 
         favoriteService.updateStatusByStore(store.getId());
 

@@ -6,7 +6,6 @@ import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +19,7 @@ import java.time.DayOfWeek;
 public class ScheduleController {
     private final ScheduleFacade scheduleFacade;
 
-    @Operation(summary="영업 시간대 등록", description="입력 받은 시간 정보를 DB에 저장")
+    @Operation(summary="요일별 영업시간대 설정", description="해당 요일의 전체 스케줄을 갱신. 기존 예약이 있는 경우, 변경이 제한됨. 빈 리스트 전송 시 휴무 처리")
     @PutMapping("/{dayOfWeek}")
     public ResponseEntity<String> upsert(
             @RequestBody ScheduleUpsertWrapper dto,
@@ -29,6 +28,6 @@ public class ScheduleController {
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
         scheduleFacade.upsert(userDetails.getId(), storeId, dayOfWeek, dto.upsertSchedules());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.ok().build();
     }
 }

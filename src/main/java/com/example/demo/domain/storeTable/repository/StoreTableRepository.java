@@ -15,7 +15,25 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface StoreTableRepository extends JpaRepository<StoreTable, Long> {
-    List<StoreTable> findByStoreId(Long storeId);
+    @Query("""
+            select s from StoreTable s
+            where s.store.id = :storeId
+            and s.status = :status
+            """)
+    List<StoreTable> findAllTables(
+            @Param("storeId") Long storeId,
+            @Param("status") StoreTableStatus status);
+
+    @Query("""
+            select s from StoreTable s
+            where s.store.id = :storeId
+            and s.tableName = :tableName
+            and s.status = :status
+            """)
+    List<StoreTable> findTableGroup(
+            @Param("storeId") Long storeId,
+            @Param("tableName") String tableName,
+            @Param("status") StoreTableStatus status);
 
     //동일 테이블 존재 여부
     boolean existsByStore_IdAndTableNameAndStatus(
@@ -28,14 +46,14 @@ public interface StoreTableRepository extends JpaRepository<StoreTable, Long> {
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value="3000")})
     @Query("""
             select t from StoreTable t
-                where t.store.id = :storeId
-                and :headCount between t.minCapacity and t.maxCapacity
-                and t.status = :storeTableStatus
-                and not exists (
-                    select 1 from Reservation r
-                    where r.targetDateTime = :targetDateTime
-                    and r.storeTable.id = t.id
-                    and r.status = :reservationStatus)
+            where t.store.id = :storeId
+            and :headCount between t.minCapacity and t.maxCapacity
+            and t.status = :storeTableStatus
+            and not exists (
+                select 1 from Reservation r
+                where r.targetDateTime = :targetDateTime
+                and r.storeTable.id = t.id
+                and r.status = :reservationStatus)
             """)
      List<StoreTable> findFreeTable(
             @Param("storeId") Long storeId,
@@ -49,4 +67,22 @@ public interface StoreTableRepository extends JpaRepository<StoreTable, Long> {
             Long storeId,
             int headCount,
             StoreTableStatus status);
+
+    //특정 테이블 그룹 내 기존 예약이 배정되지 않은 테이블 목록 조회
+    @Query("""
+            select s from StoreTable s
+            where s.store.id = :storeId
+            and s.tableName = :tableName
+            and s.status = :storeTableStatus
+            and not exists (
+                select 1 from Reservation r
+                where r.store.id = :storeId
+                and s.id = r.storeTable.id
+                and r.status = :reservationStatus)
+           """)
+    List<StoreTable> findSafeTables(
+            @Param("storeId") Long storeId,
+            @Param("reservationStatus") ReservationStatus reservationStatus,
+            @Param("tableName") String tableName,
+            @Param("storeTableStatus") StoreTableStatus storeTableStatus);
 }

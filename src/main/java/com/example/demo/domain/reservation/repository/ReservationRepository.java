@@ -2,11 +2,13 @@ package com.example.demo.domain.reservation.repository;
 
 import com.example.demo.domain.reservation.domain.Reservation;
 import com.example.demo.domain.reservation.domain.ReservationStatus;
+import com.example.demo.domain.schedule.domain.ScheduleStatus;
 import com.example.demo.domain.storeTable.domain.StoreTableStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -69,21 +71,42 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("headCount") int headCount,
             @Param("storeTableStatus") StoreTableStatus storeTableStatus);
 
-    boolean existsByTargetDateTimeGreaterThanAndStoreTable_IdAndStatus(
-            LocalDateTime targetDateTime,
-            Long tableId,
-            ReservationStatus status);
-
+    //영업 시간대 변경 시 충돌 가능성이 있는 기존 예약 목록 조회
     @Query("""
-            select count(r) from Reservation r
-            where r.targetDateTime > :targetDateTime
-            and r.storeTable.id = :tableId
-            and r.status = :status
-            group by r.targetDateTime
-            order by count(r) desc
+            select r from Reservation r
+            where r.store.id = :storeId
+            and r.status = :reservationStatus
+            and exists (
+                select 1 from Schedule s
+                where s.store.id = :storeId
+                and s.dayOfWeek = :dayOfWeek
+                and cast(r.targetDateTime as time) between s.startTime and s.endTime
+                and s.status = :scheduleStatus)
             """)
-    List<Long> countFutureReservation(
-            @Param("targetDateTime") LocalDateTime targetDateTime,
-            @Param("tableId") Long tableId,
-            @Param("status") ReservationStatus status);
+    List<Reservation> validateTime(
+            @Param("storeId") Long storeId,
+            @Param("reservationStatus") ReservationStatus reservationStatus,
+            @Param("dayOfWeek") DayOfWeek dayOfWeek,
+            @Param("scheduleStatus") ScheduleStatus scheduleStatus);
+
+    //테이블 가용 인원 변경 시 충돌 가능성이 있는 기존 예약 목록 조회
+    @Query("""
+            select r from Reservation r
+            where r.store.id = :storeId
+            and (r.headCount < :newMinCapacity or r.headCount > :newMaxCapacity)
+            and r.status = :reservationStatus
+            and exists (
+                select 1 from StoreTable s
+                where s.id = r.storeTable.id
+                and s.store.id = :storeId
+                and s.tableName = :oldTableName
+                and s.status = :storeTableStatus)
+            """)
+    List<Reservation> validateCapacity(
+            @Param("storeId") Long storeId,
+            @Param("newMinCapacity") int newMinCapacity,
+            @Param("newMaxCapacity") int newMaxCapacity,
+            @Param("reservationStatus") ReservationStatus reservationStatus,
+            @Param("oldTableName") String oldTableName,
+            @Param("storeTableStatus") StoreTableStatus storeTableStatus);
 }

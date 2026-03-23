@@ -42,10 +42,13 @@ public class StoreTable extends BaseEntity {
         this.status = status;
     }
 
-    public void modify(String tableName, int minCapacity, int maxCapacity, StoreTableStatus status){
+    public void modify(String tableName, int minCapacity, int maxCapacity){
         this.tableName = tableName;
         this.minCapacity = minCapacity;
         this.maxCapacity = maxCapacity;
+    }
+
+    public void updateStatus(StoreTableStatus status){
         this.status = status;
     }
 }

@@ -4,6 +4,7 @@ import com.example.demo.domain.reservation.domain.Reservation;
 import com.example.demo.domain.reservation.domain.ReservationStatus;
 import com.example.demo.domain.reservation.dto.*;
 import com.example.demo.domain.reservation.repository.ReservationRepository;
+import com.example.demo.domain.schedule.domain.ScheduleStatus;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.storeTable.domain.StoreTable;
 import com.example.demo.domain.storeTable.domain.StoreTableStatus;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -132,11 +134,15 @@ public class ReservationService {
         reservation.updateStatus(ReservationStatus.NO_SHOW);
     }
 
-    public boolean hasFutureReservation(Long storeTableId){
-        return reservationRepository.existsByTargetDateTimeGreaterThanAndStoreTable_IdAndStatus(LocalDateTime.now(), storeTableId, ReservationStatus.CONFIRMED);
+    public void validateTime(Long storeId, DayOfWeek dayOfWeek){
+        List<Reservation> reservations = reservationRepository.validateTime(storeId, ReservationStatus.CONFIRMED, dayOfWeek, ScheduleStatus.ACTIVE);
+        if(!reservations.isEmpty())
+            throw new BusinessException(ErrorCode.SCHEDULE_LOCKED);
     }
 
-    public List<Long> countFutureReservation(Long storeTableId){
-        return reservationRepository.countFutureReservation(LocalDateTime.now(), storeTableId, ReservationStatus.CONFIRMED);
+    public void validateCapacity(Long storeId, int minCapacity, int maxCapacity, String tableName){
+        List<Reservation> reservations = reservationRepository.validateCapacity(storeId, minCapacity, maxCapacity, ReservationStatus.CONFIRMED, tableName, StoreTableStatus.ACTIVE);
+        if(!reservations.isEmpty())
+            throw new BusinessException(ErrorCode.TABLE_LOCKED);
     }
 }
