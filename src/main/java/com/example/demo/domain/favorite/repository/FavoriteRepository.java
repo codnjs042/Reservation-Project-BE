@@ -22,6 +22,8 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
     @Query("""
             select f from Favorite f
+            join fetch f.store
+            join fetch f.user
             where f.user.id = :userId
             and f.status = :status
             """)
@@ -42,8 +44,13 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     @Query("""
             update Favorite f
             set f.status = :status
-            where f.store.id = :storeId""")
+            where f.store.id in :storeIds""")
     void updateStatusByStore(
-            @Param("storeId") Long storeId,
+            @Param("storeIds") List<Long> storeIds,
             @Param("status") FavoriteStatus status);
+
+    boolean existsByUser_IdAndStore_IdAndStatus(
+            Long userId,
+            Long storeId,
+            FavoriteStatus status);
 }

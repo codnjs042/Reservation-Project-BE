@@ -2,7 +2,6 @@ package com.example.demo.domain.reservation.dto;
 
 import com.example.demo.domain.reservation.domain.Reservation;
 import com.example.demo.domain.reservation.domain.ReservationStatus;
-import com.example.demo.domain.storeTable.domain.StoreTable;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
@@ -17,7 +16,7 @@ public record ReservationSearchOwnerResponse(
         @Schema(description="인원 수")
         int headCount,
         @Schema(description="테이블 번호")
-        StoreTable storeTable,
+        Long storeTableId,
         @Schema(description="예약 상태")
         ReservationStatus status
 ) {
@@ -27,7 +26,7 @@ public record ReservationSearchOwnerResponse(
                 reservation.getName(),
                 reservation.getTargetDateTime(),
                 reservation.getHeadCount(),
-                reservation.getStoreTable(),
+                reservation.getStoreTable().getId(),
                 reservation.getStatus()
         );
     }

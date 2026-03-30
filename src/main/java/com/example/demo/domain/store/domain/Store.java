@@ -40,9 +40,6 @@ public class Store extends BaseEntity {
     private String businessNumber;
 
     @Column(nullable = false)
-    private int slotInterval;
-
-    @Column(nullable = false)
     private int favorites;
 
     @Enumerated(EnumType.STRING)

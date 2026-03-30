@@ -1,7 +1,6 @@
 package com.example.demo.domain.reservation.service;
 
 import com.example.demo.domain.reservation.domain.Reservation;
-import com.example.demo.domain.reservation.domain.ReservationStatus;
 import com.example.demo.domain.reservation.dto.*;
 import com.example.demo.domain.schedule.service.ScheduleService;
 import com.example.demo.domain.store.domain.Store;
@@ -9,14 +8,11 @@ import com.example.demo.domain.store.service.StoreService;
 import com.example.demo.domain.storeTable.domain.StoreTable;
 import com.example.demo.domain.storeTable.service.StoreTableService;
 import com.example.demo.domain.user.domain.User;
-import com.example.demo.global.exception.BusinessException;
-import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -64,24 +60,6 @@ public class ReservationFacade {
         //특정 날짜의 운영 시간대별 예약 현황
         return allTimes.stream()
                 .map(t -> new ReservationTimeSlotResponse(t, !fullTimes.contains(t)))
-                .toList();
-    }
-
-    public List<ReservationSearchOwnerResponse> getStoreReservation(Long userId, Long storeId, ReservationSearchOwnerRequest dto){
-        Store store = storeService.findById(storeId);
-
-        if(!store.getOwner().getId().equals(userId))
-            throw new BusinessException(ErrorCode.FORBIDDEN);
-
-        LocalDate startDate = dto.startDate()==null ? LocalDate.now() : dto.startDate();
-        LocalDate endDate = dto.endDate()==null ? LocalDate.now() : dto.endDate();
-
-        List<ReservationStatus> statuses = (dto.status()==null || dto.status().isEmpty()) ? List.of(ReservationStatus.CONFIRMED, ReservationStatus.VISITED) : dto.status();
-
-        List<Reservation> reservations =  reservationService.getStoreReservation(store.getId(), dto, startDate, endDate, statuses);
-
-        return reservations.stream()
-                .map(ReservationSearchOwnerResponse::from)
                 .toList();
     }
 }

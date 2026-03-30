@@ -9,4 +9,5 @@ public record ReservationTimeSlotResponse(
         LocalTime targetTime,
         @Schema(description="예약 가능 여부")
         boolean isAvailable
-) {}
+) {
+}

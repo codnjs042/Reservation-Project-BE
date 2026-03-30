@@ -5,6 +5,7 @@ import com.example.demo.domain.reservation.domain.ReservationStatus;
 import com.example.demo.domain.schedule.domain.ScheduleStatus;
 import com.example.demo.domain.storeTable.domain.StoreTableStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -17,6 +18,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     //가게 예약 목록 조회
     @Query("""
             select r from Reservation r
+            join fetch r.storeTable
             where (:keyword is null or :keyword='' or
                 (:type='id' and cast(r.id as string) like %:keyword%) or
                 (:type='name' and r.name like %:keyword%))
@@ -35,17 +37,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     //유저 예약 목록 조회
     @Query("""
             select r from Reservation r
-            where (:keyword is null or :keyword='' or
-                (:type='id' and cast(r.id as string) like %:keyword%) or
-                (:type='storeName' and r.store.name like %:keyword%))
-            and r.user.id = :userId
+            join fetch r.store
+            where r.user.id = :userId
             and cast(r.targetDateTime as date) between :startDate and :endDate
             and (:status is null or r.status in :status)
             """)
     List<Reservation> getMyReservationList(
             @Param("userId") Long userId,
-            @Param("type") String type,
-            @Param("keyword") String keyword,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             @Param("status") List<ReservationStatus> status);
@@ -109,4 +107,26 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("reservationStatus") ReservationStatus reservationStatus,
             @Param("oldTableName") String oldTableName,
             @Param("storeTableStatus") StoreTableStatus storeTableStatus);
+
+    @Modifying
+    @Query("""
+            update Reservation r
+            set r.status = :status
+            where r.id in :reservationIds
+            """)
+    void bulkUpdateStatus(
+            @Param("reservationIds") List<Long> reservationIds,
+            @Param("status") ReservationStatus status);
+
+
+    @Query("""
+            select r from Reservation r
+            where r.store.id = :storeId
+            and r.targetDateTime > :targetDateTime
+            and r.status = :status
+            """)
+    boolean hasReservation(
+            @Param("storeId") Long storeId,
+            @Param("targetDateTime") LocalDateTime targetDateTime,
+            @Param("status") ReservationStatus status);
 }

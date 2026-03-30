@@ -5,10 +5,12 @@ import com.example.demo.domain.user.domain.UserRole;
 import lombok.Builder;
 
 @Builder
-public record UserSignupResponse(Long id,
-                                 String email,
-                                 String nickname,
-                                 UserRole role) {
+public record UserSignupResponse(
+        Long id,
+        String email,
+        String nickname,
+        UserRole role
+) {
     public static UserSignupResponse from(User user){
         return new UserSignupResponse(
                 user.getId(),

@@ -1,10 +1,10 @@
 package com.example.demo.domain.store.service;
 
 import com.example.demo.domain.favorite.serivce.FavoriteService;
+import com.example.demo.domain.owner.dto.StoreCreateRequest;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.domain.StoreStatus;
-import com.example.demo.domain.store.dto.StoreRegisterRequest;
-import com.example.demo.domain.store.dto.StoreResponse;
+import com.example.demo.domain.store.dto.StoreDetailResponse;
 import com.example.demo.domain.user.domain.User;
 import com.example.demo.domain.user.domain.UserRole;
 import com.example.demo.domain.user.service.UserService;
@@ -17,31 +17,34 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class StoreFacade {
-    private final FavoriteService favoriteService;
     private final StoreService storeService;
     private final UserService userService;
     private final SecurityUtil securityUtil;
+    private final FavoriteService favoriteService;
 
     @Transactional
-    public StoreResponse register(User user, StoreRegisterRequest dto){
+    public StoreDetailResponse create(User user, StoreCreateRequest dto){
         Store store = storeService.create(user, dto);
 
-        userService.updateRole(user.getId(), UserRole.OWNER);
+        if(user.getRole()==UserRole.USER){
+            userService.updateRole(user.getId(), UserRole.OWNER);
 
-        User currentUser = userService.findById(user.getId());
-        securityUtil.updateSecurityContext(currentUser);
+            User currentUser = userService.findById(user.getId());
+            securityUtil.updateSecurityContext(currentUser);
+        }
 
-        return StoreResponse.from(store);
+        return StoreDetailResponse.from(store, false);
     }
 
-    @Transactional
-    public void delete(Long userId, Long storeId) {
+    public StoreDetailResponse getDetail(Long userId, Long storeId){
         Store store = storeService.findById(storeId);
 
-        storeService.validateOwner(store, userId);
+        storeService.validateStatus(store, StoreStatus.OPEN);
 
-        favoriteService.updateStatusByStore(store.getId());
+        boolean isFavorite = false;
+        if(userId!=null)
+            isFavorite = favoriteService.existsByUser_IdAndStore_IdAndStatus(userId, store.getId());
 
-        store.updateStatus(StoreStatus.DELETED);
+        return StoreDetailResponse.from(store, isFavorite);
     }
 }

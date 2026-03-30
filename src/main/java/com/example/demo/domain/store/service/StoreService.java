@@ -1,6 +1,8 @@
 package com.example.demo.domain.store.service;
 
 import com.example.demo.domain.favorite.domain.FavoriteStatus;
+import com.example.demo.domain.owner.dto.StoreCreateRequest;
+import com.example.demo.domain.owner.dto.StoreInfoUpdateRequest;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.domain.StoreStatus;
 import com.example.demo.domain.store.dto.*;
@@ -25,15 +27,9 @@ public class StoreService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
     }
 
-    public StoreResponse getDetail(Long storeId){
-        Store store = findById(storeId);
-
-        return StoreResponse.from(store);
-    }
-
     @Transactional
-    public Store create(User user, StoreRegisterRequest dto){
-        boolean isExists = storeRepository.existsByBusinessNumberAndStatus(dto.businessNumber(), StoreStatus.ACTIVE);
+    public Store create(User user, StoreCreateRequest dto){
+        boolean isExists = storeRepository.existsByBusinessNumberAndStatusNot(dto.businessNumber(), StoreStatus.SHUTDOWN);
 
         if(isExists)
             throw new BusinessException(ErrorCode.STORE_ALREADY_EXIST);
@@ -47,7 +43,7 @@ public class StoreService {
                 .ownerName(dto.ownerName())
                 .businessNumber(dto.businessNumber())
                 .favorites(0)
-                .status(StoreStatus.ACTIVE)
+                .status(StoreStatus.READY)
                 .build();
 
         storeRepository.save(store);
@@ -60,17 +56,22 @@ public class StoreService {
             throw new BusinessException(ErrorCode.FORBIDDEN);
     }
 
-    public List<StoreSearchResponse> getList(StoreSearchRequest dto){
-        List<Store> store = storeRepository.getList(dto.keyword(), StoreStatus.ACTIVE);
-        return store.stream().map(StoreSearchResponse::from).toList();
+    public void validateStatus(Store store, StoreStatus... allowedStatuses){
+        if(!List.of(allowedStatuses).contains(store.getStatus()))
+            throw new BusinessException(ErrorCode.INVALID_STORE_STATUS, store.getStatus().getDesc());
+    }
+
+    public List<StoreResponse> getList(StoreSearchRequest dto){
+        List<Store> store = storeRepository.getList(dto.keyword(), List.of(StoreStatus.READY,StoreStatus.OPEN));
+        return store.stream().map(StoreResponse::from).toList();
     }
 
     @Transactional
-    public void modify(Long userId, Long storeId, StoreUpdateRequest dto){
+    public void updateStoreInfo(Long userId, Long storeId, StoreInfoUpdateRequest dto){
         Store store = findById(storeId);
 
-        if(!store.getOwner().getId().equals(userId))
-            throw new BusinessException(ErrorCode.FORBIDDEN);
+        validateOwner(store, userId);
+        validateStatus(store, StoreStatus.READY, StoreStatus.OPEN, StoreStatus.HIDDEN);
 
         store.updateBasicInfo(dto.name(), dto.category(), dto.phone());
     }
@@ -83,5 +84,26 @@ public class StoreService {
     @Transactional
     public void updateAllFavorites(Long userId, int delta) {
         storeRepository.updateAllFavorites(delta, userId, FavoriteStatus.ACTIVE);
+    }
+
+    public List<Store> getMyStores(Long userId){
+        return storeRepository.getMyStores(userId, StoreStatus.SHUTDOWN);
+    }
+
+    public Store getMyStore(Long userId, Long storeId){
+        Store store = findById(storeId);
+
+        validateOwner(store, userId);
+        validateStatus(store, StoreStatus.READY, StoreStatus.OPEN, StoreStatus.HIDDEN);
+
+        return store;
+    }
+
+    public List<Store> findByAllId(List<Long> storeIds){
+        return storeRepository.findAllById(storeIds);
+    }
+
+    public void bulkUpdateStatus(List<Long> storeIds){
+        storeRepository.bulkUpdateStatus(storeIds, StoreStatus.SHUTDOWN);
     }
 }

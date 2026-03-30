@@ -50,7 +50,11 @@ public class FavoriteService {
     }
 
     @Transactional
-    public void updateStatusByStore(Long storeId) {
-        favoriteRepository.updateStatusByStore(storeId, FavoriteStatus.DELETED);
+    public void bulkUpdateStatusByStore(List<Long> storeIds) {
+        favoriteRepository.updateStatusByStore(storeIds, FavoriteStatus.DELETED);
+    }
+
+    public boolean existsByUser_IdAndStore_IdAndStatus(Long userId, Long storeId){
+        return favoriteRepository.existsByUser_IdAndStore_IdAndStatus(userId, storeId, FavoriteStatus.ACTIVE);
     }
 }

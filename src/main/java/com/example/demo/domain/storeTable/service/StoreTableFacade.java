@@ -2,6 +2,7 @@ package com.example.demo.domain.storeTable.service;
 
 import com.example.demo.domain.reservation.service.ReservationService;
 import com.example.demo.domain.store.domain.Store;
+import com.example.demo.domain.store.domain.StoreStatus;
 import com.example.demo.domain.store.service.StoreService;
 import com.example.demo.domain.storeTable.domain.StoreTable;
 import com.example.demo.domain.storeTable.dto.StoreTableCreateRequest;
@@ -47,13 +48,16 @@ public class StoreTableFacade {
 
         storeService.validateOwner(store, userId);
 
-        storeTableService.findTableGroup(store.getId(), dto.oldTableName());
-
         if(!dto.oldTableName().equals(dto.newTableName()))
             storeTableService.validateName(store.getId(), dto.newTableName());
         reservationService.validateCapacity(store.getId(),dto.minCapacity(), dto.maxCapacity(), dto.oldTableName());
         storeTableService.validateCount(store.getId(), dto.oldTableName(), dto.count());
 
         storeTableService.adjust(store, dto.oldTableName(), dto);
+        if(dto.count()==0) {
+            List<StoreTable> storeTables = storeTableService.findAllTables(store.getId());
+            if(storeTables.isEmpty())
+                store.updateStatus(StoreStatus.READY);
+        }
     }
 }

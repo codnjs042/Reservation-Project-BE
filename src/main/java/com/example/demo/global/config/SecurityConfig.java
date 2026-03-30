@@ -34,13 +34,16 @@ public class SecurityConfig {
                                 "/users/check-email", "/users/signup", "/users/login",
                                 "/stores/*/reservations/time-slot").permitAll()
                         .requestMatchers(HttpMethod.GET, "/stores/*/reservations").hasRole("OWNER")
-                        .requestMatchers(HttpMethod.GET, "/stores/", "/stores/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/stores", "/stores/*").permitAll()
                         .requestMatchers(
                                 "/users/logout", "/users/me/nickname", "/users/me/password",
                                 "/users/me", "/users/me/favorites", "/users/me/reservations/**",
                                 "/favorites/**", "/stores/register").authenticated()
                         .requestMatchers(HttpMethod.POST, "/stores/*/reservations").authenticated()
                         .requestMatchers("/stores/**").hasRole("OWNER")
+
+                        .requestMatchers(HttpMethod.POST, "/owners/stores").authenticated()
+                        .requestMatchers("/owners/**").hasRole("OWNER")
                         .anyRequest().permitAll())
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.sameOrigin()))

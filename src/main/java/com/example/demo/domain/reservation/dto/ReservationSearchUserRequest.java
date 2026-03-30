@@ -7,10 +7,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record ReservationSearchUserRequest(
-        @Schema(description="검색 타입", example = "storeName")
-        String type,
-        @Schema(description="검색어(예약번호 or 상호명)", example="호식이국밥")
-        String keyword,
         @Schema(description="예약 조회 시작 날짜", example = "2026-02-25")
         LocalDate startDate,
         @Schema(description="예약 조회 종료 날짜", example = "2026-02-25")

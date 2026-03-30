@@ -64,10 +64,6 @@ public class StoreTableService {
 
     public List<StoreTable> findTableGroup(Long storeId, String tableName){
         List<StoreTable> storeTables = storeTableRepository.findTableGroup(storeId, tableName, StoreTableStatus.ACTIVE);
-
-        if(storeTables.isEmpty())
-            throw new BusinessException(ErrorCode.TABLE_NOT_FOUND);
-
         return storeTables;
     }
 
@@ -84,6 +80,12 @@ public class StoreTableService {
         List<StoreTable> oldStoreTables = findTableGroup(store.getId(), oldTableName);
         List<StoreTable> unReservedTable = storeTableRepository.findSafeTables(store.getId(), ReservationStatus.CONFIRMED, oldTableName, StoreTableStatus.ACTIVE);
 
+        if(oldStoreTables.isEmpty()){
+            if(dto.count()==0)
+                throw new BusinessException(ErrorCode.INVALID_TABLE_COUNT);
+            create(store, dto.newTableName(), dto.minCapacity(), dto.maxCapacity(), dto.count());
+            return;
+        }
         if(dto.count() < oldStoreTables.size()){        //예약된 테이블 수량 < 신규 수량 < 기존 수량
             unReservedTable.stream()
                     .limit(oldStoreTables.size() - dto.count())
@@ -96,5 +98,9 @@ public class StoreTableService {
                 .filter(t -> t.getStatus() == StoreTableStatus.ACTIVE)
                 .forEach(storeTable -> storeTable.modify(dto.newTableName(), dto.minCapacity(), dto.maxCapacity())
         );
+    }
+
+    public boolean existsByStoreIdAndStatus(Long storeId){
+        return storeTableRepository.existsByStoreIdAndStatus(storeId, StoreTableStatus.ACTIVE);
     }
 }

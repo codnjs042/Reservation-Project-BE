@@ -2,6 +2,7 @@ package com.example.demo.domain.schedule.service;
 
 import com.example.demo.domain.schedule.domain.Schedule;
 import com.example.demo.domain.schedule.domain.ScheduleStatus;
+import com.example.demo.domain.schedule.dto.ScheduleResponse;
 import com.example.demo.domain.schedule.dto.ScheduleUpsertRequest;
 import com.example.demo.domain.schedule.repository.ScheduleRepository;
 import com.example.demo.domain.store.domain.Store;
@@ -90,5 +91,15 @@ public class ScheduleService {
         long diff = java.time.Duration.between(schedule.getStartTime(), targetDateTime.toLocalTime()).toMinutes();
         if(diff % schedule.getIntervalMinute() != 0)
             throw new BusinessException(ErrorCode.RESERVATION_UNAVAILABLE_TIME);
+    }
+
+    public boolean existsByStoreIdAndStatus(Long storeId){
+        return scheduleRepository.existsByStoreIdAndStatus(storeId, ScheduleStatus.ACTIVE);
+    }
+
+    public List<ScheduleResponse> findSchedules(Long storeId){
+        return scheduleRepository.findSchedules(storeId, ScheduleStatus.ACTIVE).stream()
+                .map(ScheduleResponse::from)
+                .toList();
     }
 }

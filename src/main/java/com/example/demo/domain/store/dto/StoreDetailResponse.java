@@ -4,22 +4,26 @@ import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.domain.StoreCategory;
 import com.example.demo.domain.store.domain.StoreStatus;
 
-public record StoreSearchResponse(
+public record StoreDetailResponse(
         Long id,
         String name,
         StoreCategory category,
         String address,
         String phone,
-        StoreStatus status
+        int favorites,
+        StoreStatus status,
+        boolean isFavorite
 ) {
-    public static StoreSearchResponse from(Store store){
-        return new StoreSearchResponse(
+    public static StoreDetailResponse from(Store store, boolean isFavorite){
+        return new StoreDetailResponse(
                 store.getId(),
                 store.getName(),
                 store.getCategory(),
                 store.getAddress(),
                 store.getPhone(),
-                store.getStatus()
+                store.getFavorites(),
+                store.getStatus(),
+                isFavorite
         );
     }
 }

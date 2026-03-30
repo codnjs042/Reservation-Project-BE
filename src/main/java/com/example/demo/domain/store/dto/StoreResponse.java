@@ -9,7 +9,6 @@ public record StoreResponse(
         String name,
         StoreCategory category,
         String address,
-        String phone,
         int favorites,
         StoreStatus status
 ) {
@@ -19,7 +18,6 @@ public record StoreResponse(
                 store.getName(),
                 store.getCategory(),
                 store.getAddress(),
-                store.getPhone(),
                 store.getFavorites(),
                 store.getStatus()
         );

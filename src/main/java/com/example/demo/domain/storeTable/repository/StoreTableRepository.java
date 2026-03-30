@@ -85,4 +85,6 @@ public interface StoreTableRepository extends JpaRepository<StoreTable, Long> {
             @Param("reservationStatus") ReservationStatus reservationStatus,
             @Param("tableName") String tableName,
             @Param("storeTableStatus") StoreTableStatus storeTableStatus);
+
+    boolean existsByStoreIdAndStatus(Long storeId, StoreTableStatus status);
 }

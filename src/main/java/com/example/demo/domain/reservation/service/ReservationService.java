@@ -1,5 +1,7 @@
 package com.example.demo.domain.reservation.service;
 
+import com.example.demo.domain.owner.dto.ReservationSearchOwnerRequest;
+import com.example.demo.domain.owner.dto.ReservationUpdateOwnerRequest;
 import com.example.demo.domain.reservation.domain.Reservation;
 import com.example.demo.domain.reservation.domain.ReservationStatus;
 import com.example.demo.domain.reservation.dto.*;
@@ -62,17 +64,15 @@ public class ReservationService {
                 .collect(Collectors.toSet());
     }
 
-    public List<Reservation> getStoreReservation(Long storeId, ReservationSearchOwnerRequest dto, LocalDate startDate, LocalDate endDate, List<ReservationStatus> statuses){
-        return reservationRepository.getStoreReservationList(dto.type(), dto.keyword(), storeId, startDate, endDate, statuses);
+    public List<Reservation> getStoreReservation(Long storeId, ReservationSearchOwnerRequest dto, LocalDate startDate, LocalDate endDate){
+        return reservationRepository.getStoreReservationList(dto.type(), dto.keyword(), storeId, startDate, endDate, dto.status());
     }
 
     public List<ReservationSearchUserResponse> getMyReservation(Long userId, ReservationSearchUserRequest dto){
-        LocalDate startDate = dto.startDate()==null ? LocalDate.now() : dto.startDate();
-        LocalDate endDate = dto.endDate()==null ? LocalDate.now() : dto.endDate();
+        LocalDate startDate = dto.startDate()==null ? LocalDate.now().minusMonths(1) : dto.startDate();
+        LocalDate endDate = dto.endDate()==null ? LocalDate.now().plusMonths(1) : dto.endDate();
 
-        List<ReservationStatus> statuses = (dto.status()==null || dto.status().isEmpty()) ? List.of(ReservationStatus.CONFIRMED, ReservationStatus.VISITED) : dto.status();
-
-        return reservationRepository.getMyReservationList(userId, dto.type(), dto.keyword(), startDate, endDate, statuses).stream()
+        return reservationRepository.getMyReservationList(userId, startDate, endDate, dto.status()).stream()
                 .map(ReservationSearchUserResponse::from)
                 .toList();
     }
@@ -103,14 +103,6 @@ public class ReservationService {
     }
 
     @Transactional
-    public void rejectReservation(Long userId, Long reservationId) {
-        Reservation reservation = findById(reservationId);
-        validateOwner(reservation, userId);
-        validateBeforeReservation(reservation);
-        reservation.updateStatus(ReservationStatus.REJECTED);
-    }
-
-    @Transactional
     public void cancelReservation(Long userId, Long reservationId){
         Reservation reservation = findById(reservationId);
         validateGuest(reservation, userId);
@@ -118,20 +110,20 @@ public class ReservationService {
         reservation.updateStatus(ReservationStatus.CANCELED);
     }
 
-    @Transactional
-    public void visitedReservation(Long userId, Long reservationId){
-        Reservation reservation = findById(reservationId);
-        validateOwner(reservation, userId);
-        validateAfterReservation(reservation);
-        reservation.updateStatus(ReservationStatus.VISITED);
+    public List<Reservation> findAllById(List<Long> reservationIds){
+        return reservationRepository.findAllById(reservationIds);
     }
 
-    @Transactional
-    public void noShowReservation(Long userId, Long reservationId){
-        Reservation reservation = findById(reservationId);
-        validateOwner(reservation, userId);
-        validateAfterReservation(reservation);
-        reservation.updateStatus(ReservationStatus.NO_SHOW);
+    public void updateStatus(Long userId, ReservationUpdateOwnerRequest dto){
+        List<Reservation> reservations = findAllById(dto.ids());
+        reservations.forEach(reservation -> {
+            validateOwner(reservation, userId);
+            switch(dto.status()){
+                case REJECTED -> validateBeforeReservation(reservation);
+                case VISITED, NO_SHOW -> validateAfterReservation(reservation);
+            }
+        });
+        reservationRepository.bulkUpdateStatus(dto.ids(), dto.status());
     }
 
     public void validateTime(Long storeId, DayOfWeek dayOfWeek){
@@ -144,5 +136,11 @@ public class ReservationService {
         List<Reservation> reservations = reservationRepository.validateCapacity(storeId, minCapacity, maxCapacity, ReservationStatus.CONFIRMED, tableName, StoreTableStatus.ACTIVE);
         if(!reservations.isEmpty())
             throw new BusinessException(ErrorCode.TABLE_LOCKED);
+    }
+
+    public void validateDeletable(Long storeId){
+        boolean hasReservation = reservationRepository.hasReservation(storeId, LocalDateTime.now(), ReservationStatus.CONFIRMED);
+        if(hasReservation)
+            throw new BusinessException(ErrorCode.STORE_LOCKED);
     }
 }

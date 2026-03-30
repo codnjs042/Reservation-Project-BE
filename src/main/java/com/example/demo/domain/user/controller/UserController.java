@@ -58,7 +58,7 @@ public class UserController {
 
     @Operation(summary="로그인", description="입력 받은 이메일, 비밀 번호가 DB에 존재하는지 확인")
     @PostMapping("/login")
-    public ResponseEntity<String> login(
+    public ResponseEntity<UserProfileResponse> login(
             @RequestBody UserLoginRequest dto,
             HttpServletRequest request)
     {
@@ -67,7 +67,8 @@ public class UserController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         HttpSession session = request.getSession(true);
         session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-        return ResponseEntity.ok("로그인 성공");
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        return ResponseEntity.ok(UserProfileResponse.from(userDetails.getUser()));
     }
 
     @Operation(summary="로그아웃", description="현재 세션을 무효화하여 로그아웃 처리")
@@ -93,16 +94,18 @@ public class UserController {
 
     @Operation(summary="비밀번호 변경", description="현재 로그인 상태의 유저에게 입력 받은 비밀번호를 db에 적용")
     @PatchMapping("/me/password")
-    public ResponseEntity<String> updateNickname(
+    public ResponseEntity<String> updatePassword(
             @RequestBody UserPasswordRequest dto,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpServletRequest request,
-            HttpServletResponse response,
-            Authentication authentication)
+            HttpServletResponse response)
     {
         userService.updatePassword(userDetails.getId(), dto);
-        if(authentication!=null)
-            new SecurityContextLogoutHandler().logout(request, response, authentication);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if(auth!=null)
+            new SecurityContextLogoutHandler().logout(request, response, auth);
         return ResponseEntity.ok("비밀번호 변경 성공");
     }
 

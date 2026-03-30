@@ -36,4 +36,15 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             @Param("dayOfWeek") DayOfWeek dayOfWeek,
             @Param("targetTime") LocalTime targetTime,
             @Param("status") ScheduleStatus status);
+
+    boolean existsByStoreIdAndStatus(Long storeId, ScheduleStatus status);
+
+    @Query("""
+            select s from Schedule s
+            where s.store.id = :storeId
+            and s.status = :status
+            """)
+    List<Schedule> findSchedules(
+            @Param("storeId") Long storeId,
+            @Param("status") ScheduleStatus status);
 }

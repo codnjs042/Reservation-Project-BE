@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface StoreRepository extends JpaRepository<Store, Long> {
     //가게 중복 등록 방지용
-    boolean existsByBusinessNumberAndStatus(
+    boolean existsByBusinessNumberAndStatusNot(
             String businessNumber,
             StoreStatus status);
 
@@ -22,11 +22,11 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
                 (s.name like %:keyword%) or
                 (s.category like %:keyword%) or
                 (s.address like %:keyword%))
-            and s.status = :status
+            and s.status in :status
             """)
     List<Store> getList(
             @Param("keyword") String keyword,
-            @Param("status") StoreStatus status);
+            @Param("status") List<StoreStatus> status);
 
     @Modifying
     @Query("""
@@ -51,4 +51,23 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             @Param("delta") int delta,
             @Param("userId") Long userId,
             @Param("status") FavoriteStatus status);
+
+    @Modifying
+    @Query("""
+            update Store s
+            set s.status = :status
+            where s.id in :storeIds
+            """)
+    void bulkUpdateStatus(
+            @Param("storeIds") List<Long> storeIds,
+            @Param("status") StoreStatus status);
+
+    @Query("""
+            select s from Store s
+            where s.owner.id = :userId
+            and s.status != :status
+            """)
+    List<Store> getMyStores(
+            @Param("userId") Long userId,
+            @Param("status") StoreStatus status);
 }

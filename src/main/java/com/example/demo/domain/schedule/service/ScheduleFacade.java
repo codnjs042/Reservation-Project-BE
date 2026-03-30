@@ -3,9 +3,8 @@ package com.example.demo.domain.schedule.service;
 import com.example.demo.domain.reservation.service.ReservationService;
 import com.example.demo.domain.schedule.dto.ScheduleUpsertRequest;
 import com.example.demo.domain.store.domain.Store;
+import com.example.demo.domain.store.domain.StoreStatus;
 import com.example.demo.domain.store.service.StoreService;
-import com.example.demo.global.exception.BusinessException;
-import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,10 +24,15 @@ public class ScheduleFacade {
     public void upsert(Long userId, Long storeId, DayOfWeek dayOfWeek, List<ScheduleUpsertRequest> dtos){
         Store store = storeService.findById(storeId);
 
-        if(!store.getOwner().getId().equals(userId))
-            throw new BusinessException(ErrorCode.FORBIDDEN);
+        storeService.validateOwner(store, userId);
 
         reservationService.validateTime(store.getId(), dayOfWeek);
         scheduleService.upsert(store, dayOfWeek, dtos);
+        if(dtos==null || dtos.isEmpty()){
+            boolean hasSchedule = scheduleService.existsByStoreIdAndStatus(store.getId());
+            if(!hasSchedule)
+                store.updateStatus(StoreStatus.READY);
+        }
+
     }
 }
