@@ -129,4 +129,17 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("storeId") Long storeId,
             @Param("targetDateTime") LocalDateTime targetDateTime,
             @Param("status") ReservationStatus status);
+
+    @Query("""
+            select r from Reservation r
+            where (:keyword is null or :keyword='' or
+                (cast(r.id as string) like %:keyword%) or
+                (r.name like %:keyword%) or
+                (r.store.name like %:keyword%))
+            and (:status is null or r.status = :status)
+            """)
+    List<Reservation> getReservationsForAdmin(
+            @Param("keyword") String keyword,
+            @Param("status") ReservationStatus status
+    );
 }

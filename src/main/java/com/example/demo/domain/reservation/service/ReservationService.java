@@ -1,5 +1,6 @@
 package com.example.demo.domain.reservation.service;
 
+import com.example.demo.domain.admin.dto.ReservationAdminResponse;
 import com.example.demo.domain.owner.dto.ReservationSearchOwnerRequest;
 import com.example.demo.domain.owner.dto.ReservationUpdateOwnerRequest;
 import com.example.demo.domain.reservation.domain.Reservation;
@@ -142,5 +143,11 @@ public class ReservationService {
         boolean hasReservation = reservationRepository.hasReservation(storeId, LocalDateTime.now(), ReservationStatus.CONFIRMED);
         if(hasReservation)
             throw new BusinessException(ErrorCode.STORE_LOCKED);
+    }
+
+    public List<ReservationAdminResponse> getReservationsForAdmin(String keyword, ReservationStatus status){
+        return reservationRepository.getReservationsForAdmin(keyword, status).stream()
+                .map(ReservationAdminResponse::from)
+                .toList();
     }
 }

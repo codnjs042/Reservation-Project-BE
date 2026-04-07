@@ -20,6 +20,8 @@ public class UserFacade {
     public void delete(Long userId){
         User user = userService.findById(userId);
 
+        storeService.updateAllStores(user.getId());
+
         storeService.updateAllFavorites(user.getId(), -1);
 
         favoriteService.updateStatusByUser(user.getId());

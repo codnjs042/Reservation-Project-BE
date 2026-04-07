@@ -1,20 +1,16 @@
 package com.example.demo.domain.favorite.dto;
 
 import com.example.demo.domain.favorite.domain.Favorite;
-import com.example.demo.domain.favorite.domain.FavoriteStatus;
+import com.example.demo.domain.store.dto.StoreResponse;
 
 public record FavoriteResponse(
         Long id,
-        Long userId,
-        String StoreName,
-        FavoriteStatus status
+        StoreResponse storeResponse
 ) {
     public static FavoriteResponse from(Favorite favorite){
         return new FavoriteResponse(
                 favorite.getId(),
-                favorite.getUser().getId(),
-                favorite.getStore().getName(),
-                favorite.getStatus()
+                StoreResponse.from(favorite.getStore())
         );
     }
 }

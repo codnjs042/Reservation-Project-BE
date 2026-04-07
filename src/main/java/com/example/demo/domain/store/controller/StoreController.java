@@ -52,4 +52,12 @@ public class StoreController {
         List<StoreResponse> response = storeService.getList(dto);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary="인기 가게 TOP 6 조회", description="현재 활성화 상태의 관심수가 많은 가게 목록 반환")
+    @GetMapping("/famous")
+    public ResponseEntity<List<StoreResponse>> getFamous()
+    {
+        List<StoreResponse> response = storeService.getFamous();
+        return ResponseEntity.ok(response);
+    }
 }

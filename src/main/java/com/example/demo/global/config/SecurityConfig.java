@@ -29,21 +29,14 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**",
-                                "/users/check-email", "/users/signup", "/users/login",
-                                "/stores/*/reservations/time-slot").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/stores/*/reservations").hasRole("OWNER")
-                        .requestMatchers(HttpMethod.GET, "/stores", "/stores/*").permitAll()
-                        .requestMatchers(
-                                "/users/logout", "/users/me/nickname", "/users/me/password",
-                                "/users/me", "/users/me/favorites", "/users/me/reservations/**",
-                                "/favorites/**", "/stores/register").authenticated()
+                        .requestMatchers("/owners/**").hasRole("ADMIN")
+                        .requestMatchers("/stores/*/tables/**", "/owners/**").hasRole("OWNER")
+                        .requestMatchers(HttpMethod.PUT,"/stores/*/schedules/*").hasRole("OWNER")
+                        .requestMatchers("/users/me/**", "/stores/register", "/favorites/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/stores/*/reservations").authenticated()
-                        .requestMatchers("/stores/**").hasRole("OWNER")
-
-                        .requestMatchers(HttpMethod.POST, "/owners/stores").authenticated()
-                        .requestMatchers("/owners/**").hasRole("OWNER")
+                        .requestMatchers("/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**",
+                                "/users/check-email", "/users/signup", "/users/login", "/users/logout").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/stores/**").permitAll()
                         .anyRequest().permitAll())
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.sameOrigin()))

@@ -2,7 +2,9 @@ package com.example.demo.domain.store.repository;
 
 import com.example.demo.domain.favorite.domain.FavoriteStatus;
 import com.example.demo.domain.store.domain.Store;
+import com.example.demo.domain.store.domain.StoreCategory;
 import com.example.demo.domain.store.domain.StoreStatus;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,12 +22,15 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             select s from Store s
             where (:keyword is null or :keyword='' or
                 (s.name like %:keyword%) or
-                (s.category like %:keyword%) or
+                (s.category in :keywordCategories) or
                 (s.address like %:keyword%))
+            and (:category is null or s.category = :category)
             and s.status in :status
             """)
     List<Store> getList(
             @Param("keyword") String keyword,
+            @Param("keywordCategories") List<StoreCategory> keywordCategories,
+            @Param("category") StoreCategory category,
             @Param("status") List<StoreStatus> status);
 
     @Modifying
@@ -69,5 +74,43 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             """)
     List<Store> getMyStores(
             @Param("userId") Long userId,
+            @Param("status") StoreStatus status);
+
+    @Query("""
+            select f.store from Favorite f
+            where f.store.status in :storeStatus
+            and f.status = :favoriteStatus
+            group by f.store
+            order by count(f) desc, f.store.id desc
+            """)
+    List<Store> getFamous(
+            @Param("storeStatus") List<StoreStatus> storeStatus,
+            @Param("favoriteStatus") FavoriteStatus favoriteStatus,
+            Pageable pageable);
+
+    List<Store> findTop12ByStatusOrderByCreatedAtDesc(StoreStatus status);
+
+    @Modifying
+    @Query("""
+            update Store s
+            set s.status = :status
+            where s.owner.id = :userId
+            """)
+    void updateAllStores(
+            @Param("userId") Long userId,
+            @Param("status") StoreStatus status);
+
+    @Query("""
+            select s from Store s
+            where (:keyword is null or :keyword='' or
+                (cast(s.id as string) like %:keyword%) or
+                (s.name like %:keyword%) or
+                (s.businessNumber like %:keyword%))
+            and (:category is null or s.category = :category)
+            and (:status is null or s.status = :status)
+            """)
+    List<Store> getStoresForAdmin(
+            @Param("keyword") String keyword,
+            @Param("category") StoreCategory category,
             @Param("status") StoreStatus status);
 }

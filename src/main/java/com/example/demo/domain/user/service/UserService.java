@@ -1,5 +1,7 @@
 package com.example.demo.domain.user.service;
 
+import com.example.demo.domain.admin.dto.UserAdminRequest;
+import com.example.demo.domain.admin.dto.UserAdminResponse;
 import com.example.demo.domain.user.domain.User;
 import com.example.demo.domain.user.domain.UserLoginType;
 import com.example.demo.domain.user.domain.UserRole;
@@ -15,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -88,5 +91,16 @@ public class UserService {
         User user = findById(userId);
 
         user.updateRole(userRole);
+    }
+
+    public List<UserAdminResponse> getUsersForAdmin(Long userId, UserAdminRequest dto){
+        User user = findById(userId);
+
+        if(user.getRole()!=UserRole.ADMIN)
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+
+        return userRepository.getUsersForAdmin(dto.keyword(), dto.loginType(), dto.role(), dto.status()).stream()
+                .map(UserAdminResponse::from)
+                .toList();
     }
 }

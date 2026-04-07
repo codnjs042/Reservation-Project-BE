@@ -1,9 +1,11 @@
 package com.example.demo.domain.store.service;
 
+import com.example.demo.domain.admin.dto.StoreAdminResponse;
 import com.example.demo.domain.favorite.domain.FavoriteStatus;
 import com.example.demo.domain.owner.dto.StoreCreateRequest;
 import com.example.demo.domain.owner.dto.StoreInfoUpdateRequest;
 import com.example.demo.domain.store.domain.Store;
+import com.example.demo.domain.store.domain.StoreCategory;
 import com.example.demo.domain.store.domain.StoreStatus;
 import com.example.demo.domain.store.dto.*;
 import com.example.demo.domain.store.repository.StoreRepository;
@@ -11,10 +13,15 @@ import com.example.demo.domain.user.domain.User;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -62,7 +69,18 @@ public class StoreService {
     }
 
     public List<StoreResponse> getList(StoreSearchRequest dto){
-        List<Store> store = storeRepository.getList(dto.keyword(), List.of(StoreStatus.READY,StoreStatus.OPEN));
+        List<StoreCategory> keywordCategories = null;
+
+        if(dto.keyword() != null && !dto.keyword().isEmpty()) {
+            keywordCategories = Arrays.stream(StoreCategory.values())
+                    .filter(x -> x.getDesc().contains(dto.keyword()))
+                    .toList();
+
+            if(keywordCategories.isEmpty())
+                keywordCategories = null;
+        }
+
+        List<Store> store = storeRepository.getList(dto.keyword(), keywordCategories, dto.category(), List.of(StoreStatus.READY, StoreStatus.OPEN));
         return store.stream().map(StoreResponse::from).toList();
     }
 
@@ -86,6 +104,11 @@ public class StoreService {
         storeRepository.updateAllFavorites(delta, userId, FavoriteStatus.ACTIVE);
     }
 
+    @Transactional
+    public void updateAllStores(Long userId){
+        storeRepository.updateAllStores(userId, StoreStatus.SHUTDOWN);
+    }
+
     public List<Store> getMyStores(Long userId){
         return storeRepository.getMyStores(userId, StoreStatus.SHUTDOWN);
     }
@@ -105,5 +128,23 @@ public class StoreService {
 
     public void bulkUpdateStatus(List<Long> storeIds){
         storeRepository.bulkUpdateStatus(storeIds, StoreStatus.SHUTDOWN);
+    }
+
+    public List<StoreResponse> getFamous(){
+        Pageable TopSix = PageRequest.of(0, 6);
+        List<Store> famousStore = storeRepository.getFamous(List.of(StoreStatus.READY, StoreStatus.OPEN), FavoriteStatus.ACTIVE, TopSix);
+        List<Store> latestStore = storeRepository.findTop12ByStatusOrderByCreatedAtDesc(StoreStatus.OPEN);
+        Set<Store> combined = new LinkedHashSet<>(famousStore);
+        combined.addAll(latestStore);
+        return combined.stream()
+                .limit(6)
+                .map(StoreResponse::from)
+                .toList();
+    }
+
+    public List<StoreAdminResponse> getStoresForAdmin(String keyword, StoreCategory category, StoreStatus status){
+        return storeRepository.getStoresForAdmin(keyword, category, status).stream()
+                .map(StoreAdminResponse::from)
+                .toList();
     }
 }
