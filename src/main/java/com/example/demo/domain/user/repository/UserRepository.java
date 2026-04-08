@@ -4,8 +4,12 @@ import com.example.demo.domain.user.domain.User;
 import com.example.demo.domain.user.domain.UserLoginType;
 import com.example.demo.domain.user.domain.UserRole;
 import com.example.demo.domain.user.domain.UserStatus;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -31,4 +35,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
             @Param("loginType") UserLoginType loginType,
             @Param("role") UserRole role,
             @Param("status") UserStatus status);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value="3000")})
+    @Query("""
+            select u from User u
+            where u.id = :id
+            """)
+    Optional<User> findByIdWithLock(Long id);
 }

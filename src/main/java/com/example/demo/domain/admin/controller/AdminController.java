@@ -50,6 +50,4 @@ public class AdminController {
         List<ReservationAdminResponse> response = adminFacade.getReservationsForAdmin(userDetails.getId(), dto);
         return ResponseEntity.ok(response);
     }
-
-
 }

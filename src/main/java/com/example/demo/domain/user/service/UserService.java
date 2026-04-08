@@ -103,4 +103,9 @@ public class UserService {
                 .map(UserAdminResponse::from)
                 .toList();
     }
+
+    public User findByIdWithLock(Long userId){
+        return userRepository.findByIdWithLock(userId)
+                .orElseThrow(() -> new  BusinessException(ErrorCode.USER_NOT_FOUND));
+    }
 }

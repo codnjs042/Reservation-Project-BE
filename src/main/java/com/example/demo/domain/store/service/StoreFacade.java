@@ -23,7 +23,9 @@ public class StoreFacade {
     private final FavoriteService favoriteService;
 
     @Transactional
-    public StoreDetailResponse create(User user, StoreCreateRequest dto){
+    public StoreDetailResponse create(Long userId, StoreCreateRequest dto){
+        User user = userService.findByIdWithLock(userId);
+
         Store store = storeService.create(user, dto);
 
         if(user.getRole()==UserRole.USER){

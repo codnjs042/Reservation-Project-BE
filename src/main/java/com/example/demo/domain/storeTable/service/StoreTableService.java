@@ -63,8 +63,7 @@ public class StoreTableService {
     }
 
     public List<StoreTable> findTableGroup(Long storeId, String tableName){
-        List<StoreTable> storeTables = storeTableRepository.findTableGroup(storeId, tableName, StoreTableStatus.ACTIVE);
-        return storeTables;
+        return storeTableRepository.findTableGroup(storeId, tableName, StoreTableStatus.ACTIVE);
     }
 
     public void validateCount(Long storeId, String oldTableName, int newTableCount){
@@ -102,5 +101,9 @@ public class StoreTableService {
 
     public boolean existsByStoreIdAndStatus(Long storeId){
         return storeTableRepository.existsByStoreIdAndStatus(storeId, StoreTableStatus.ACTIVE);
+    }
+
+    public void bulkUpdateStatus(List<Long> storeIds){
+        storeTableRepository.bulkUpdateStatus(storeIds, StoreTableStatus.DELETED);
     }
 }

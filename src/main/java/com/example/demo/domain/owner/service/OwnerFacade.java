@@ -60,12 +60,14 @@ public class OwnerFacade {
         });
 
         favoriteService.bulkUpdateStatusByStore(dto.ids());
+        scheduleService.bulkUpdateStatus(dto.ids());
+        storeTableService.bulkUpdateStatus(dto.ids());
         storeService.bulkUpdateStatus(dto.ids());
     }
 
     @Transactional
     public void updateStoreStatus(Long userId, Long storeId, StoreStatusUpdateRequest dto){
-        Store store = storeService.findById(storeId);
+        Store store = storeService.findByIdWithLock(storeId);
 
         storeService.validateOwner(store, userId);
         storeService.validateStatus(store, StoreStatus.READY, StoreStatus.OPEN, StoreStatus.HIDDEN);

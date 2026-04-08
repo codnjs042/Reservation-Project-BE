@@ -4,13 +4,14 @@ import com.example.demo.domain.favorite.domain.FavoriteStatus;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.domain.StoreCategory;
 import com.example.demo.domain.store.domain.StoreStatus;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface StoreRepository extends JpaRepository<Store, Long> {
     //가게 중복 등록 방지용
@@ -113,4 +114,20 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             @Param("keyword") String keyword,
             @Param("category") StoreCategory category,
             @Param("status") StoreStatus status);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value="3000")})
+    @Query("""
+            select s from Store s
+            where s.id = :id
+            """)
+    Optional<Store> findByIdWithLock(@Param("id") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value="3000")})
+    @Query("""
+            select s from Store s
+            where s.id in :ids
+            """)
+    List<Store> findAllByIdWithLock(@Param("ids") List<Long> ids);
 }

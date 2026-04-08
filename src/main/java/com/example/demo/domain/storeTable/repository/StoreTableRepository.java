@@ -3,12 +3,7 @@ package com.example.demo.domain.storeTable.repository;
 import com.example.demo.domain.reservation.domain.ReservationStatus;
 import com.example.demo.domain.storeTable.domain.StoreTable;
 import com.example.demo.domain.storeTable.domain.StoreTableStatus;
-import jakarta.persistence.LockModeType;
-import jakarta.persistence.QueryHint;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
@@ -42,8 +37,6 @@ public interface StoreTableRepository extends JpaRepository<StoreTable, Long> {
             StoreTableStatus status);
 
     //예약 가능 테이블 현황
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value="3000")})
     @Query("""
             select t from StoreTable t
             where t.store.id = :storeId
@@ -87,4 +80,14 @@ public interface StoreTableRepository extends JpaRepository<StoreTable, Long> {
             @Param("storeTableStatus") StoreTableStatus storeTableStatus);
 
     boolean existsByStoreIdAndStatus(Long storeId, StoreTableStatus status);
+
+    @Modifying
+    @Query("""
+            update StoreTable t
+            set t.status = :status
+            where t.id in :storeIds
+            """)
+    void bulkUpdateStatus(
+            @Param("storeIds") List<Long> storeIds,
+            @Param("status") StoreTableStatus status);
 }

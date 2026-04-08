@@ -3,6 +3,7 @@ package com.example.demo.domain.schedule.repository;
 import com.example.demo.domain.schedule.domain.Schedule;
 import com.example.demo.domain.schedule.domain.ScheduleStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -46,5 +47,15 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             """)
     List<Schedule> findSchedules(
             @Param("storeId") Long storeId,
+            @Param("status") ScheduleStatus status);
+
+    @Modifying
+    @Query("""
+            update Schedule s
+            set s.status = :status
+            where s.id in :storeIds
+            """)
+    void bulkUpdateStatus(
+            @Param("storeIds") List<Long> storeIds,
             @Param("status") ScheduleStatus status);
 }

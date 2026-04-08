@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/owners/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/stores/*/tables/**", "/owners/**").hasRole("OWNER")
                         .requestMatchers(HttpMethod.PUT,"/stores/*/schedules/*").hasRole("OWNER")
                         .requestMatchers("/users/me/**", "/stores/register", "/favorites/**").authenticated()

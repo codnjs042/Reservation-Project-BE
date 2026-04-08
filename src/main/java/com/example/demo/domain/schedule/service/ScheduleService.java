@@ -102,4 +102,8 @@ public class ScheduleService {
                 .map(ScheduleResponse::from)
                 .toList();
     }
+
+    public void bulkUpdateStatus(List<Long> storeIds){
+        scheduleRepository.bulkUpdateStatus(storeIds, ScheduleStatus.DELETED);
+    }
 }

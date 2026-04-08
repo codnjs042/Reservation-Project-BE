@@ -51,7 +51,7 @@ public class ReservationService {
     }
 
     public Reservation findById(Long reservationId){
-        return reservationRepository.findById(reservationId)
+        return reservationRepository.findByIdWithLock(reservationId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
     }
 
@@ -112,7 +112,7 @@ public class ReservationService {
     }
 
     public List<Reservation> findAllById(List<Long> reservationIds){
-        return reservationRepository.findAllById(reservationIds);
+        return reservationRepository.findAllByIdWithLock(reservationIds);
     }
 
     public void updateStatus(Long userId, ReservationUpdateOwnerRequest dto){

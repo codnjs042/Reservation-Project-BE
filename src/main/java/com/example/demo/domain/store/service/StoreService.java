@@ -34,6 +34,11 @@ public class StoreService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
     }
 
+    public Store findByIdWithLock(Long storeId){
+        return storeRepository.findByIdWithLock(storeId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+    }
+
     @Transactional
     public Store create(User user, StoreCreateRequest dto){
         boolean isExists = storeRepository.existsByBusinessNumberAndStatusNot(dto.businessNumber(), StoreStatus.SHUTDOWN);
@@ -123,7 +128,7 @@ public class StoreService {
     }
 
     public List<Store> findByAllId(List<Long> storeIds){
-        return storeRepository.findAllById(storeIds);
+        return storeRepository.findAllByIdWithLock(storeIds);
     }
 
     public void bulkUpdateStatus(List<Long> storeIds){

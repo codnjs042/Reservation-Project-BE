@@ -18,7 +18,7 @@ public class UserFacade {
 
     @Transactional
     public void delete(Long userId){
-        User user = userService.findById(userId);
+        User user = userService.findByIdWithLock(userId);
 
         storeService.updateAllStores(user.getId());
 

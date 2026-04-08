@@ -29,7 +29,7 @@ public class StoreController {
             @RequestBody StoreCreateRequest dto,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
-        StoreDetailResponse response = storeFacade.create(userDetails.getUser(), dto);
+        StoreDetailResponse response = storeFacade.create(userDetails.getId(), dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

@@ -24,7 +24,7 @@ public class StoreTableFacade {
 
     @Transactional
     public void register(Long userId, Long storeId, StoreTableCreateRequest dto){
-        Store store = storeService.findById(storeId);
+        Store store = storeService.findByIdWithLock(storeId);
 
         storeService.validateOwner(store, userId);
 
@@ -44,7 +44,7 @@ public class StoreTableFacade {
 
     @Transactional
     public void adjust(Long userId, Long storeId, StoreTableBulkUpdateRequest dto){
-        Store store = storeService.findById(storeId);
+        Store store = storeService.findByIdWithLock(storeId);
 
         storeService.validateOwner(store, userId);
 

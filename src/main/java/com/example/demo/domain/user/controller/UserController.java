@@ -73,12 +73,14 @@ public class UserController {
 
     @Operation(summary="로그아웃", description="현재 세션을 무효화하여 로그아웃 처리")
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletRequest request)
+    public ResponseEntity<String> logout(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication authentication
+    )
     {
-        HttpSession session = request.getSession(false);
-        if(session!=null)
-            session.invalidate();
-        SecurityContextHolder.clearContext();
+        if(authentication!=null)
+            new SecurityContextLogoutHandler().logout(request, response, authentication);
         return ResponseEntity.ok("로그아웃 성공");
     }
 

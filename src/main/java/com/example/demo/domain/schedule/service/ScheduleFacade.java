@@ -22,7 +22,7 @@ public class ScheduleFacade {
 
     @Transactional
     public void upsert(Long userId, Long storeId, DayOfWeek dayOfWeek, List<ScheduleUpsertRequest> dtos){
-        Store store = storeService.findById(storeId);
+        Store store = storeService.findByIdWithLock(storeId);
 
         storeService.validateOwner(store, userId);
 

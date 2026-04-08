@@ -4,15 +4,16 @@ import com.example.demo.domain.reservation.domain.Reservation;
 import com.example.demo.domain.reservation.domain.ReservationStatus;
 import com.example.demo.domain.schedule.domain.ScheduleStatus;
 import com.example.demo.domain.storeTable.domain.StoreTableStatus;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     //가게 예약 목록 조회
@@ -142,4 +143,20 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("keyword") String keyword,
             @Param("status") ReservationStatus status
     );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value="3000")})
+    @Query("""
+            select r from Reservation r
+            where r.id = :id
+            """)
+    Optional<Reservation> findByIdWithLock(@Param("id") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value="3000")})
+    @Query("""
+            select r from Reservation r
+            where r.id in :ids
+            """)
+    List<Reservation> findAllByIdWithLock(@Param("ids") List<Long> ids);
 }
