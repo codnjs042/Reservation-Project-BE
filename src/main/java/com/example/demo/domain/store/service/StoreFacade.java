@@ -1,10 +1,10 @@
 package com.example.demo.domain.store.service;
 
 import com.example.demo.domain.favorite.serivce.FavoriteService;
-import com.example.demo.domain.owner.dto.StoreCreateRequest;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.domain.StoreStatus;
 import com.example.demo.domain.store.dto.StoreDetailResponse;
+import com.example.demo.domain.store.dto.StoreRegisterRequest;
 import com.example.demo.domain.user.domain.User;
 import com.example.demo.domain.user.domain.UserRole;
 import com.example.demo.domain.user.service.UserService;
@@ -23,7 +23,7 @@ public class StoreFacade {
     private final FavoriteService favoriteService;
 
     @Transactional
-    public StoreDetailResponse create(Long userId, StoreCreateRequest dto){
+    public StoreDetailResponse create(Long userId, StoreRegisterRequest dto){
         User user = userService.findByIdWithLock(userId);
 
         Store store = storeService.create(user, dto);

@@ -2,7 +2,6 @@ package com.example.demo.domain.store.service;
 
 import com.example.demo.domain.admin.dto.StoreAdminResponse;
 import com.example.demo.domain.favorite.domain.FavoriteStatus;
-import com.example.demo.domain.owner.dto.StoreCreateRequest;
 import com.example.demo.domain.owner.dto.StoreInfoUpdateRequest;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.domain.StoreCategory;
@@ -40,7 +39,7 @@ public class StoreService {
     }
 
     @Transactional
-    public Store create(User user, StoreCreateRequest dto){
+    public Store create(User user, StoreRegisterRequest dto){
         boolean isExists = storeRepository.existsByBusinessNumberAndStatusNot(dto.businessNumber(), StoreStatus.SHUTDOWN);
 
         if(isExists)
@@ -54,7 +53,6 @@ public class StoreService {
                 .owner(user)
                 .ownerName(dto.ownerName())
                 .businessNumber(dto.businessNumber())
-                .favorites(0)
                 .status(StoreStatus.READY)
                 .build();
 

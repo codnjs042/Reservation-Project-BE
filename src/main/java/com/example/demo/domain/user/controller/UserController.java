@@ -2,8 +2,8 @@ package com.example.demo.domain.user.controller;
 
 import com.example.demo.domain.favorite.dto.FavoriteResponse;
 import com.example.demo.domain.favorite.serivce.FavoriteService;
-import com.example.demo.domain.reservation.dto.ReservationSearchUserRequest;
-import com.example.demo.domain.reservation.dto.ReservationSearchUserResponse;
+import com.example.demo.domain.reservation.dto.ReservationSearchRequest;
+import com.example.demo.domain.reservation.dto.ReservationSearchResponse;
 import com.example.demo.domain.reservation.service.ReservationService;
 import com.example.demo.domain.user.dto.*;
 import com.example.demo.domain.user.service.UserFacade;
@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,15 +43,16 @@ public class UserController {
     @Operation(summary="이메일 중복 검사", description="입력 받은 이메일이 DB에 존재하는지 확인. 중복 시 true 반환")
     @GetMapping("/check-email")
     public ResponseEntity<Boolean> checkEmail(
-            @RequestParam @Schema(example="test1234@test.com") String email)
+            @Valid @ModelAttribute EmailCheckRequest dto)
     {
-        boolean response = userService.check(email);
+        boolean response = userService.check(dto.email());
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary="회원 가입", description="입력 받은 유저 정보를 DB에 저장. 성공 시 유저 정보 반환")
     @PostMapping("/signup")
-    public ResponseEntity<UserSignupResponse> signup(@RequestBody UserSignupRequest dto)
+    public ResponseEntity<UserSignupResponse> signup(
+            @Valid @RequestBody UserSignupRequest dto)
     {
         UserSignupResponse response = userService.join(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -59,7 +61,7 @@ public class UserController {
     @Operation(summary="로그인", description="입력 받은 이메일, 비밀 번호가 DB에 존재하는지 확인")
     @PostMapping("/login")
     public ResponseEntity<UserProfileResponse> login(
-            @RequestBody UserLoginRequest dto,
+            @Valid @RequestBody UserLoginRequest dto,
             HttpServletRequest request)
     {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(dto.email(), dto.password());
@@ -87,17 +89,17 @@ public class UserController {
     @Operation(summary="닉네임 변경", description="현재 로그인 상태의 유저에게 입력 받은 닉네임을 db에 적용")
     @PatchMapping("/me/nickname")
     public ResponseEntity<String> updateNickname(
-            @RequestParam @Schema(example="또치") String nickname,
+            @Valid @RequestBody UserNicknameRequest dto,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
-        userService.updateNickname(userDetails.getId(), nickname);
-        return ResponseEntity.ok("닉네임 변경 성공 : " + nickname);
+        userService.updateNickname(userDetails.getId(), dto.nickname());
+        return ResponseEntity.ok("닉네임 변경 성공 : " + dto.nickname());
     }
 
     @Operation(summary="비밀번호 변경", description="현재 로그인 상태의 유저에게 입력 받은 비밀번호를 db에 적용")
     @PatchMapping("/me/password")
     public ResponseEntity<String> updatePassword(
-            @RequestBody UserPasswordRequest dto,
+            @Valid @RequestBody UserPasswordRequest dto,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpServletRequest request,
             HttpServletResponse response)
@@ -131,11 +133,11 @@ public class UserController {
 
     @Operation(summary="예약 조회(유저용)", description="현재 로그인된 유저의 예약 목록 조회")
     @GetMapping("/me/reservations")
-    public ResponseEntity<List<ReservationSearchUserResponse>> searchUser(
-            @ModelAttribute ReservationSearchUserRequest dto,
+    public ResponseEntity<List<ReservationSearchResponse>> searchUser(
+            @Valid @ModelAttribute ReservationSearchRequest dto,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
-        List<ReservationSearchUserResponse> response = reservationService.getMyReservation(userDetails.getId(), dto);
+        List<ReservationSearchResponse> response = reservationService.getMyReservation(userDetails.getId(), dto);
         return ResponseEntity.ok(response);
     }
 

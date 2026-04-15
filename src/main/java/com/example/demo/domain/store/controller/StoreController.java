@@ -1,12 +1,12 @@
 package com.example.demo.domain.store.controller;
 
-import com.example.demo.domain.owner.dto.StoreCreateRequest;
 import com.example.demo.domain.store.dto.*;
 import com.example.demo.domain.store.service.StoreFacade;
 import com.example.demo.domain.store.service.StoreService;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +26,7 @@ public class StoreController {
     @Operation(summary="가게 등록", description="현재 로그인한 유저 권한의 가게 등록.")
     @PostMapping("/register")
     public ResponseEntity<StoreDetailResponse> createStore(
-            @RequestBody StoreCreateRequest dto,
+            @Valid @RequestBody StoreRegisterRequest dto,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
         StoreDetailResponse response = storeFacade.create(userDetails.getId(), dto);
@@ -47,7 +47,7 @@ public class StoreController {
     @Operation(summary="가게 목록 조회", description="현재 활성화 상태의 가게 목록 반환")
     @GetMapping
     public ResponseEntity<List<StoreResponse>> getList(
-            @ModelAttribute StoreSearchRequest dto)
+            @Valid @ModelAttribute StoreSearchRequest dto)
     {
         List<StoreResponse> response = storeService.getList(dto);
         return ResponseEntity.ok(response);

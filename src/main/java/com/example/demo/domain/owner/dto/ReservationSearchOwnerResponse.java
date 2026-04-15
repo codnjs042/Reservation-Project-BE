@@ -1,4 +1,4 @@
-package com.example.demo.domain.reservation.dto;
+package com.example.demo.domain.owner.dto;
 
 import com.example.demo.domain.reservation.domain.Reservation;
 import com.example.demo.domain.reservation.domain.ReservationStatus;

@@ -23,7 +23,7 @@ public class Store extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private StoreCategory category;
 
-    @Column(nullable = false, length=50)
+    @Column(nullable = false, length=100)
     private String address;
 
     @Column(nullable = false, length=11)
@@ -33,20 +33,20 @@ public class Store extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User owner;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length=50)
     private String ownerName;
 
     @Column(nullable = false, length=10)
     private String businessNumber;
 
     @Column(nullable = false)
-    private int favorites;
+    private int favorites = 0;
 
     @Enumerated(EnumType.STRING)
     private StoreStatus status;
 
     @Builder
-    public Store(String name, StoreCategory category, String address, String phone, User owner, String ownerName, String businessNumber, int favorites, StoreStatus status){
+    public Store(String name, StoreCategory category, String address, String phone, User owner, String ownerName, String businessNumber, StoreStatus status){
         this.name = name;
         this.category = category;
         this.address = address;
@@ -54,7 +54,6 @@ public class Store extends BaseEntity {
         this.owner = owner;
         this.ownerName = ownerName;
         this.businessNumber = businessNumber;
-        this.favorites = favorites;
         this.status = status;
     }
 

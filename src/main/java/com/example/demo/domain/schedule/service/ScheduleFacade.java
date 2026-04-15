@@ -33,6 +33,5 @@ public class ScheduleFacade {
             if(!hasSchedule)
                 store.updateStatus(StoreStatus.READY);
         }
-
     }
 }

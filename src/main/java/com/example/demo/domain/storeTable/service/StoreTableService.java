@@ -45,6 +45,11 @@ public class StoreTableService {
             throw new BusinessException(ErrorCode.TABLE_ALREADY_EXIST);
     }
 
+    public void validateCapacity(int minCapacity, int maxCapacity){
+        if(minCapacity > maxCapacity || minCapacity <= 0)
+            throw new BusinessException(ErrorCode.INVALID_TABLE_CAPACITY);
+    }
+
     public List<StoreTable> findAllTables(Long storeId){
         return storeTableRepository.findAllTables(storeId, StoreTableStatus.ACTIVE);
     }

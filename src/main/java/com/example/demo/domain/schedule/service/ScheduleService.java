@@ -62,8 +62,11 @@ public class ScheduleService {
         boolean hasConflict = IntStream.range(0, sorted.size()-1)
                 .anyMatch(i -> !sorted.get(i).endTime().isBefore(sorted.get(i+1).startTime()));
         if(hasConflict)
-            throw new BusinessException(ErrorCode.INVALID_SCHEDULE_TIME);
+            throw new BusinessException(ErrorCode.INVALID_SCHEDULE_TIME, "시간대는 서로 겹치게 설정할 수 없습니다.");
 
+        for(ScheduleUpsertRequest dto : dtos){
+            validateTime(dto);
+        }
         //새로운 스케줄로 업데이트
         List<Schedule> newSchedules = dtos.stream()
                 .map(
@@ -81,7 +84,7 @@ public class ScheduleService {
     }
 
     //특정 요일의 예약 시간대 확인
-    public void validateTime(Long storeId, LocalDateTime targetDateTime){
+    public void validateAvailableTime(Long storeId, LocalDateTime targetDateTime){
         if(targetDateTime.isBefore(LocalDateTime.now()))
             throw new BusinessException(ErrorCode.RESERVATION_UNAVAILABLE_TIME);
 
@@ -105,5 +108,13 @@ public class ScheduleService {
 
     public void bulkUpdateStatus(List<Long> storeIds){
         scheduleRepository.bulkUpdateStatus(storeIds, ScheduleStatus.DELETED);
+    }
+
+    public void validateTime(ScheduleUpsertRequest dto){
+        if(dto.startTime().isAfter(dto.endTime()))
+            throw new BusinessException(ErrorCode.INVALID_SCHEDULE_TIME, "시작 시간은 종료 시간보다 빨라야 합니다.");
+
+        if(dto.startTime().plusMinutes(dto.intervalMinute()).isAfter(dto.endTime()))
+            throw new BusinessException(ErrorCode.INVALID_SCHEDULE_TIME, "예약 간격은 운영 시간보다 길 수 없습니다.");
     }
 }

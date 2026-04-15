@@ -24,7 +24,7 @@ public class Reservation extends BaseEntity {
     @JoinColumn(name = "userId")
     private User user;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 30)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)

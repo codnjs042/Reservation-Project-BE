@@ -23,7 +23,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     @Query("""
             select f from Favorite f
             join fetch f.store
-            join fetch f.user
             where f.user.id = :userId
             and f.status = :status
             """)

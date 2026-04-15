@@ -2,12 +2,13 @@ package com.example.demo.domain.owner.controller;
 
 import com.example.demo.domain.owner.dto.*;
 import com.example.demo.domain.owner.service.OwnerFacade;
-import com.example.demo.domain.reservation.dto.ReservationSearchOwnerResponse;
+import com.example.demo.domain.owner.dto.ReservationSearchOwnerResponse;
 import com.example.demo.domain.reservation.service.ReservationService;
 import com.example.demo.domain.store.service.StoreService;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -46,7 +47,7 @@ public class OwnerController {
     @Operation(summary="가게 삭제", description="현재 로그인한 유저 권한의 가게 id를 하나 또는 여러 개 받아 일괄 삭제 처리.")
     @DeleteMapping
     public ResponseEntity<Void> deleteStores(
-            @RequestBody StoreDeleteRequest dto,
+            @Valid @RequestBody StoreDeleteRequest dto,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
         ownerFacade.delete(userDetails.getId(), dto);
@@ -56,7 +57,7 @@ public class OwnerController {
     @Operation(summary="가게 수정", description="현재 로그인한 유저 권한의 가게의 정보를 변경")
     @PatchMapping("/{storeId}")
     public ResponseEntity<String> updateStoreInfo(
-            @RequestBody StoreInfoUpdateRequest dto,
+            @Valid @RequestBody StoreInfoUpdateRequest dto,
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
@@ -67,7 +68,7 @@ public class OwnerController {
     @Operation(summary="가게 영업 상태 변경", description="현재 로그인한 유저 권한의 가게의 정보를 변경")
     @PatchMapping("/{storeId}/status")
     public ResponseEntity<String> updateStoreStatus(
-            @RequestBody StoreStatusUpdateRequest dto,
+            @Valid @RequestBody StoreStatusUpdateRequest dto,
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
@@ -78,7 +79,7 @@ public class OwnerController {
     @Operation(summary="예약 조회", description="현재 로그인된 유저 권한의 가게 예약 목록 조회")
     @GetMapping("/{storeId}/reservations")
     public ResponseEntity<List<ReservationSearchOwnerResponse>> getReservations(
-            @ModelAttribute ReservationSearchOwnerRequest dto,
+            @Valid @ModelAttribute ReservationSearchOwnerRequest dto,
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
@@ -89,7 +90,7 @@ public class OwnerController {
     @Operation(summary="예약 관리", description="현재 로그인된 유저 권한의 가게 예약 상태 일괄 변경")
     @PatchMapping("/{storeId}/reservations")
     public ResponseEntity<String> updateReservationStatus(
-            @RequestBody ReservationUpdateOwnerRequest dto,
+            @Valid @RequestBody ReservationUpdateOwnerRequest dto,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
         reservationService.updateStatus(userDetails.getId(), dto);

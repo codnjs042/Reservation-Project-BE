@@ -7,6 +7,7 @@ import com.example.demo.domain.storeTable.service.StoreTableFacade;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class StoreTableController {
     @Operation(summary="테이블 초기 등록", description="입력 받은 테이블 정보를 DB에 저장")
     @PostMapping("/register")
     public ResponseEntity<String> register(
-            @RequestBody StoreTableCreateRequest dto,
+            @Valid @RequestBody StoreTableCreateRequest dto,
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
@@ -44,7 +45,7 @@ public class StoreTableController {
     @Operation(summary="테이블 구성 변경", description="입력 받은 가게의 테이블 정보 일괄 수정")
     @PutMapping
     public ResponseEntity<String> adjust(
-            @RequestBody StoreTableBulkUpdateRequest dto,
+            @Valid @RequestBody StoreTableBulkUpdateRequest dto,
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {

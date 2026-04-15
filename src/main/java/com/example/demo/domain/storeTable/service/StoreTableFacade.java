@@ -29,6 +29,7 @@ public class StoreTableFacade {
         storeService.validateOwner(store, userId);
 
         storeTableService.validateName(store.getId(), dto.tableName());
+        storeTableService.validateCapacity(dto.minCapacity(), dto.maxCapacity());
         storeTableService.create(store, dto.tableName(), dto.minCapacity(), dto.maxCapacity(), dto.count());
     }
 
@@ -52,6 +53,7 @@ public class StoreTableFacade {
             storeTableService.validateName(store.getId(), dto.newTableName());
         reservationService.validateCapacity(store.getId(),dto.minCapacity(), dto.maxCapacity(), dto.oldTableName());
         storeTableService.validateCount(store.getId(), dto.oldTableName(), dto.count());
+        storeTableService.validateCapacity(dto.minCapacity(), dto.maxCapacity());
 
         storeTableService.adjust(store, dto.oldTableName(), dto);
         if(dto.count()==0) {

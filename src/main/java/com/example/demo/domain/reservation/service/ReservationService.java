@@ -69,12 +69,13 @@ public class ReservationService {
         return reservationRepository.getStoreReservationList(dto.type(), dto.keyword(), storeId, startDate, endDate, dto.status());
     }
 
-    public List<ReservationSearchUserResponse> getMyReservation(Long userId, ReservationSearchUserRequest dto){
+    public List<ReservationSearchResponse> getMyReservation(Long userId, ReservationSearchRequest dto){
         LocalDate startDate = dto.startDate()==null ? LocalDate.now().minusMonths(1) : dto.startDate();
         LocalDate endDate = dto.endDate()==null ? LocalDate.now().plusMonths(1) : dto.endDate();
+        validateDate(startDate, endDate);
 
         return reservationRepository.getMyReservationList(userId, startDate, endDate, dto.status()).stream()
-                .map(ReservationSearchUserResponse::from)
+                .map(ReservationSearchResponse::from)
                 .toList();
     }
 
@@ -149,5 +150,10 @@ public class ReservationService {
         return reservationRepository.getReservationsForAdmin(keyword, status).stream()
                 .map(ReservationAdminResponse::from)
                 .toList();
+    }
+
+    public void validateDate(LocalDate startDate, LocalDate endDate){
+        if(startDate.isAfter(endDate))
+            throw new BusinessException(ErrorCode.INVALID_RESERVATION_DATE);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.demo.domain.schedule.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ public record ScheduleUpsertWrapper(
                     ]
                 """
         )
+        @Valid
         List<ScheduleUpsertRequest> upsertSchedules
 ) {
 }

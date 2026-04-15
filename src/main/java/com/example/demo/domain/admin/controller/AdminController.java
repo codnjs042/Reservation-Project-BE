@@ -6,6 +6,7 @@ import com.example.demo.domain.user.service.UserService;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,7 +26,7 @@ public class AdminController {
     @GetMapping("/users")
     public ResponseEntity<List<UserAdminResponse>> getUsers(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @ModelAttribute UserAdminRequest dto
+            @Valid @ModelAttribute UserAdminRequest dto
     ){
         List<UserAdminResponse> response = userService.getUsersForAdmin(userDetails.getId(), dto);
         return ResponseEntity.ok(response);
@@ -35,7 +36,7 @@ public class AdminController {
     @GetMapping("/stores")
     public ResponseEntity<List<StoreAdminResponse>> getStores(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @ModelAttribute StoreAdminRequest dto
+            @Valid @ModelAttribute StoreAdminRequest dto
     ){
         List<StoreAdminResponse> response = adminFacade.getStoresForAdmin(userDetails.getId(), dto);
         return ResponseEntity.ok(response);
@@ -45,7 +46,7 @@ public class AdminController {
     @GetMapping("/reservations")
     public ResponseEntity<List<ReservationAdminResponse>> getStores(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @ModelAttribute ReservationAdminRequest dto
+            @Valid @ModelAttribute ReservationAdminRequest dto
     ){
         List<ReservationAdminResponse> response = adminFacade.getReservationsForAdmin(userDetails.getId(), dto);
         return ResponseEntity.ok(response);

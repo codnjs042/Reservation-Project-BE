@@ -21,7 +21,7 @@ public class StoreTable extends BaseEntity {
     @JoinColumn(name = "store_id")
     private Store store;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 15)
     private String tableName;
 
     @Column(nullable = false)

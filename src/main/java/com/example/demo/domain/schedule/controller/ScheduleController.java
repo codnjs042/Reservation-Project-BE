@@ -7,6 +7,7 @@ import com.example.demo.domain.schedule.service.ScheduleService;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,7 +27,7 @@ public class ScheduleController {
     @Operation(summary="요일별 영업시간대 설정", description="해당 요일의 전체 스케줄을 갱신. 기존 예약이 있는 경우, 변경이 제한됨. 빈 리스트 전송 시 휴무 처리")
     @PutMapping("/{dayOfWeek}")
     public ResponseEntity<String> upsert(
-            @RequestBody ScheduleUpsertWrapper dto,
+            @Valid @RequestBody ScheduleUpsertWrapper dto,
             @PathVariable Long storeId,
             @PathVariable DayOfWeek dayOfWeek,
             @AuthenticationPrincipal CustomUserDetails userDetails)

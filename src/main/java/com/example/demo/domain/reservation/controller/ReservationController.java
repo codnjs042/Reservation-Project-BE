@@ -5,6 +5,7 @@ import com.example.demo.domain.reservation.service.ReservationFacade;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class ReservationController {
     @Operation(summary="예약 타임 슬롯 조회", description="입력 받은 날짜와 인원 수를 토대로 시간대별 예약 가능 현황 반환.")
     @GetMapping("/time-slot")
     public ResponseEntity<List<ReservationTimeSlotResponse>> getTimeSlot(
-            @ModelAttribute ReservationTimeSlotRequest dto,
+            @Valid @ModelAttribute ReservationTimeSlotRequest dto,
             @PathVariable Long storeId)
     {
         List<ReservationTimeSlotResponse> response = reservationFacade.getTimeSlots(storeId, dto);
@@ -33,7 +34,7 @@ public class ReservationController {
     @Operation(summary="예약 신청", description="입력 받은 예약 정보를 DB에 저장")
     @PostMapping
     public ResponseEntity<ReservationCreateResponse> reserveTime(
-            @RequestBody ReservationCreateRequest dto,
+            @Valid @RequestBody ReservationCreateRequest dto,
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {

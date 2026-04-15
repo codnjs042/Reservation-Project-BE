@@ -3,7 +3,7 @@ package com.example.demo.domain.owner.service;
 import com.example.demo.domain.favorite.serivce.FavoriteService;
 import com.example.demo.domain.owner.dto.*;
 import com.example.demo.domain.reservation.domain.Reservation;
-import com.example.demo.domain.reservation.dto.ReservationSearchOwnerResponse;
+import com.example.demo.domain.owner.dto.ReservationSearchOwnerResponse;
 import com.example.demo.domain.reservation.service.ReservationService;
 import com.example.demo.domain.schedule.service.ScheduleService;
 import com.example.demo.domain.store.domain.Store;
@@ -93,6 +93,8 @@ public class OwnerFacade {
 
         LocalDate startDate = dto.startDate()==null ? LocalDate.now().minusMonths(1) : dto.startDate();
         LocalDate endDate = dto.endDate()==null ? LocalDate.now().plusMonths(1) : dto.endDate();
+
+        reservationService.validateDate(startDate, endDate);
 
         List<Reservation> reservations = reservationService.getStoreReservation(store.getId(), dto, startDate, endDate);
 

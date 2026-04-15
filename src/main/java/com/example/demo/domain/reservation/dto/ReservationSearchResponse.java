@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 
-public record ReservationSearchUserResponse(
+public record ReservationSearchResponse(
         @Schema(description="예약 번호")
         Long id,
         @Schema(description="상호명")
@@ -20,8 +20,8 @@ public record ReservationSearchUserResponse(
         @Schema(description="예약 상태")
         ReservationStatus status
 ) {
-    public static ReservationSearchUserResponse from(Reservation reservation){
-        return new ReservationSearchUserResponse(
+    public static ReservationSearchResponse from(Reservation reservation){
+        return new ReservationSearchResponse(
                 reservation.getId(),
                 reservation.getStore().getName(),
                 reservation.getName(),
