@@ -24,9 +24,9 @@ public class StoreController {
     private final StoreFacade storeFacade;
 
     @Operation(summary="가게 등록", description="현재 로그인한 유저 권한의 가게 등록.")
-    @PostMapping("/register")
+    @PostMapping
     public ResponseEntity<StoreDetailResponse> createStore(
-            @Valid @RequestBody StoreRegisterRequest dto,
+            @Valid @RequestBody StoreCreateRequest dto,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
         StoreDetailResponse response = storeFacade.create(userDetails.getId(), dto);
@@ -50,6 +50,15 @@ public class StoreController {
             @Valid @ModelAttribute StoreSearchRequest dto)
     {
         List<StoreResponse> response = storeService.getList(dto);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary="내 위치 반경 3km 가게 목록", description="내 위치 반경 km 내 현재 활성화 상태의 가게 목록 반환")
+    @GetMapping("/nearby")
+    public ResponseEntity<List<StorePointResponse>> get3kmList(
+            @Valid @ModelAttribute MyPointRequest dto)
+    {
+        List<StorePointResponse> response = storeService.get3kmList(dto);
         return ResponseEntity.ok(response);
     }
 

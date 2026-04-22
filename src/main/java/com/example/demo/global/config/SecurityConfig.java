@@ -32,8 +32,8 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/stores/*/tables/**", "/owners/**").hasRole("OWNER")
                         .requestMatchers(HttpMethod.PUT,"/stores/*/schedules/*").hasRole("OWNER")
-                        .requestMatchers("/users/me/**", "/stores/register", "/favorites/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/stores/*/reservations").authenticated()
+                        .requestMatchers("/users/me/**", "/favorites/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/stores", "/stores/*/reservations").authenticated()
                         .requestMatchers("/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**",
                                 "/users/check-email", "/users/signup", "/users/login", "/users/logout").permitAll()
                         .requestMatchers(HttpMethod.GET, "/stores/**").permitAll()

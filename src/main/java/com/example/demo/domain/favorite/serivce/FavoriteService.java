@@ -6,11 +6,14 @@ import com.example.demo.domain.favorite.dto.FavoriteResponse;
 import com.example.demo.domain.favorite.repository.FavoriteRepository;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.user.domain.User;
+import com.example.demo.global.exception.BusinessException;
+import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,14 +32,34 @@ public class FavoriteService {
         favoriteRepository.save(favorite);
     }
 
+    public Optional<Favorite> findRelation(User user, Store store) {
+        return favoriteRepository.findRelation(user.getId(), store.getId());
+    }
+
     @Transactional
-    public FavoriteStatus toggle(User user, Store store){
-        return favoriteRepository.findRelation(user.getId(), store.getId())
-                .map(Favorite::toggle)
-                .orElseGet(() -> {
-                    create(user, store);
-                    return FavoriteStatus.ACTIVE;
-                });
+    public void add(User user, Store store){
+         Optional<Favorite> exists = findRelation(user, store);
+
+         if(exists.isEmpty())
+             create(user, store);
+         else{
+             Favorite favorite = exists.get();
+
+             if(favorite.getStatus() == FavoriteStatus.ACTIVE)
+                 throw new BusinessException(ErrorCode.FAVORITE_ALREADY_EXIST);
+
+             favorite.updateStatus(FavoriteStatus.ACTIVE);
+         }
+    }
+    @Transactional
+    public void delete(User user, Store store){
+        Favorite favorite = findRelation(user, store)
+                .orElseThrow(() -> new BusinessException(ErrorCode.FAVORITE_ALREADY_DELETED));
+
+        if(favorite.getStatus() == FavoriteStatus.DELETED)
+            throw new BusinessException(ErrorCode.FAVORITE_ALREADY_DELETED);
+
+        favorite.updateStatus(FavoriteStatus.DELETED);
     }
 
     public List<FavoriteResponse> getList(Long userId){

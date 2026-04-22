@@ -2,6 +2,7 @@ package com.example.demo.domain.reservation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,6 +17,6 @@ public record ReservationTimeSlotRequest(
         @Schema(description="예약 날짜", example="2026-02-01")
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         @NotNull(message = "예약할 날짜를 선택해 주세요.")
-        @Future(message = "이미 지난 날짜는 예약 대상이 아닙니다.")
+        @FutureOrPresent(message = "이미 지난 날짜는 예약 대상이 아닙니다.")
         LocalDate targetDate
 ) {}

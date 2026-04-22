@@ -11,6 +11,7 @@ import com.example.demo.domain.store.repository.StoreRepository;
 import com.example.demo.domain.user.domain.User;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
+import com.example.demo.global.infra.kakao.PointDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,16 +40,23 @@ public class StoreService {
     }
 
     @Transactional
-    public Store create(User user, StoreRegisterRequest dto){
+    public Store create(User user, StoreCreateRequest dto, PointDto coordinates){
         boolean isExists = storeRepository.existsByBusinessNumberAndStatusNot(dto.businessNumber(), StoreStatus.SHUTDOWN);
 
         if(isExists)
             throw new BusinessException(ErrorCode.STORE_ALREADY_EXIST);
 
+        Double latitude = coordinates!=null ? coordinates.latitude() : null;
+        Double longitude = coordinates!=null ? coordinates.longitude() : null;
+
         Store store = Store.builder()
                 .name(dto.name())
                 .category(dto.category())
                 .address(dto.address())
+                .detailAddress(dto.detailAddress())
+                .zipcode(dto.zipcode())
+                .latitude(latitude)
+                .longitude(longitude)
                 .phone(dto.phone())
                 .owner(user)
                 .ownerName(dto.ownerName())
@@ -94,7 +102,7 @@ public class StoreService {
         validateOwner(store, userId);
         validateStatus(store, StoreStatus.READY, StoreStatus.OPEN, StoreStatus.HIDDEN);
 
-        store.updateBasicInfo(dto.name(), dto.category(), dto.phone());
+        store.updateBasicInfo(dto.name(), dto.category(), dto.address(), dto.phone());
     }
 
     @Transactional
@@ -149,5 +157,10 @@ public class StoreService {
         return storeRepository.getStoresForAdmin(keyword, category, status).stream()
                 .map(StoreAdminResponse::from)
                 .toList();
+    }
+
+    public List<StorePointResponse> get3kmList(MyPointRequest dto){
+        List<Store> store = storeRepository.findWithin3km(dto.latitude(), dto.longitude(), List.of(StoreStatus.READY.name(), StoreStatus.OPEN.name()));
+        return store.stream().map(StorePointResponse::from).toList();
     }
 }

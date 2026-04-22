@@ -29,6 +29,8 @@ public enum ErrorCode {
     TABLE_LOCKED(HttpStatus.CONFLICT, "TABLE-004", "해당 테이블에 예약이 배정되어 테이블 관리가 제한됩니다."),
     INVALID_TABLE_COUNT(HttpStatus.BAD_REQUEST, "TABLE-005", "새로운 테이블 타입은 최소 1개 이상 등록해야 합니다."),
     INVALID_TABLE_CAPACITY(HttpStatus.BAD_REQUEST, "TABLE-006", "테이블 수용 인원 설정이 올바르지 않습니다."),
+    FAVORITE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "FAVORITE-001", "이미 관심 등록된 상태입니다."),
+    FAVORITE_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "FAVORITE-002", "이미 관심 삭제된 상태입니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON-001", "권한이 없습니다.");
 
     private final HttpStatus status;

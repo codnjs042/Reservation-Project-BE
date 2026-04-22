@@ -130,4 +130,15 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             where s.id in :ids
             """)
     List<Store> findAllByIdWithLock(@Param("ids") List<Long> ids);
+
+    @Query(nativeQuery=true, value= """
+            select * from (
+                select *, (6371 * acos(cos(radians(:latitude)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:longitude)) + sin(radians(:latitude)) * sin(radians(latitude)))) as distance
+                from Stores
+                where status in :status
+            ) as result
+            where result.distance <=3.0
+            order by result.distance
+            """)
+    List<Store> findWithin3km(@Param("latitude") Double latitude, @Param("longitude") Double longitude, @Param("status") List<String> status);
 }

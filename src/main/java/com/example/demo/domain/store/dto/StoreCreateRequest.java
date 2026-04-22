@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-public record StoreRegisterRequest(
+public record StoreCreateRequest(
         @Schema(description = "가게명", example="호식이국밥")
         @NotBlank(message = "가게명을 입력해 주세요.")
         @Pattern(regexp = "^[가-힣a-zA-Z0-9\\s&()\\-,.]{1,50}$", message = "가게명은 1자 이상 50자 이하의 숫자/영문/한글/공백/특수문자(&()-,.)로 입력해 주세요.")
@@ -14,10 +14,17 @@ public record StoreRegisterRequest(
         @Schema(description = "카테고리", example="KOREAN")
         @NotNull(message = "카테고리를 선택해 주세요.")
         StoreCategory category,
-        @Schema(description = "주소", example="충청남도 천안시 동남구 신부 1길 1")
+        @Schema(description = "기본주소", example="충청남도 천안시 동남구 신부 1길 1")
         @NotBlank(message = "주소를 입력해 주세요.")
         @Pattern(regexp = "^[가-힣a-zA-Z0-9\\s&()\\-,.]{1,100}$", message = "주소는 1자 이상 100자 이하의 숫자/영문/한글/공백/특수문자(&()-,.)로 입력해 주세요.")
         String address,
+        @Schema(description = "상세 주소", example="101호")
+        @Pattern(regexp = "^[가-힣a-zA-Z0-9\\s&()\\-,.]{0,50}$", message = "상세 주소는 50자 이하의 숫자/영문/한글/공백/특수문자(&()-,.)로 입력해 주세요.")
+        String detailAddress,
+        @Schema(description = "우편번호", example="31124")
+        @NotBlank(message = "우편번호를 입력해 주세요.")
+        @Pattern(regexp = "^[0-9]{5}$", message = "우편번호는 5자리 숫자로 입력해 주세요.")
+        String zipcode,
         @Schema(description = "전화번호", example="04182829898")
         @NotBlank(message = "전화번호를 입력해주세요.")
         @Pattern(regexp = "^[0-9]{8,11}$", message = "전화번호는 8자 이상 11자 이하의 숫자로 입력해 주세요.")

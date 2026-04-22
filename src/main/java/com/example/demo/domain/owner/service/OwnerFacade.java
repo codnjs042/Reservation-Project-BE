@@ -79,7 +79,7 @@ public class OwnerFacade {
             boolean hasSchedule = scheduleService.existsByStoreIdAndStatus(store.getId());
             boolean hasTable = storeTableService.existsByStoreIdAndStatus(store.getId());
             if(!hasSchedule || !hasTable)
-                throw new BusinessException(ErrorCode.INVALID_STORE_STATUS);
+                throw new BusinessException(ErrorCode.INVALID_STORE_STATUS, store.getStatus().getDesc());
         }
 
         store.updateStatus(dto.status());

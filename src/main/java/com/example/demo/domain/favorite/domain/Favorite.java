@@ -36,8 +36,7 @@ public class Favorite extends BaseEntity {
         this.status = status;
     }
 
-    public FavoriteStatus toggle(){
-        this.status = (this.status == FavoriteStatus.ACTIVE ? FavoriteStatus.DELETED : FavoriteStatus.ACTIVE);
-        return status;
+    public void updateStatus(FavoriteStatus status){
+        this.status = status;
     }
 }

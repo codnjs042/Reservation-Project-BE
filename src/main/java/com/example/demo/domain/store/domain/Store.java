@@ -26,6 +26,18 @@ public class Store extends BaseEntity {
     @Column(nullable = false, length=100)
     private String address;
 
+    @Column(length=50)
+    private String detailAddress;
+
+    @Column(nullable = false, length=100)
+    private String zipcode;
+
+    @Column
+    private Double latitude;
+
+    @Column
+    private Double longitude;
+
     @Column(nullable = false, length=11)
     private String phone;
 
@@ -46,10 +58,14 @@ public class Store extends BaseEntity {
     private StoreStatus status;
 
     @Builder
-    public Store(String name, StoreCategory category, String address, String phone, User owner, String ownerName, String businessNumber, StoreStatus status){
+    public Store(String name, StoreCategory category, String address, String detailAddress, String zipcode, Double latitude, Double longitude, String phone, User owner, String ownerName, String businessNumber, StoreStatus status){
         this.name = name;
         this.category = category;
         this.address = address;
+        this.detailAddress = detailAddress;
+        this.zipcode = zipcode;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.phone = phone;
         this.owner = owner;
         this.ownerName = ownerName;
@@ -57,14 +73,14 @@ public class Store extends BaseEntity {
         this.status = status;
     }
 
-    public void updateBasicInfo(String name, StoreCategory category, String phone){
+    public void updateBasicInfo(String name, StoreCategory category, String address, String phone){
         this.name = name;
         this.category = category;
+        this.address = address;
         this.phone = phone;
     }
 
-    public void updateBusinessInfo(String address, String ownerName, String businessNumber){
-        this.address = address;
+    public void updateBusinessInfo(String ownerName, String businessNumber){
         this.ownerName = ownerName;
         this.businessNumber = businessNumber;
     }

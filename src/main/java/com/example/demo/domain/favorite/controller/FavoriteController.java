@@ -16,13 +16,23 @@ import org.springframework.web.bind.annotation.*;
 public class FavoriteController {
     private final FavoriteFacade favoriteFacade;
 
-    @Operation(summary="관심 가게 설정/해제", description="현재 로그인 상태의 유저가 관심 있는 가게를 설정/해제")
-    @PatchMapping("/{storeId}")
-    public ResponseEntity<String> toggle(
+    @Operation(summary="관심 가게 추가", description="현재 로그인 상태의 유저가 관심 있는 가게를 추가")
+    @PostMapping("/{storeId}")
+    public ResponseEntity<String> addFavorite(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long storeId
     ){
-        favoriteFacade.toggle(userDetails.getUser(), storeId);
+        favoriteFacade.add(userDetails.getUser(), storeId);
+        return ResponseEntity.ok("완료");
+    }
+
+    @Operation(summary="관심 가게 삭제", description="현재 로그인 상태의 유저가 관심 누른 가게를 해제")
+    @DeleteMapping("/{storeId}")
+    public ResponseEntity<String> deleteFavorite(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long storeId
+    ){
+        favoriteFacade.delete(userDetails.getUser(), storeId);
         return ResponseEntity.ok("완료");
     }
 }
