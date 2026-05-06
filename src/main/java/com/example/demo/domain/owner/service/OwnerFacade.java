@@ -12,6 +12,8 @@ import com.example.demo.domain.store.service.StoreService;
 import com.example.demo.domain.storeTable.service.StoreTableService;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
+import com.example.demo.global.infra.kakao.KakaoLocalClient;
+import com.example.demo.global.infra.kakao.PointDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,7 @@ public class OwnerFacade {
     private final ReservationService reservationService;
     private final ScheduleService scheduleService;
     private final StoreTableService storeTableService;
+    private final KakaoLocalClient kakaoLocalClient;
 
     @Transactional
     public List<StoreOwnerResponse> getStores(Long userId){
@@ -63,6 +66,18 @@ public class OwnerFacade {
         scheduleService.bulkUpdateStatus(dto.ids());
         storeTableService.bulkUpdateStatus(dto.ids());
         storeService.bulkUpdateStatus(dto.ids());
+    }
+
+    @Transactional
+    public void updateStoreInfo(Long userId, Long storeId, StoreInfoUpdateRequest dto){
+        Store store = storeService.findById(storeId);
+
+        storeService.validateOwner(store, userId);
+        storeService.validateStatus(store, StoreStatus.READY, StoreStatus.OPEN, StoreStatus.HIDDEN);
+
+        PointDto coordinates = kakaoLocalClient.getCoordinates(dto.address());
+
+        store.updateBasicInfo(dto.name(), dto.category(), dto.address(), dto.detailAddress(), dto.zipcode(), dto.sigunguCode(), coordinates.latitude(), coordinates.longitude(), dto.phone());
     }
 
     @Transactional

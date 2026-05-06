@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .logout(logout -> logout.disable())
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        .defaultSuccessUrl("/user/profile", true))
+                        .defaultSuccessUrl("http://localhost:5173?login=process", true))
                 .exceptionHandling(handler -> handler
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");

@@ -4,7 +4,6 @@ import com.example.demo.domain.owner.dto.*;
 import com.example.demo.domain.owner.service.OwnerFacade;
 import com.example.demo.domain.owner.dto.ReservationSearchOwnerResponse;
 import com.example.demo.domain.reservation.service.ReservationService;
-import com.example.demo.domain.store.service.StoreService;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,7 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OwnerController {
     private final OwnerFacade ownerFacade;
-    private final StoreService storeService;
     private final ReservationService reservationService;
 
     @Operation(summary="가게 목록", description="현재 로그인한 유저 권한의 가게 목록 반환.")
@@ -61,7 +59,7 @@ public class OwnerController {
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
-        storeService.updateStoreInfo(userDetails.getId(), storeId, dto);
+        ownerFacade.updateStoreInfo(userDetails.getId(), storeId, dto);
         return ResponseEntity.ok("완료");
     }
 

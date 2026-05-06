@@ -14,7 +14,7 @@ public record StoreCreateRequest(
         @Schema(description = "카테고리", example="KOREAN")
         @NotNull(message = "카테고리를 선택해 주세요.")
         StoreCategory category,
-        @Schema(description = "기본주소", example="충청남도 천안시 동남구 신부 1길 3")
+        @Schema(description = "주소", example="충청남도 천안시 동남구 신부 1길 3")
         @NotBlank(message = "주소를 입력해 주세요.")
         @Pattern(regexp = "^[가-힣a-zA-Z0-9\\s&()\\-,.]{1,100}$", message = "주소는 1자 이상 100자 이하의 숫자/영문/한글/공백/특수문자(&()-,.)로 입력해 주세요.")
         String address,

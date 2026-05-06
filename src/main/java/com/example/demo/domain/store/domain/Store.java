@@ -81,10 +81,15 @@ public class Store extends BaseEntity {
         this.status = status;
     }
 
-    public void updateBasicInfo(String name, StoreCategory category, String address, String phone){
+    public void updateBasicInfo(String name, StoreCategory category, String address, String detailAddress, String zipcode, String sigunguCode, Double latitude, Double longitude, String phone){
         this.name = name;
         this.category = category;
         this.address = address;
+        this.detailAddress = detailAddress;
+        this.zipcode = zipcode;
+        this.sigunguCode = sigunguCode;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.phone = phone;
     }
 

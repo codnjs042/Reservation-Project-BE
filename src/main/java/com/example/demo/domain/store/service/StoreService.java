@@ -2,7 +2,6 @@ package com.example.demo.domain.store.service;
 
 import com.example.demo.domain.admin.dto.StoreAdminResponse;
 import com.example.demo.domain.favorite.domain.FavoriteStatus;
-import com.example.demo.domain.owner.dto.StoreInfoUpdateRequest;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.domain.StoreCategory;
 import com.example.demo.domain.store.domain.StoreStatus;
@@ -94,16 +93,6 @@ public class StoreService {
 
         List<Store> store = storeRepository.getList(dto.keyword(), keywordCategories, dto.category(), dto.cd(), List.of(StoreStatus.READY, StoreStatus.OPEN));
         return store.stream().map(StoreResponse::from).toList();
-    }
-
-    @Transactional
-    public void updateStoreInfo(Long userId, Long storeId, StoreInfoUpdateRequest dto){
-        Store store = findById(storeId);
-
-        validateOwner(store, userId);
-        validateStatus(store, StoreStatus.READY, StoreStatus.OPEN, StoreStatus.HIDDEN);
-
-        store.updateBasicInfo(dto.name(), dto.category(), dto.address(), dto.phone());
     }
 
     @Transactional
