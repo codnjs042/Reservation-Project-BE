@@ -7,10 +7,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum StoreCategory {
     KOREAN("한식"),
-    JAPANESE("일식"),
-    CHINESE("중식"),
-    WESTERN("양식"),
-    ASIAN("아시안");
+    SNACK("분식"),
+    CHICKEN("치킨"),
+    ASIAN("동양식"),
+    WESTERN("서양식"),
+    FASTFOOD("패스트푸드"),
+    BUFFET("뷔페"),
+    FUSION("퓨전");
 
     private final String desc;
 }
