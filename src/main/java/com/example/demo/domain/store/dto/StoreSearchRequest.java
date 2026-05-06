@@ -9,6 +9,8 @@ public record StoreSearchRequest(
         @Size(max = 50, message="검색어는 50자 이내로 입력해 주세요.")
         String keyword,
         @Schema(description = "카테고리", example="KOREAN")
-        StoreCategory category
+        StoreCategory category,
+        @Schema(description = "지역코드", example="11")
+        String cd
 ) {
 }

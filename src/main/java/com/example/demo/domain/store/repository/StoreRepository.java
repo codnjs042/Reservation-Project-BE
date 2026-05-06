@@ -26,12 +26,14 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
                 (s.category in :keywordCategories) or
                 (s.address like %:keyword%))
             and (:category is null or s.category = :category)
+            and (:cd is null or s.sigunguCode like :cd%)
             and s.status in :status
             """)
     List<Store> getList(
             @Param("keyword") String keyword,
             @Param("keywordCategories") List<StoreCategory> keywordCategories,
             @Param("category") StoreCategory category,
+            @Param("cd") String cd,
             @Param("status") List<StoreStatus> status);
 
     @Modifying

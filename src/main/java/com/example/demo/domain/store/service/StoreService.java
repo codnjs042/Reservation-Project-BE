@@ -55,6 +55,7 @@ public class StoreService {
                 .address(dto.address())
                 .detailAddress(dto.detailAddress())
                 .zipcode(dto.zipcode())
+                .sigunguCode(dto.sigunguCode())
                 .latitude(latitude)
                 .longitude(longitude)
                 .phone(dto.phone())
@@ -91,7 +92,7 @@ public class StoreService {
                 keywordCategories = null;
         }
 
-        List<Store> store = storeRepository.getList(dto.keyword(), keywordCategories, dto.category(), List.of(StoreStatus.READY, StoreStatus.OPEN));
+        List<Store> store = storeRepository.getList(dto.keyword(), keywordCategories, dto.category(), dto.cd(), List.of(StoreStatus.READY, StoreStatus.OPEN));
         return store.stream().map(StoreResponse::from).toList();
     }
 

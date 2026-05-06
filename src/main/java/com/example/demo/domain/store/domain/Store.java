@@ -32,6 +32,9 @@ public class Store extends BaseEntity {
     @Column(nullable = false, length=100)
     private String zipcode;
 
+    @Column(nullable = false, length = 5)
+    private String sigunguCode;
+
     @Column
     private Double latitude;
 
@@ -40,6 +43,9 @@ public class Store extends BaseEntity {
 
     @Column(nullable = false, length=11)
     private String phone;
+
+    @Column(nullable = false)
+    private boolean isPartner;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -58,15 +64,17 @@ public class Store extends BaseEntity {
     private StoreStatus status;
 
     @Builder
-    public Store(String name, StoreCategory category, String address, String detailAddress, String zipcode, Double latitude, Double longitude, String phone, User owner, String ownerName, String businessNumber, StoreStatus status){
+    public Store(String name, StoreCategory category, String address, String detailAddress, String zipcode, String sigunguCode, Double latitude, Double longitude, String phone, boolean isPartner, User owner, String ownerName, String businessNumber, StoreStatus status){
         this.name = name;
         this.category = category;
         this.address = address;
         this.detailAddress = detailAddress;
         this.zipcode = zipcode;
+        this.sigunguCode = sigunguCode;
         this.latitude = latitude;
         this.longitude = longitude;
         this.phone = phone;
+        this.isPartner = isPartner;
         this.owner = owner;
         this.ownerName = ownerName;
         this.businessNumber = businessNumber;
