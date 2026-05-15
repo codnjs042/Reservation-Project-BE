@@ -31,7 +31,8 @@ public enum ErrorCode {
     INVALID_TABLE_CAPACITY(HttpStatus.BAD_REQUEST, "TABLE-006", "테이블 수용 인원 설정이 올바르지 않습니다."),
     FAVORITE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "FAVORITE-001", "이미 관심 등록된 상태입니다."),
     FAVORITE_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "FAVORITE-002", "이미 관심 삭제된 상태입니다."),
-    FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON-001", "권한이 없습니다.");
+    FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON-001", "권한이 없습니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-001", "유효하지 않은 토큰입니다.");
 
     private final HttpStatus status;
     private final String code;

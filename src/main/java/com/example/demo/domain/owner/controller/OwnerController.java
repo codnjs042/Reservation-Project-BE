@@ -42,7 +42,7 @@ public class OwnerController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary="가게 삭제", description="현재 로그인한 유저 권한의 가게 id를 하나 또는 여러 개 받아 일괄 삭제 처리.")
+    @Operation(summary="가게 삭제", description="현재 로그인한 유저 권한의 가게를 삭제 처리.")
     @DeleteMapping
     public ResponseEntity<Void> deleteStores(
             @Valid @RequestBody StoreDeleteRequest dto,
@@ -89,9 +89,10 @@ public class OwnerController {
     @PatchMapping("/{storeId}/reservations")
     public ResponseEntity<String> updateReservationStatus(
             @Valid @RequestBody ReservationUpdateOwnerRequest dto,
+            @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
-        reservationService.updateStatus(userDetails.getId(), dto);
+        ownerFacade.updateReservationStatus(userDetails.getId(), storeId, dto);
         return ResponseEntity.ok("완료");
     }
 }

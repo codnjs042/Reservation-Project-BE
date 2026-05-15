@@ -121,7 +121,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
 
     @Query("""
-            select r from Reservation r
+            select count(r)>0 from Reservation r
             where r.store.id = :storeId
             and r.targetDateTime > :targetDateTime
             and r.status = :status

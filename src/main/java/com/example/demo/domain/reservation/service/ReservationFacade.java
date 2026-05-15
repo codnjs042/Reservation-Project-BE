@@ -53,7 +53,7 @@ public class ReservationFacade {
         storeTableService.validateGroup(store.getId(), dto.headCount());
 
         //과거 날짜 여부
-        reservationService.validateDate(dto.targetDate(), LocalDate.now());
+        reservationService.validateDate(LocalDate.now(), dto.targetDate());
 
         //특정 요일의 운영 시간표
         List<LocalTime> allTimes = scheduleService.generateSlots(store.getId(), dto.targetDate().getDayOfWeek());

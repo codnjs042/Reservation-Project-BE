@@ -15,12 +15,14 @@ import com.example.demo.global.exception.ErrorCode;
 import com.example.demo.global.infra.kakao.KakaoLocalClient;
 import com.example.demo.global.infra.kakao.PointDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -116,5 +118,15 @@ public class OwnerFacade {
         return reservations.stream()
                 .map(ReservationSearchOwnerResponse::from)
                 .toList();
+    }
+
+    @Transactional
+    public void updateReservationStatus(Long userId, Long storeId, ReservationUpdateOwnerRequest dto){
+        Store store = storeService.findByIdWithLock(storeId);
+
+        storeService.validateOwner(store, userId);
+        storeService.validateStatus(store, StoreStatus.READY, StoreStatus.OPEN, StoreStatus.HIDDEN);
+
+        reservationService.updateStatus(userId, dto);
     }
 }

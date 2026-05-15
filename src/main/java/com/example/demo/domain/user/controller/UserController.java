@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name="User API", description ="회원가입 및 로그인 관련 API")
+@Tag(name="User API", description ="유저 API")
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor

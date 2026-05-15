@@ -99,6 +99,16 @@ public class ReservationService {
             throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS);
     }
 
+    public void validateBeforeOwnerReservation(Reservation reservation){
+        LocalDateTime deadline = reservation.getTargetDateTime();
+
+        if (deadline.isBefore(LocalDateTime.now()))
+            throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS);
+
+        if(reservation.getStatus()!=ReservationStatus.CONFIRMED)
+            throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS);
+    }
+
     public void validateAfterReservation(Reservation reservation){
         if(reservation.getTargetDateTime().isAfter(LocalDateTime.now()))
             throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS);
@@ -121,7 +131,7 @@ public class ReservationService {
         reservations.forEach(reservation -> {
             validateOwner(reservation, userId);
             switch(dto.status()){
-                case REJECTED -> validateBeforeReservation(reservation);
+                case REJECTED -> validateBeforeOwnerReservation(reservation);
                 case VISITED, NO_SHOW -> validateAfterReservation(reservation);
             }
         });
