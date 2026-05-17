@@ -13,13 +13,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,7 +34,6 @@ public class UserController {
     private final UserFacade userFacade;
     private final FavoriteService favoriteService;
     private final ReservationService reservationService;
-    private final AuthenticationManager authenticationManager;
 
     @Operation(summary="이메일 중복 검사", description="입력 받은 이메일이 DB에 존재하는지 확인. 중복 시 true 반환")
     @GetMapping("/check-email")
@@ -55,34 +51,6 @@ public class UserController {
     {
         UserSignupResponse response = userService.join(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @Operation(summary="로그인", description="입력 받은 이메일, 비밀 번호가 DB에 존재하는지 확인")
-    @PostMapping("/login")
-    public ResponseEntity<UserProfileResponse> login(
-            @Valid @RequestBody UserLoginRequest dto,
-            HttpServletRequest request)
-    {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(dto.email(), dto.password());
-        Authentication authentication = authenticationManager.authenticate(token);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        HttpSession session = request.getSession(true);
-        session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        return ResponseEntity.ok(UserProfileResponse.from(userDetails.getUser()));
-    }
-
-    @Operation(summary="로그아웃", description="현재 세션을 무효화하여 로그아웃 처리")
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Authentication authentication
-    )
-    {
-        if(authentication!=null)
-            new SecurityContextLogoutHandler().logout(request, response, authentication);
-        return ResponseEntity.ok("로그아웃 성공");
     }
 
     @Operation(summary="닉네임 변경", description="현재 로그인 상태의 유저에게 입력 받은 닉네임을 db에 적용")

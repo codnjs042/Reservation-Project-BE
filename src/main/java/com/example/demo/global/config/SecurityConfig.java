@@ -1,6 +1,7 @@
 package com.example.demo.global.config;
 
 import com.example.demo.global.auth.CustomOAuth2UserService;
+import com.example.demo.global.auth.OAuth2LoginSuccessHandler;
 import com.example.demo.global.filter.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ import java.util.List;
 public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
@@ -48,14 +50,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/stores/**").permitAll()
                         .anyRequest().authenticated())
                 .headers(headers -> headers
-                        .frameOptions(frame -> frame.sameOrigin()))
+                        .frameOptions(frame -> frame.sameOrigin())
+                )
                 .formLogin(login -> login.disable())
                 .logout(logout -> logout.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        .defaultSuccessUrl("http://localhost:5173/login-callback", true))
+                        .successHandler(oAuth2LoginSuccessHandler)
+                )
                 .exceptionHandling(handler -> handler
                         .authenticationEntryPoint((request, response, authException) -> {
                             log.error("Exception : {}", authException.getMessage());

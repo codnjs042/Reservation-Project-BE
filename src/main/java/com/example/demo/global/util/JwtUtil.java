@@ -5,8 +5,6 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -86,18 +84,6 @@ public class JwtUtil {
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-    }
-
-    public String resolveTokenFromCookie(HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-        if(cookies != null){
-            for(Cookie cookie : cookies){
-                if("access_token".equals(cookie.getName())){
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
     }
 
     public void removeTokenCookie(HttpServletResponse response){
