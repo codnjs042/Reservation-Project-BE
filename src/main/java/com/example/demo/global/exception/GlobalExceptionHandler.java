@@ -3,6 +3,7 @@ package com.example.demo.global.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -20,11 +21,20 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handlerMethodArgumentNotValid(MethodArgumentNotValidException e){
+        ErrorCode errorCode = ErrorCode.INVALID_INPUT;
         String errorMessage = (e.getBindingResult().getFieldError() != null)
                 ? e.getBindingResult().getFieldError().getDefaultMessage()
-                : "입력값이 올바르지 않습니다.";
-        log.error("MethodArgumentNotValidException : {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("INVALID_INPUT", errorMessage));
+                : errorCode.getMessage();
+        log.error("MethodArgumentNotValidException : {}", errorMessage);
+        return ResponseEntity.status(errorCode.getStatus()).body(new ErrorResponse(errorCode.getCode(), errorMessage));
+    }
+
+    @ExceptionHandler(value = BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handlerBadCredentials(BadCredentialsException e){
+        ErrorCode errorCode = ErrorCode.LOGIN_FAILED;
+        String errorMessage = errorCode.getMessage();
+        log.error("BadCredentialsException : {}", errorMessage);
+        return ResponseEntity.status(errorCode.getStatus()).body(new ErrorResponse(errorCode.getCode(), errorMessage));
     }
 
     @ExceptionHandler(value = NoResourceFoundException.class)
