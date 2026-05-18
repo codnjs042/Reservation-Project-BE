@@ -3,6 +3,7 @@ package com.example.demo.domain.user.service;
 import com.example.demo.domain.favorite.serivce.FavoriteService;
 import com.example.demo.domain.store.service.StoreService;
 import com.example.demo.domain.user.domain.User;
+import com.example.demo.domain.user.domain.UserLoginType;
 import com.example.demo.domain.user.domain.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,9 @@ public class UserFacade {
         storeService.updateAllFavorites(user.getId(), -1);
 
         favoriteService.updateStatusByUser(user.getId());
+
+        if(user.getLoginType() != UserLoginType.LOCAL)
+            user.clearIdentifier();
 
         user.updateStatus(UserStatus.DELETED);
     }
