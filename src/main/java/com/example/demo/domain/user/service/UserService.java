@@ -27,8 +27,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public boolean check(String email){
-        return userRepository.existsByEmail(email);
+    public void check(String email){
+        boolean isExists = userRepository.existsByEmail(email);
+        if(isExists)
+            throw new BusinessException(ErrorCode.USER_ALREADY_EXIST);
     }
 
     @Transactional

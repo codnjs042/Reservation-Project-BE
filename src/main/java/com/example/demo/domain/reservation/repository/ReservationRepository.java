@@ -75,6 +75,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             select r from Reservation r
             where r.store.id = :storeId
             and r.status = :reservationStatus
+            and r.dayOfWeek= :dayOfWeek
             and exists (
                 select 1 from Schedule s
                 where s.store.id = :storeId

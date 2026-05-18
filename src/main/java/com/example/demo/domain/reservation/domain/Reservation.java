@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 @Entity
 @Table(name="reservations")
@@ -34,6 +35,9 @@ public class Reservation extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime targetDateTime;
 
+    @Enumerated(EnumType.STRING)
+    private DayOfWeek dayOfWeek;
+
     @Column(nullable = false)
     private int headCount;
 
@@ -45,11 +49,12 @@ public class Reservation extends BaseEntity {
     private ReservationStatus status;
 
     @Builder
-    public Reservation(User user, String name, Store store, LocalDateTime targetDateTime, int headCount, StoreTable storeTable, ReservationStatus status){
+    public Reservation(User user, String name, Store store, LocalDateTime targetDateTime, DayOfWeek dayOfWeek, int headCount, StoreTable storeTable, ReservationStatus status){
         this.user = user;
         this.name = name;
         this.store = store;
         this.targetDateTime=targetDateTime;
+        this.dayOfWeek=dayOfWeek;
         this.headCount = headCount;
         this.storeTable = storeTable;
         this.status = status;

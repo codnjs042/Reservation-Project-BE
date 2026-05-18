@@ -40,6 +40,7 @@ public class ReservationService {
                 .name(dto.name())
                 .store(store)
                 .targetDateTime(dto.targetDateTime())
+                .dayOfWeek(dto.targetDateTime().getDayOfWeek())
                 .headCount(dto.headCount())
                 .storeTable(storeTable)
                 .status(ReservationStatus.CONFIRMED)

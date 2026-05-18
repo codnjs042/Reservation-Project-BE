@@ -37,11 +37,11 @@ public class UserController {
 
     @Operation(summary="이메일 중복 검사", description="입력 받은 이메일이 DB에 존재하는지 확인. 중복 시 true 반환")
     @GetMapping("/check-email")
-    public ResponseEntity<Boolean> checkEmail(
+    public ResponseEntity<Void> checkEmail(
             @Valid @ModelAttribute EmailCheckRequest dto)
     {
-        boolean response = userService.check(dto.email());
-        return ResponseEntity.ok(response);
+        userService.check(dto.email());
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary="회원 가입", description="입력 받은 유저 정보를 DB에 저장. 성공 시 유저 정보 반환")
