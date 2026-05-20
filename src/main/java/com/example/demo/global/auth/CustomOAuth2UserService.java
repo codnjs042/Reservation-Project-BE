@@ -27,14 +27,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
 
+        String nickname = null;
         String email = null;
-        String name = null;
         UserLoginType loginType = null;
         String providerId = null;
 
         if("google".equals(registrationId)){
             email = oAuth2User.getAttribute("email");
-            name = oAuth2User.getAttribute("name");
+            nickname = oAuth2User.getAttribute("name");
             loginType = UserLoginType.GOOGLE;
             providerId = oAuth2User.getName();
         }
@@ -45,19 +45,18 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             if(kakaoAcount != null){
                 Map<String, Object> profile = (Map<String, Object>) kakaoAcount.get("profile");
                 if(profile != null){
-                    name = (String) profile.get("nickname");
+                    nickname = (String) profile.get("nickname");
                 }
             }
             loginType = UserLoginType.KAKAO;
             providerId = attributes.get("id").toString();
-            email = providerId;
         }
         else if("naver".equals(registrationId)){
             Map<String, Object> attributes = oAuth2User.getAttributes();
             log.info("attributes: {}", attributes);
             Map<String, Object> response = (Map<String, Object>) attributes.get("response");
             if(response != null){
-                name = (String) response.get("name");
+                nickname = (String) response.get("name");
                 email = (String) response.get("email");
                 providerId = (String) response.get("id");
             }
@@ -65,15 +64,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
 
         final String finalEmail = email;
-        final String finalName = name;
+        final String finalNickName = nickname;
         final UserLoginType finalLoginType = loginType;
         final String finalProviderId = providerId;
+        final String username = finalProviderId;
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByUsernameAndDeletedVersion(username, 0L)
                 .orElseGet(() -> userRepository.save(
                         User.builder()
+                                .username(username)
+                                .nickname(finalNickName)
                                 .email(finalEmail)
-                                .nickname(finalName)
                                 .loginType(finalLoginType)
                                 .providerId(finalProviderId)
                                 .role(UserRole.USER)

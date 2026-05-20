@@ -7,8 +7,9 @@ import com.example.demo.domain.user.domain.UserStatus;
 
 public record UserAdminResponse(
         Long id,
-        String email,
+        String username,
         String nickname,
+        String email,
         UserLoginType loginType,
         String providerId,
         UserRole role,
@@ -17,8 +18,9 @@ public record UserAdminResponse(
     public static UserAdminResponse from(User user){
         return new UserAdminResponse(
                 user.getId(),
-                user.getEmail(),
+                user.getUsername(),
                 user.getNickname(),
+                user.getEmail(),
                 user.getLoginType(),
                 user.getProviderId(),
                 user.getRole(),

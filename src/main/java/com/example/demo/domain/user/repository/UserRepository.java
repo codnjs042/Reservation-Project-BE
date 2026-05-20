@@ -16,14 +16,14 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    boolean existsByEmail(String email);
+    boolean existsByUsernameAndDeletedVersion(String username, Long deletedVersion);
 
-    Optional<User> findByEmail(String email);
-
+    Optional<User> findByUsernameAndDeletedVersion(String username, Long deletedVersion);
     @Query("""
             select u from User u
             where (:keyword is null or :keyword='' or
                 (cast(u.id as string) like %:keyword%) or
+                (u.username like %:keyword%) or
                 (u.email like %:keyword%) or
                 (u.nickname like %:keyword%))
             and (:loginType is null or u.loginType = :loginType)

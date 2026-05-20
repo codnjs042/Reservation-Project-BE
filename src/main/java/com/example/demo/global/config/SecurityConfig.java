@@ -44,7 +44,7 @@ public class SecurityConfig {
                         .requestMatchers("/users/me/**", "/favorites/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/stores", "/stores/*/reservations").authenticated()
                         .requestMatchers("/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**",
-                                "/users/check-email", "/users/signup", "/users/login",
+                                "/users/check-username", "/users/signup", "/users/login",
                                 "/users/logout", "/auth/login", "/auth/refresh",
                                 "/auth/logout", "/area", "/error").permitAll()
                         .requestMatchers(HttpMethod.GET, "/stores/**").permitAll()

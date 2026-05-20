@@ -8,7 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="users")
+@Table(name="users", uniqueConstraints = {
+        @UniqueConstraint(
+                name = "uk_username_deleted_version",
+                columnNames = {"username", "deleted_version"}
+        )
+})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
@@ -16,11 +21,14 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+    @Column(nullable = false)
+    private String username;
 
     @Column(nullable = false, length = 15)
     private String nickname;
+
+    @Column
+    private String email;
 
     @Column
     private String password;
@@ -37,19 +45,28 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
+    @Column(nullable = false)
+    private Long deletedVersion;
+
     @Builder
-    public User(String email, String nickname, String password, UserLoginType loginType, String providerId, UserRole role, UserStatus status){
-        this.email = email;
+    public User(String username, String nickname, String email, String password, UserLoginType loginType, String providerId, UserRole role, UserStatus status){
+        this.username = username;
         this.nickname = nickname;
+        this.email = email;
         this.password = password;
         this.loginType = loginType;
         this.providerId = providerId;
         this.role = role;
         this.status = status;
+        this.deletedVersion = 0L;
     }
 
     public void updateNickname(String nickname){
         this.nickname = nickname;
+    }
+
+    public void updateEmail(String email){
+        this.email = email;
     }
 
     public void updatePassword(String password){
@@ -64,8 +81,8 @@ public class User extends BaseEntity {
         this.status = status;
     }
 
-    public void clearIdentifier(){
-        this.email = null;
+    public void updateVersion(){
+        this.deletedVersion = this.id;
     }
 }
 

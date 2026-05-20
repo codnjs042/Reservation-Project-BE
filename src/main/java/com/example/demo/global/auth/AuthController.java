@@ -16,7 +16,7 @@ public class AuthController {
     private final AuthService authService;
     private final JwtUtil jwtUtil;
 
-    @Operation(summary="로그인", description="입력 받은 이메일, 비밀 번호가 DB에 존재하는지 확인")
+    @Operation(summary="로그인", description="입력 받은 아이디, 비밀 번호가 DB에 존재하는지 확인")
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(
             @RequestBody AuthRequest dto,

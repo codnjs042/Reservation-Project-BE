@@ -24,7 +24,7 @@ public class AuthService {
     public TokenDto login(AuthRequest dto){
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        dto.email(), dto.password()
+                        dto.username(), dto.password()
                 )
         );
 
@@ -44,7 +44,7 @@ public class AuthService {
 
         String username = jwtUtil.extractUsername(refreshToken);
 
-        User user = userRepository.findByEmail(username)
+        User user = userRepository.findByUsernameAndDeletedVersion(username, 0L)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         String newAccessToken = jwtUtil.generateAccessToken(username, "ROLE_" + user.getRole().name());

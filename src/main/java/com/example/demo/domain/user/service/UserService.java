@@ -27,15 +27,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public void check(String email){
-        boolean isExists = userRepository.existsByEmail(email);
+    public void check(String username){
+        boolean isExists = userRepository.existsByUsernameAndDeletedVersion(username, 0L);
         if(isExists)
             throw new BusinessException(ErrorCode.USER_ALREADY_EXIST);
     }
 
     @Transactional
     public UserSignupResponse join(UserSignupRequest dto){
-        Optional<User> existing = userRepository.findByEmail(dto.email());
+        Optional<User> existing = userRepository.findByUsernameAndDeletedVersion(dto.username(), 0L);
 
         if(existing.isPresent())
             throw new BusinessException(ErrorCode.USER_ALREADY_EXIST);
@@ -43,8 +43,9 @@ public class UserService {
         String encode = passwordEncoder.encode(dto.password());
 
         User user = User.builder()
-                .email(dto.email())
+                .username(dto.username())
                 .nickname(dto.nickname())
+                .email(dto.email())
                 .password(encode)
                 .loginType(UserLoginType.LOCAL)
                 .role(UserRole.USER)
@@ -66,6 +67,13 @@ public class UserService {
         User user = findById(userId);
 
         user.updateNickname(nickname);
+    }
+
+    @Transactional
+    public void updateEmail(Long userId, String email){
+        User user = findById(userId);
+
+        user.updateEmail(email);
     }
 
     @Transactional

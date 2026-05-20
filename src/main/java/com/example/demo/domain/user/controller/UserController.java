@@ -35,12 +35,12 @@ public class UserController {
     private final FavoriteService favoriteService;
     private final ReservationService reservationService;
 
-    @Operation(summary="이메일 중복 검사", description="입력 받은 이메일이 DB에 존재하는지 확인. 중복 시 true 반환")
-    @GetMapping("/check-email")
-    public ResponseEntity<Void> checkEmail(
-            @Valid @ModelAttribute EmailCheckRequest dto)
+    @Operation(summary="아이디 중복 검사", description="입력 받은 아이디가 DB에 존재하는지 확인. 중복 시 true 반환")
+    @GetMapping("/check-username")
+    public ResponseEntity<Void> checkUsername(
+            @Valid @ModelAttribute UsernameCheckRequest dto)
     {
-        userService.check(dto.email());
+        userService.check(dto.username());
         return ResponseEntity.noContent().build();
     }
 
@@ -63,6 +63,16 @@ public class UserController {
         return ResponseEntity.ok("닉네임 변경 성공 : " + dto.nickname());
     }
 
+    @Operation(summary="이메일 변경", description="현재 로그인 상태의 유저에게 입력 받은 이메일을 db에 적용")
+    @PatchMapping("/me/email")
+    public ResponseEntity<String> updateEmail(
+            @Valid @RequestBody UserEmailRequest dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails)
+    {
+        userService.updateEmail(userDetails.getId(), dto.email());
+        return ResponseEntity.ok("이메일 변경 성공 : " + dto.email());
+    }
+
     @Operation(summary="비밀번호 변경", description="현재 로그인 상태의 유저에게 입력 받은 비밀번호를 db에 적용")
     @PatchMapping("/me/password")
     public ResponseEntity<String> updatePassword(
@@ -82,7 +92,7 @@ public class UserController {
 
     @Operation(summary="내 정보 조회", description="현재 로그인한 유저의 정보 반환")
     @GetMapping("/me")
-    public ResponseEntity<?> getProfile(
+    public ResponseEntity<UserProfileResponse> getProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
         UserProfileResponse response = UserProfileResponse.from(userDetails.getUser());
