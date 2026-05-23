@@ -8,7 +8,6 @@ import com.example.demo.domain.store.domain.StoreStatus;
 import com.example.demo.domain.store.dto.*;
 import com.example.demo.domain.store.repository.StoreRepository;
 import com.example.demo.domain.user.domain.User;
-import com.example.demo.domain.user.domain.UserRole;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import com.example.demo.global.infra.kakao.PointDto;

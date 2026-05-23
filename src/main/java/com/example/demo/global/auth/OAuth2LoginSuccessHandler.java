@@ -2,6 +2,7 @@ package com.example.demo.global.auth;
 
 import com.example.demo.global.security.CustomUserDetails;
 import com.example.demo.global.util.JwtUtil;
+import com.example.demo.global.util.RedisUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,6 +18,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final JwtUtil jwtUtil;
+    private final RedisUtil redisUtil;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -25,6 +27,12 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         String accessToken = jwtUtil.generateAccessToken(userDetails.getUsername(), role);
         String refreshToken = jwtUtil.generateRefreshToken(userDetails.getUsername());
+
+        redisUtil.set(
+                "refresh-token:" + userDetails.getUsername(),
+                refreshToken,
+                jwtUtil.getRefreshTokenExpiration()
+        );
 
         jwtUtil.addRefreshTokenCookie(response, refreshToken);
 

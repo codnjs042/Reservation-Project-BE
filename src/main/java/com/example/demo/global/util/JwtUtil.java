@@ -6,6 +6,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -18,6 +19,7 @@ import java.util.Date;
 public class JwtUtil {
     private final SecretKey secretKey;
     private final long accessTokenExpiration;
+    @Getter
     private final long refreshTokenExpiration;
 
     public JwtUtil(@Value("${jwt.secret}") String secret,
@@ -65,6 +67,11 @@ public class JwtUtil {
         }
     }
 
+    public long extractRemainingTtl(String token){
+        Date expiration = parseClaims(token).getExpiration();
+        long remaining = (expiration.getTime() - System.currentTimeMillis()) / 1000;
+        return Math.max(remaining, 0);
+    }
 
     private Claims parseClaims(String token){
         return Jwts.parser()
@@ -87,19 +94,12 @@ public class JwtUtil {
     }
 
     public void removeTokenCookie(HttpServletResponse response){
-        ResponseCookie accessCookie = ResponseCookie.from("access_token", "")
-                .httpOnly(true)
-                .path("/")
-                .maxAge(0)
-                .build();
-
         ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", "")
                 .httpOnly(true)
-                .path("/")
+                .path("/auth/refresh")
                 .maxAge(0)
                 .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
     }
 }

@@ -38,3 +38,9 @@ out/
 
 ### private file ###
 src/main/resources/application-private.yml
+
+### claude ###
+.claude
+research.md
+CLAUDE.md
+plan.md

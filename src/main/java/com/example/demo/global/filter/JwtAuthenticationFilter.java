@@ -2,6 +2,7 @@ package com.example.demo.global.filter;
 
 import com.example.demo.global.provider.JwtTokenProvider;
 import com.example.demo.global.util.JwtUtil;
+import com.example.demo.global.util.RedisUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +23,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisUtil redisUtil;
 
     @Override
     protected void doFilterInternal(
@@ -38,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(token)) {
             try {
-                if (jwtUtil.isTokenValid(token)) {
+                if (jwtUtil.isTokenValid(token) && !redisUtil.exists("blacklist:" + token)) {
                     Authentication authentication = jwtTokenProvider.getAuthentication(token);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                     log.info("인증 성공: {}, 권한: {}", authentication.getName(), authentication.getAuthorities());
