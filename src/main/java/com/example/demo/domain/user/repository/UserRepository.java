@@ -18,6 +18,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsernameAndDeletedVersion(String username, Long deletedVersion);
 
+    boolean existsByRoleAndDeletedVersion(UserRole role, Long deletedVersion);
+
     Optional<User> findByUsernameAndDeletedVersion(String username, Long deletedVersion);
     @Query("""
             select u from User u

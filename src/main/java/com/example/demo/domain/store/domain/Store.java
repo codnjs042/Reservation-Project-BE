@@ -51,7 +51,7 @@ public class Store extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User owner;
 
-    @Column(nullable = false, length=50)
+    @Column(length=50)
     private String ownerName;
 
     @Column(nullable = false, length=10)
