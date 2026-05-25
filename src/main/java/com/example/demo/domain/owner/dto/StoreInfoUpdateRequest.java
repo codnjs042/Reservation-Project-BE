@@ -24,7 +24,7 @@ public record StoreInfoUpdateRequest(
         @Schema(description = "우편번호", example="31124")
         @NotBlank(message = "우편번호를 입력해 주세요.")
         @Pattern(regexp = "^[0-9]{5}$", message = "우편번호는 5자리 숫자로 입력해 주세요.")
-        String zipcode,
+        String zipCode,
         @Schema(description = "시군구코드", example="44131")
         @NotBlank(message = "시군구코드를 입력해 주세요.")
         @Pattern(regexp = "^[0-9]{5}$", message = "시군구코드는 5자리 숫자로 입력해 주세요.")

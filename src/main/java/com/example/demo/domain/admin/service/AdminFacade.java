@@ -1,7 +1,9 @@
 package com.example.demo.domain.admin.service;
 
+import com.example.demo.domain.admin.dto.ReservationAdminDetailResponse;
 import com.example.demo.domain.admin.dto.ReservationAdminRequest;
 import com.example.demo.domain.admin.dto.ReservationAdminResponse;
+import com.example.demo.domain.admin.dto.StoreAdminDetailResponse;
 import com.example.demo.domain.admin.dto.StoreAdminRequest;
 import com.example.demo.domain.admin.dto.StoreAdminResponse;
 import com.example.demo.domain.reservation.service.ReservationService;
@@ -15,7 +17,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 @Service
 @RequiredArgsConstructor
@@ -25,21 +29,41 @@ public class AdminFacade {
     private final StoreService storeService;
     private final ReservationService reservationService;
 
-    public List<StoreAdminResponse> getStoresForAdmin(Long userId, StoreAdminRequest dto){
-        User user = userService.findById(userId);
+    public StoreAdminDetailResponse getStoreForAdmin(Long adminId, Long storeId){
+        User user = userService.findById(adminId);
 
-        if(user.getRole()!= UserRole.ADMIN)
+        if(user.getRole() != UserRole.ADMIN)
             throw new BusinessException(ErrorCode.FORBIDDEN);
 
-        return storeService.getStoresForAdmin(dto.keyword(), dto.category(), dto.status());
+        return StoreAdminDetailResponse.from(storeService.findById(storeId));
     }
 
-    public List<ReservationAdminResponse> getReservationsForAdmin(Long userId, ReservationAdminRequest dto){
+    public ReservationAdminDetailResponse getReservationForAdmin(Long adminId, Long reservationId){
+        User user = userService.findById(adminId);
+
+        if(user.getRole() != UserRole.ADMIN)
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+
+        return reservationService.findByIdForAdmin(reservationId);
+    }
+
+    public Page<StoreAdminResponse> getStoresForAdmin(Long userId, StoreAdminRequest dto){
         User user = userService.findById(userId);
 
         if(user.getRole()!= UserRole.ADMIN)
             throw new BusinessException(ErrorCode.FORBIDDEN);
 
-        return reservationService.getReservationsForAdmin(dto.keyword(), dto.status());
+        PageRequest pageable = PageRequest.of(dto.page(), dto.size(), Sort.by("id").descending());
+        return storeService.getStoresForAdmin(dto.keyword(), dto.category(), dto.status(), pageable);
+    }
+
+    public Page<ReservationAdminResponse> getReservationsForAdmin(Long userId, ReservationAdminRequest dto){
+        User user = userService.findById(userId);
+
+        if(user.getRole()!= UserRole.ADMIN)
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+
+        PageRequest pageable = PageRequest.of(dto.page(), dto.size(), Sort.by("id").descending());
+        return reservationService.getReservationsForAdmin(dto.keyword(), dto.status(), pageable);
     }
 }

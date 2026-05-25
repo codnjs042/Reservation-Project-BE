@@ -6,6 +6,7 @@ import com.example.demo.domain.store.domain.StoreCategory;
 import com.example.demo.domain.store.domain.StoreStatus;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
@@ -103,19 +104,34 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             @Param("userId") Long userId,
             @Param("status") StoreStatus status);
 
-    @Query("""
-            select s from Store s
-            where (:keyword is null or :keyword='' or
-                (cast(s.id as string) like %:keyword%) or
-                (s.name like %:keyword%) or
-                (s.businessNumber like %:keyword%))
-            and (:category is null or s.category = :category)
-            and (:status is null or s.status = :status)
-            """)
-    List<Store> getStoresForAdmin(
+    @Query(
+            value = """
+                    select s from Store s
+                    join fetch s.owner
+                    where (:keyword is null or :keyword='' or
+                        (cast(s.id as string) like %:keyword%) or
+                        (s.name like %:keyword%) or
+                        (s.owner.username like %:keyword%) or
+                        (s.businessNumber like %:keyword%))
+                    and (:category is null or s.category = :category)
+                    and (:status is null or s.status = :status)
+                    """,
+            countQuery = """
+                    select count(s) from Store s
+                    where (:keyword is null or :keyword='' or
+                        (cast(s.id as string) like %:keyword%) or
+                        (s.name like %:keyword%) or
+                        (s.owner.username like %:keyword%) or
+                        (s.businessNumber like %:keyword%))
+                    and (:category is null or s.category = :category)
+                    and (:status is null or s.status = :status)
+                    """
+    )
+    Page<Store> getStoresForAdmin(
             @Param("keyword") String keyword,
             @Param("category") StoreCategory category,
-            @Param("status") StoreStatus status);
+            @Param("status") StoreStatus status,
+            Pageable pageable);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value="3000")})

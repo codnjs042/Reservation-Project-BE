@@ -1,32 +1,26 @@
 package com.example.demo.domain.admin.dto;
 
 import com.example.demo.domain.store.domain.Store;
-import com.example.demo.domain.store.domain.StoreCategory;
 import com.example.demo.domain.store.domain.StoreStatus;
-import com.example.demo.domain.store.dto.StoreDetailResponse;
+
+import java.time.LocalDateTime;
 
 public record StoreAdminResponse(
         Long id,
         String name,
-        StoreCategory category,
-        String address,
-        String phone,
+        String username,
         String ownerName,
-        String businessNumber,
-        int favorites,
-        StoreStatus status
+        StoreStatus status,
+        LocalDateTime createdAt
 ) {
     public static StoreAdminResponse from(Store store){
         return new StoreAdminResponse(
                 store.getId(),
                 store.getName(),
-                store.getCategory(),
-                store.getAddress(),
-                store.getPhone(),
+                store.getOwner().getUsername(),
                 store.getOwnerName(),
-                store.getBusinessNumber(),
-                store.getFavorites(),
-                store.getStatus()
+                store.getStatus(),
+                store.getCreatedAt()
         );
     }
 }

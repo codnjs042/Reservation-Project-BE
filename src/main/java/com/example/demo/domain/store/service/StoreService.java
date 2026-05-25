@@ -12,6 +12,7 @@ import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import com.example.demo.global.infra.kakao.PointDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -53,7 +54,7 @@ public class StoreService {
                 .category(dto.category())
                 .address(dto.address())
                 .detailAddress(dto.detailAddress())
-                .zipcode(dto.zipcode())
+                .zipCode(dto.zipCode())
                 .sigunguCode(dto.sigunguCode())
                 .latitude(latitude)
                 .longitude(longitude)
@@ -143,10 +144,9 @@ public class StoreService {
                 .toList();
     }
 
-    public List<StoreAdminResponse> getStoresForAdmin(String keyword, StoreCategory category, StoreStatus status){
-        return storeRepository.getStoresForAdmin(keyword, category, status).stream()
-                .map(StoreAdminResponse::from)
-                .toList();
+    public Page<StoreAdminResponse> getStoresForAdmin(String keyword, StoreCategory category, StoreStatus status, Pageable pageable){
+        return storeRepository.getStoresForAdmin(keyword, category, status, pageable)
+                .map(StoreAdminResponse::from);
     }
 
     public List<StorePointResponse> get3kmList(MyPointRequest dto){

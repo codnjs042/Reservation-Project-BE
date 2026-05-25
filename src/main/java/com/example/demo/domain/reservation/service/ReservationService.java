@@ -1,5 +1,6 @@
 package com.example.demo.domain.reservation.service;
 
+import com.example.demo.domain.admin.dto.ReservationAdminDetailResponse;
 import com.example.demo.domain.admin.dto.ReservationAdminResponse;
 import com.example.demo.domain.owner.dto.ReservationSearchOwnerRequest;
 import com.example.demo.domain.owner.dto.ReservationUpdateOwnerRequest;
@@ -18,6 +19,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -157,10 +161,15 @@ public class ReservationService {
             throw new BusinessException(ErrorCode.STORE_LOCKED);
     }
 
-    public List<ReservationAdminResponse> getReservationsForAdmin(String keyword, ReservationStatus status){
-        return reservationRepository.getReservationsForAdmin(keyword, status).stream()
-                .map(ReservationAdminResponse::from)
-                .toList();
+    public ReservationAdminDetailResponse findByIdForAdmin(Long reservationId){
+        Reservation reservation = reservationRepository.findByIdForAdmin(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+        return ReservationAdminDetailResponse.from(reservation);
+    }
+
+    public Page<ReservationAdminResponse> getReservationsForAdmin(String keyword, ReservationStatus status, Pageable pageable){
+        return reservationRepository.getReservationsForAdmin(keyword, status, pageable)
+                .map(ReservationAdminResponse::from);
     }
 
     public void validateDate(LocalDate startDate, LocalDate endDate){

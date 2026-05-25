@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 @Tag(name="Admin API", description ="관리자 API")
 @RestController
@@ -24,31 +24,61 @@ public class AdminController {
 
     @Operation(summary="유저 관리", description="유저 목록 반환")
     @GetMapping("/users")
-    public ResponseEntity<List<UserAdminResponse>> getUsers(
+    public ResponseEntity<Page<UserAdminResponse>> getUsers(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @ModelAttribute UserAdminRequest dto
     ){
-        List<UserAdminResponse> response = userService.getUsersForAdmin(userDetails.getId(), dto);
+        Page<UserAdminResponse> response = userService.getUsersForAdmin(userDetails.getId(), dto);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary="가게 관리", description="가게 목록 반환")
     @GetMapping("/stores")
-    public ResponseEntity<List<StoreAdminResponse>> getStores(
+    public ResponseEntity<Page<StoreAdminResponse>> getStores(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @ModelAttribute StoreAdminRequest dto
     ){
-        List<StoreAdminResponse> response = adminFacade.getStoresForAdmin(userDetails.getId(), dto);
+        Page<StoreAdminResponse> response = adminFacade.getStoresForAdmin(userDetails.getId(), dto);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary="예약 관리", description="예약 목록 반환")
     @GetMapping("/reservations")
-    public ResponseEntity<List<ReservationAdminResponse>> getStores(
+    public ResponseEntity<Page<ReservationAdminResponse>> getReservations(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @ModelAttribute ReservationAdminRequest dto
     ){
-        List<ReservationAdminResponse> response = adminFacade.getReservationsForAdmin(userDetails.getId(), dto);
+        Page<ReservationAdminResponse> response = adminFacade.getReservationsForAdmin(userDetails.getId(), dto);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary="유저 상세 조회", description="특정 유저 상세 정보 반환")
+    @GetMapping("/users/{id}")
+    public ResponseEntity<UserAdminDetailResponse> getUserDetail(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id
+    ){
+        UserAdminDetailResponse response = userService.getUserDetailForAdmin(userDetails.getId(), id);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary="가게 상세 조회", description="특정 가게 상세 정보 반환")
+    @GetMapping("/stores/{id}")
+    public ResponseEntity<StoreAdminDetailResponse> getStoreDetail(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id
+    ){
+        StoreAdminDetailResponse response = adminFacade.getStoreForAdmin(userDetails.getId(), id);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary="예약 상세 조회", description="특정 예약 상세 정보 반환")
+    @GetMapping("/reservations/{id}")
+    public ResponseEntity<ReservationAdminDetailResponse> getReservationDetail(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id
+    ){
+        ReservationAdminDetailResponse response = adminFacade.getReservationForAdmin(userDetails.getId(), id);
         return ResponseEntity.ok(response);
     }
 }

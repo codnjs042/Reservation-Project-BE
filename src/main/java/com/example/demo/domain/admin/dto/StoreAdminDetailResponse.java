@@ -1,39 +1,43 @@
-package com.example.demo.domain.store.dto;
+package com.example.demo.domain.admin.dto;
 
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.domain.StoreCategory;
 import com.example.demo.domain.store.domain.StoreStatus;
 
-public record StoreDetailResponse(
+import java.time.LocalDateTime;
+
+public record StoreAdminDetailResponse(
         Long id,
         String name,
         StoreCategory category,
         String address,
         String detailAddress,
-        String zipCode,
-        String sigunguCode,
-        Double latitude,
-        Double longitude,
+        String zipcode,
         String phone,
+        String ownerName,
+        String ownerUsername,
+        String businessNumber,
         int favorites,
         StoreStatus status,
-        boolean isFavorite
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {
-    public static StoreDetailResponse from(Store store, boolean isFavorite){
-        return new StoreDetailResponse(
+    public static StoreAdminDetailResponse from(Store store) {
+        return new StoreAdminDetailResponse(
                 store.getId(),
                 store.getName(),
                 store.getCategory(),
                 store.getAddress(),
                 store.getDetailAddress(),
                 store.getZipCode(),
-                store.getSigunguCode(),
-                store.getLatitude(),
-                store.getLongitude(),
                 store.getPhone(),
+                store.getOwnerName(),
+                store.getOwner().getUsername(),
+                store.getBusinessNumber(),
                 store.getFavorites(),
                 store.getStatus(),
-                isFavorite
+                store.getCreatedAt(),
+                store.getUpdatedAt()
         );
     }
 }

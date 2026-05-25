@@ -94,7 +94,7 @@ public class AdminInitializer implements ApplicationRunner {
                     .category(StoreCategory.KOREAN)
                     .address(dto.address())
                     .detailAddress(null)
-                    .zipcode("00000")
+                    .zipCode("00000")
                     .sigunguCode(dto.sigunguCode())
                     .latitude(latitude)
                     .longitude(longitude)

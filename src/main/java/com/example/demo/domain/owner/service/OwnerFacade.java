@@ -79,7 +79,7 @@ public class OwnerFacade {
 
         PointDto coordinates = kakaoLocalClient.getCoordinates(dto.address());
 
-        store.updateBasicInfo(dto.name(), dto.category(), dto.address(), dto.detailAddress(), dto.zipcode(), dto.sigunguCode(), coordinates.latitude(), coordinates.longitude(), dto.phone());
+        store.updateBasicInfo(dto.name(), dto.category(), dto.address(), dto.detailAddress(), dto.zipCode(), dto.sigunguCode(), coordinates.latitude(), coordinates.longitude(), dto.phone());
     }
 
     @Transactional

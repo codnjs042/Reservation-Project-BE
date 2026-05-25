@@ -1,5 +1,6 @@
 package com.example.demo.domain.user.service;
 
+import com.example.demo.domain.admin.dto.UserAdminDetailResponse;
 import com.example.demo.domain.admin.dto.UserAdminRequest;
 import com.example.demo.domain.admin.dto.UserAdminResponse;
 import com.example.demo.domain.user.domain.User;
@@ -17,7 +18,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+
 import java.util.Optional;
 
 @Service
@@ -103,15 +107,24 @@ public class UserService {
         user.updateRole(userRole);
     }
 
-    public List<UserAdminResponse> getUsersForAdmin(Long userId, UserAdminRequest dto){
+    public UserAdminDetailResponse getUserDetailForAdmin(Long adminId, Long targetId){
+        User admin = findById(adminId);
+
+        if(admin.getRole() != UserRole.ADMIN)
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+
+        return UserAdminDetailResponse.from(findById(targetId));
+    }
+
+    public Page<UserAdminResponse> getUsersForAdmin(Long userId, UserAdminRequest dto){
         User user = findById(userId);
 
         if(user.getRole()!=UserRole.ADMIN)
             throw new BusinessException(ErrorCode.FORBIDDEN);
 
-        return userRepository.getUsersForAdmin(dto.keyword(), dto.loginType(), dto.role(), dto.status()).stream()
-                .map(UserAdminResponse::from)
-                .toList();
+        PageRequest pageable = PageRequest.of(dto.page(), dto.size(), Sort.by("id").descending());
+        return userRepository.getUsersForAdmin(dto.keyword(), dto.loginType(), dto.role(), dto.status(), pageable)
+                .map(UserAdminResponse::from);
     }
 
     public User findByIdWithLock(Long userId){

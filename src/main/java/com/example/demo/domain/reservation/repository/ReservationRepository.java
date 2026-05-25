@@ -6,6 +6,8 @@ import com.example.demo.domain.schedule.domain.ScheduleStatus;
 import com.example.demo.domain.storeTable.domain.StoreTableStatus;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
@@ -132,18 +134,42 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("targetDateTime") LocalDateTime targetDateTime,
             @Param("status") ReservationStatus status);
 
+    @Query(
+            value = """
+                    select r from Reservation r
+                    join fetch r.user
+                    join fetch r.store
+                    where (:keyword is null or :keyword='' or
+                        (cast(r.id as string) like %:keyword%) or
+                        (r.user.username like %:keyword%) or
+                        (r.name like %:keyword%) or
+                        (r.store.name like %:keyword%))
+                    and (:status is null or r.status = :status)
+                    """,
+            countQuery = """
+                    select count(r) from Reservation r
+                    where (:keyword is null or :keyword='' or
+                        (cast(r.id as string) like %:keyword%) or
+                        (r.user.username like %:keyword%) or
+                        (r.name like %:keyword%) or
+                        (r.store.name like %:keyword%))
+                    and (:status is null or r.status = :status)
+                    """
+    )
+    Page<Reservation> getReservationsForAdmin(
+            @Param("keyword") String keyword,
+            @Param("status") ReservationStatus status,
+            Pageable pageable
+    );
+
     @Query("""
             select r from Reservation r
-            where (:keyword is null or :keyword='' or
-                (cast(r.id as string) like %:keyword%) or
-                (r.name like %:keyword%) or
-                (r.store.name like %:keyword%))
-            and (:status is null or r.status = :status)
+            join fetch r.user
+            join fetch r.store
+            join fetch r.storeTable
+            where r.id = :id
             """)
-    List<Reservation> getReservationsForAdmin(
-            @Param("keyword") String keyword,
-            @Param("status") ReservationStatus status
-    );
+    Optional<Reservation> findByIdForAdmin(@Param("id") Long id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value="3000")})

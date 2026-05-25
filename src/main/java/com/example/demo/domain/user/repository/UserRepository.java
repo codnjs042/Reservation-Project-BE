@@ -6,13 +6,14 @@ import com.example.demo.domain.user.domain.UserRole;
 import com.example.demo.domain.user.domain.UserStatus;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -32,11 +33,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
             and (:role is null or u.role = :role)
             and (:status is null or u.status = :status)
             """)
-    List<User> getUsersForAdmin(
+    Page<User> getUsersForAdmin(
             @Param("keyword") String keyword,
             @Param("loginType") UserLoginType loginType,
             @Param("role") UserRole role,
-            @Param("status") UserStatus status);
+            @Param("status") UserStatus status,
+            Pageable pageable);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value="3000")})

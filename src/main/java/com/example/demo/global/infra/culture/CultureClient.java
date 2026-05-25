@@ -27,7 +27,7 @@ public class CultureClient {
     public List<CultureDto> fetchCultureData(String areaNm, String clNm) {
         URI uri = UriComponentsBuilder.fromUriString(BASE_URL)
                 .queryParam("serviceKey", apiKey)
-                .queryParam("numOfRows", 30)
+                .queryParam("numOfRows", 10)
                 .queryParam("pageNo", 1)
                 .queryParam("areaNm", URLEncoder.encode(areaNm, StandardCharsets.UTF_8))
                 .queryParam("clNm", URLEncoder.encode(clNm, StandardCharsets.UTF_8))
