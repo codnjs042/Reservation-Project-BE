@@ -1,9 +1,12 @@
 package com.example.demo.global.init;
 
+import com.example.demo.domain.schedule.dto.ScheduleUpsertRequest;
+import com.example.demo.domain.schedule.service.ScheduleService;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.domain.StoreCategory;
 import com.example.demo.domain.store.domain.StoreStatus;
 import com.example.demo.domain.store.repository.StoreRepository;
+import com.example.demo.domain.storeTable.service.StoreTableService;
 import com.example.demo.domain.user.domain.User;
 import com.example.demo.domain.user.domain.UserLoginType;
 import com.example.demo.domain.user.domain.UserRole;
@@ -20,23 +23,26 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.List;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class AdminInitializer implements ApplicationRunner {
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final StoreRepository storeRepository;
+    private final CultureClient cultureClient;
+    private final ScheduleService scheduleService;
+    private final StoreTableService storeTableService;
 
     @Value("${admin.username}")
     private String adminUsername;
 
     @Value("${admin.password}")
     private String adminPassword;
-
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final StoreRepository storeRepository;
-    private final CultureClient cultureClient;
 
     @Override
     @Transactional
@@ -99,10 +105,23 @@ public class AdminInitializer implements ApplicationRunner {
                     .status(StoreStatus.OPEN)
                     .build();
 
-            storeRepository.save(store);
+            Store saved = storeRepository.save(store);
+            createSchedules(saved);
+            createTables(saved);
         }
 
-        log.info("[AdminInitializer] 가게 {}건 생성 완료", cultureDtos.size());
+        log.info("[AdminInitializer] 가게 {}건 생성 완료 (스케줄·테이블 포함)", cultureDtos.size());
+    }
+
+    private void createSchedules(Store store) {
+        ScheduleUpsertRequest slot = new ScheduleUpsertRequest(LocalTime.of(12, 0), LocalTime.of(21, 0), 30);
+        for (DayOfWeek day : DayOfWeek.values()) {
+            scheduleService.upsert(store, day, List.of(slot));
+        }
+    }
+
+    private void createTables(Store store) {
+        storeTableService.create(store, "4인석", 1, 4, 10);
     }
 
     private Double parseDouble(String value) {
