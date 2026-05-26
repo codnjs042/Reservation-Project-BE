@@ -6,5 +6,5 @@ spring:
     active: dev
   config:
     import:
-      - "classpath:application-private.yml"
-      - "classpath:application-private-${spring.profiles.active}.yml"
+      - "optional:classpath:application-private.yml"
+      - "optional:classpath:application-private-${spring.profiles.active}.yml"
