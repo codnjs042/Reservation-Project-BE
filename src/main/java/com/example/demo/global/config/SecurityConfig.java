@@ -22,6 +22,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.util.List;
 
 @Slf4j
@@ -32,25 +34,44 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
+    @Value("${cors.allowed-origin}")
+    private String allowedOrigin;
+
+    @Value("${security.h2-console.enabled:false}")
+    private boolean h2ConsoleEnabled;
+
+    @Value("${swagger.enabled:false}")
+    private boolean swaggerEnabled;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                .authorizeHttpRequests(auth -> {
+                    if (h2ConsoleEnabled) {
+                        auth.requestMatchers("/h2-console/**").permitAll();
+                    }
+                    auth
+                        .requestMatchers("/admin/**", "/actuator/**").hasRole("ADMIN")
                         .requestMatchers("/stores/*/tables/**", "/owners/**").hasRole("OWNER")
                         .requestMatchers(HttpMethod.PUT,"/stores/*/schedules/*").hasRole("OWNER")
                         .requestMatchers("/users/me/**", "/favorites/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/stores", "/stores/*/reservations").authenticated()
-                        .requestMatchers("/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**",
-                                "/users/check-username", "/users/signup", "/users/login",
+                        .requestMatchers("/users/check-username", "/users/signup", "/users/login",
                                 "/users/logout", "/auth/login", "/auth/refresh",
                                 "/auth/logout", "/area", "/error").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").access(
+                                (authentication, context) -> new org.springframework.security.authorization.AuthorizationDecision(swaggerEnabled)
+                        )
                         .requestMatchers(HttpMethod.GET, "/stores/**").permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().authenticated();
+                })
                 .headers(headers -> headers
-                        .frameOptions(frame -> frame.sameOrigin())
+                        .frameOptions(frame -> {
+                            if (h2ConsoleEnabled) frame.sameOrigin();
+                            else frame.deny();
+                        })
                 )
                 .formLogin(login -> login.disable())
                 .logout(logout -> logout.disable())
@@ -96,7 +117,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of(allowedOrigin));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

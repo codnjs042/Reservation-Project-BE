@@ -7,3 +7,4 @@ spring:
   config:
     import:
       - "classpath:application-private.yml"
+      - "classpath:application-private-${spring.profiles.active}.yml"

@@ -6,7 +6,25 @@ spring:
     properties:
       hibernate:
         format_sql: false
+        generate_statistics: false
+
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false
+
+cors:
+  allowed-origin: https://my-frontend-domain.com
+
+security:
+  h2-console:
+    enabled: false
+
+swagger:
+  enabled: false
 
 logging:
   level:
-    org.hibernate.SQL: error
+    root: WARN
+    com.example.demo: INFO
+    org.hibernate.SQL: ERROR
