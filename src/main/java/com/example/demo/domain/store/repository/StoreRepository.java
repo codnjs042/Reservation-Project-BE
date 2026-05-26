@@ -20,22 +20,35 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             String businessNumber,
             StoreStatus status);
 
-    @Query("""
-            select s from Store s
-            where (:keyword is null or :keyword='' or
-                (s.name like %:keyword%) or
-                (s.category in :keywordCategories) or
-                (s.address like %:keyword%))
-            and (:category is null or s.category = :category)
-            and (:cd is null or s.sigunguCode like :cd%)
-            and s.status in :status
-            """)
-    List<Store> getList(
+    @Query(
+            value = """
+                    select s from Store s
+                    where (:keyword is null or :keyword='' or
+                        (s.name like %:keyword%) or
+                        (s.category in :keywordCategories) or
+                        (s.address like %:keyword%))
+                    and (:category is null or s.category = :category)
+                    and (:cd is null or s.sigunguCode like :cd%)
+                    and s.status in :status
+                    """,
+            countQuery = """
+                    select count(s) from Store s
+                    where (:keyword is null or :keyword='' or
+                        (s.name like %:keyword%) or
+                        (s.category in :keywordCategories) or
+                        (s.address like %:keyword%))
+                    and (:category is null or s.category = :category)
+                    and (:cd is null or s.sigunguCode like :cd%)
+                    and s.status in :status
+                    """
+    )
+    Page<Store> getList(
             @Param("keyword") String keyword,
             @Param("keywordCategories") List<StoreCategory> keywordCategories,
             @Param("category") StoreCategory category,
             @Param("cd") String cd,
-            @Param("status") List<StoreStatus> status);
+            @Param("status") List<StoreStatus> status,
+            Pageable pageable);
 
     @Modifying
     @Query("""
@@ -79,6 +92,23 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     List<Store> getMyStores(
             @Param("userId") Long userId,
             @Param("status") StoreStatus status);
+
+    @Query(
+            value = """
+                    select s from Store s
+                    where s.owner.id = :userId
+                    and s.status != :status
+                    """,
+            countQuery = """
+                    select count(s) from Store s
+                    where s.owner.id = :userId
+                    and s.status != :status
+                    """
+    )
+    Page<Store> getMyStoresPaged(
+            @Param("userId") Long userId,
+            @Param("status") StoreStatus status,
+            Pageable pageable);
 
     @Query("""
             select f.store from Favorite f

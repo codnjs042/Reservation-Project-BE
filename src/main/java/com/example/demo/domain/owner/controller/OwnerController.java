@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 @Tag(name="Owner API", description ="가게 운영 API")
 @RestController
@@ -23,10 +23,11 @@ public class OwnerController {
 
     @Operation(summary="가게 목록", description="현재 로그인한 유저 권한의 가게 목록 반환.")
     @GetMapping
-    public ResponseEntity<List<StoreOwnerResponse>> getStores(
-            @AuthenticationPrincipal CustomUserDetails userDetails)
+    public ResponseEntity<Page<StoreOwnerResponse>> getStores(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @ModelAttribute StoreOwnerRequest dto)
     {
-        List<StoreOwnerResponse> response = ownerFacade.getStores(userDetails.getId());
+        Page<StoreOwnerResponse> response = ownerFacade.getStores(userDetails.getId(), dto);
         return ResponseEntity.ok(response);
     }
 
@@ -74,12 +75,12 @@ public class OwnerController {
 
     @Operation(summary="예약 조회", description="현재 로그인된 유저 권한의 가게 예약 목록 조회")
     @GetMapping("/{storeId}/reservations")
-    public ResponseEntity<List<ReservationSearchOwnerResponse>> getReservations(
+    public ResponseEntity<Page<ReservationSearchOwnerResponse>> getReservations(
             @Valid @ModelAttribute ReservationSearchOwnerRequest dto,
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
-        List<ReservationSearchOwnerResponse> response = ownerFacade.getStoreReservation(userDetails.getId(), storeId, dto);
+        Page<ReservationSearchOwnerResponse> response = ownerFacade.getStoreReservation(userDetails.getId(), storeId, dto);
         return ResponseEntity.ok(response);
     }
 

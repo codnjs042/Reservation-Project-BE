@@ -19,37 +19,58 @@ import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     //가게 예약 목록 조회
-    @Query("""
-            select r from Reservation r
-            join fetch r.storeTable
-            where (:keyword is null or :keyword='' or
-                (:type='id' and cast(r.id as string) like %:keyword%) or
-                (:type='name' and r.name like %:keyword%))
-            and r.store.id = :storeId
-            and cast(r.targetDateTime as date) between :startDate and :endDate
-            and (:status is null or r.status in :status)
-            """)
-    List<Reservation> getStoreReservationList(
+    @Query(
+            value = """
+                    select r from Reservation r
+                    join fetch r.storeTable
+                    where (:keyword is null or :keyword='' or
+                        (:type='id' and cast(r.id as string) like %:keyword%) or
+                        (:type='name' and r.name like %:keyword%))
+                    and r.store.id = :storeId
+                    and cast(r.targetDateTime as date) between :startDate and :endDate
+                    and (:status is null or r.status in :status)
+                    """,
+            countQuery = """
+                    select count(r) from Reservation r
+                    where (:keyword is null or :keyword='' or
+                        (:type='id' and cast(r.id as string) like %:keyword%) or
+                        (:type='name' and r.name like %:keyword%))
+                    and r.store.id = :storeId
+                    and cast(r.targetDateTime as date) between :startDate and :endDate
+                    and (:status is null or r.status in :status)
+                    """
+    )
+    Page<Reservation> getStoreReservationList(
                 @Param("type") String type,
                 @Param("keyword") String keyword,
                 @Param("storeId") Long storeId,
                 @Param("startDate") LocalDate startDate,
                 @Param("endDate") LocalDate endDate,
-                @Param("status") List<ReservationStatus> status);
+                @Param("status") List<ReservationStatus> status,
+                Pageable pageable);
 
     //유저 예약 목록 조회
-    @Query("""
-            select r from Reservation r
-            join fetch r.store
-            where r.user.id = :userId
-            and cast(r.targetDateTime as date) between :startDate and :endDate
-            and (:status is null or r.status in :status)
-            """)
-    List<Reservation> getMyReservationList(
+    @Query(
+            value = """
+                    select r from Reservation r
+                    join fetch r.store
+                    where r.user.id = :userId
+                    and cast(r.targetDateTime as date) between :startDate and :endDate
+                    and (:status is null or r.status in :status)
+                    """,
+            countQuery = """
+                    select count(r) from Reservation r
+                    where r.user.id = :userId
+                    and cast(r.targetDateTime as date) between :startDate and :endDate
+                    and (:status is null or r.status in :status)
+                    """
+    )
+    Page<Reservation> getMyReservationList(
             @Param("userId") Long userId,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
-            @Param("status") List<ReservationStatus> status);
+            @Param("status") List<ReservationStatus> status,
+            Pageable pageable);
 
     //예약 마감 시간대 조회
     @Query("""

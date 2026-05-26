@@ -21,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -70,18 +72,19 @@ public class ReservationService {
                 .collect(Collectors.toSet());
     }
 
-    public List<Reservation> getStoreReservation(Long storeId, ReservationSearchOwnerRequest dto, LocalDate startDate, LocalDate endDate){
-        return reservationRepository.getStoreReservationList(dto.type(), dto.keyword(), storeId, startDate, endDate, dto.status());
+    public Page<Reservation> getStoreReservation(Long storeId, ReservationSearchOwnerRequest dto, LocalDate startDate, LocalDate endDate){
+        PageRequest pageable = PageRequest.of(dto.page(), dto.size(), Sort.by("targetDateTime").descending());
+        return reservationRepository.getStoreReservationList(dto.type(), dto.keyword(), storeId, startDate, endDate, dto.status(), pageable);
     }
 
-    public List<ReservationSearchResponse> getMyReservation(Long userId, ReservationSearchRequest dto){
+    public Page<ReservationSearchResponse> getMyReservation(Long userId, ReservationSearchRequest dto){
         LocalDate startDate = dto.startDate()==null ? LocalDate.now().minusMonths(1) : dto.startDate();
         LocalDate endDate = dto.endDate()==null ? LocalDate.now().plusMonths(1) : dto.endDate();
         validateDate(startDate, endDate);
 
-        return reservationRepository.getMyReservationList(userId, startDate, endDate, dto.status()).stream()
-                .map(ReservationSearchResponse::from)
-                .toList();
+        PageRequest pageable = PageRequest.of(dto.page(), dto.size(), Sort.by("targetDateTime").descending());
+        return reservationRepository.getMyReservationList(userId, startDate, endDate, dto.status(), pageable)
+                .map(ReservationSearchResponse::from);
     }
 
     public void validateOwner(Reservation reservation, Long userId){

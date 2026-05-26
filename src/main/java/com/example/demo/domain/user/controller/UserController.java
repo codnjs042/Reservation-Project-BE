@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
 import java.util.List;
 
 @Tag(name="User API", description ="유저 API")
@@ -110,11 +111,11 @@ public class UserController {
 
     @Operation(summary="예약 조회(유저용)", description="현재 로그인된 유저의 예약 목록 조회")
     @GetMapping("/me/reservations")
-    public ResponseEntity<List<ReservationSearchResponse>> searchUser(
+    public ResponseEntity<Page<ReservationSearchResponse>> searchUser(
             @Valid @ModelAttribute ReservationSearchRequest dto,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
-        List<ReservationSearchResponse> response = reservationService.getMyReservation(userDetails.getId(), dto);
+        Page<ReservationSearchResponse> response = reservationService.getMyReservation(userDetails.getId(), dto);
         return ResponseEntity.ok(response);
     }
 

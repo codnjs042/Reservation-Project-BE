@@ -47,8 +47,8 @@ public class AdminInitializer implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        User admin = getOrCreateAdmin();
-        createStoresIfAbsent(admin);
+        //User admin = getOrCreateAdmin();
+        //createStoresIfAbsent(admin);
     }
 
     private User getOrCreateAdmin() {

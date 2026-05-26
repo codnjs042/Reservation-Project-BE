@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+
 import java.util.List;
 
 @Tag(name="Store API", description ="가게 관리 API")
@@ -46,10 +48,11 @@ public class StoreController {
 
     @Operation(summary="가게 목록 조회", description="현재 활성화 상태의 가게 목록 반환")
     @GetMapping
-    public ResponseEntity<List<StoreResponse>> getList(
+    public ResponseEntity<Page<StoreResponse>> getList(
             @Valid @ModelAttribute StoreSearchRequest dto)
     {
-        List<StoreResponse> response = storeService.getList(dto);
+
+        Page<StoreResponse> response = storeService.getList(dto);
         return ResponseEntity.ok(response);
     }
 

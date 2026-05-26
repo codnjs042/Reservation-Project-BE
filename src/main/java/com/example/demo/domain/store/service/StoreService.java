@@ -80,7 +80,7 @@ public class StoreService {
             throw new BusinessException(ErrorCode.INVALID_STORE_STATUS, store.getStatus().getDesc());
     }
 
-    public List<StoreResponse> getList(StoreSearchRequest dto){
+    public Page<StoreResponse> getList(StoreSearchRequest dto){
         List<StoreCategory> keywordCategories = null;
 
         if(dto.keyword() != null && !dto.keyword().isEmpty()) {
@@ -92,8 +92,8 @@ public class StoreService {
                 keywordCategories = null;
         }
 
-        List<Store> store = storeRepository.getList(dto.keyword(), keywordCategories, dto.category(), dto.cd(), List.of(StoreStatus.READY, StoreStatus.OPEN));
-        return store.stream().map(StoreResponse::from).toList();
+        return storeRepository.getList(dto.keyword(), keywordCategories, dto.category(), dto.cd(), List.of(StoreStatus.READY, StoreStatus.OPEN), PageRequest.of(dto.page(), dto.size()))
+                .map(StoreResponse::from);
     }
 
     @Transactional
@@ -111,8 +111,8 @@ public class StoreService {
         storeRepository.updateAllStores(userId, StoreStatus.SHUTDOWN);
     }
 
-    public List<Store> getMyStores(Long userId){
-        return storeRepository.getMyStores(userId, StoreStatus.SHUTDOWN);
+    public Page<Store> getMyStores(Long userId, Pageable pageable){
+        return storeRepository.getMyStoresPaged(userId, StoreStatus.SHUTDOWN, pageable);
     }
 
     public Store getMyStore(Long userId, Long storeId){

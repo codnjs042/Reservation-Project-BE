@@ -2,7 +2,6 @@ package com.example.demo.domain.owner.service;
 
 import com.example.demo.domain.favorite.serivce.FavoriteService;
 import com.example.demo.domain.owner.dto.*;
-import com.example.demo.domain.reservation.domain.Reservation;
 import com.example.demo.domain.owner.dto.ReservationSearchOwnerResponse;
 import com.example.demo.domain.reservation.service.ReservationService;
 import com.example.demo.domain.schedule.service.ScheduleService;
@@ -19,6 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -35,15 +37,14 @@ public class OwnerFacade {
     private final KakaoLocalClient kakaoLocalClient;
 
     @Transactional
-    public List<StoreOwnerResponse> getStores(Long userId){
-        List<Store> stores = storeService.getMyStores(userId);
-        return stores.stream()
+    public Page<StoreOwnerResponse> getStores(Long userId, StoreOwnerRequest dto){
+        PageRequest pageable = PageRequest.of(dto.page(), dto.size(), Sort.by("id").descending());
+        return storeService.getMyStores(userId, pageable)
                 .map(store -> {
                     boolean hasSchedule = scheduleService.existsByStoreIdAndStatus(store.getId());
                     boolean hasTable = storeTableService.existsByStoreIdAndStatus(store.getId());
                     return StoreOwnerResponse.from(store, hasSchedule, hasTable);
-                })
-                .toList();
+                });
     }
 
     @Transactional
@@ -102,7 +103,7 @@ public class OwnerFacade {
         store.updateStatus(dto.status());
     }
 
-    public List<ReservationSearchOwnerResponse> getStoreReservation(Long userId, Long storeId, ReservationSearchOwnerRequest dto){
+    public Page<ReservationSearchOwnerResponse> getStoreReservation(Long userId, Long storeId, ReservationSearchOwnerRequest dto){
         Store store = storeService.findById(storeId);
 
         storeService.validateOwner(store, userId);
@@ -113,11 +114,8 @@ public class OwnerFacade {
 
         reservationService.validateDate(startDate, endDate);
 
-        List<Reservation> reservations = reservationService.getStoreReservation(store.getId(), dto, startDate, endDate);
-
-        return reservations.stream()
-                .map(ReservationSearchOwnerResponse::from)
-                .toList();
+        return reservationService.getStoreReservation(store.getId(), dto, startDate, endDate)
+                .map(ReservationSearchOwnerResponse::from);
     }
 
     @Transactional
