@@ -81,4 +81,14 @@ public class AdminController {
         ReservationAdminDetailResponse response = adminFacade.getReservationForAdmin(userDetails.getId(), id);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary="유저 영구 정지", description="특정 유저를 영구 정지합니다")
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> banUser(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id
+    ){
+        adminFacade.banUser(userDetails.getId(), id);
+        return ResponseEntity.noContent().build();
+    }
 }

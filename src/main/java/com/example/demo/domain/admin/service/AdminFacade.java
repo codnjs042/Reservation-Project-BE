@@ -10,6 +10,7 @@ import com.example.demo.domain.reservation.service.ReservationService;
 import com.example.demo.domain.store.service.StoreService;
 import com.example.demo.domain.user.domain.User;
 import com.example.demo.domain.user.domain.UserRole;
+import com.example.demo.domain.user.service.UserFacade;
 import com.example.demo.domain.user.service.UserService;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.Sort;
 @Transactional(readOnly = true)
 public class AdminFacade {
     private final UserService userService;
+    private final UserFacade userFacade;
     private final StoreService storeService;
     private final ReservationService reservationService;
 
@@ -65,5 +67,17 @@ public class AdminFacade {
 
         PageRequest pageable = PageRequest.of(dto.page(), dto.size(), Sort.by("id").descending());
         return reservationService.getReservationsForAdmin(dto.keyword(), dto.status(), pageable);
+    }
+
+    @Transactional
+    public void banUser(Long adminId, Long targetId) {
+        User admin = userService.findById(adminId);
+        if (admin.getRole() != UserRole.ADMIN)
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+
+        if (adminId.equals(targetId))
+            throw new BusinessException(ErrorCode.POLICY_VIOLATION);
+
+        userFacade.delete(targetId);
     }
 }
