@@ -14,7 +14,7 @@ decorator:
       enable-logging: false
 
 cors:
-  allowed-origin: https://my-frontend-domain.com
+  allowed-origin: http://15.164.102.201:5173
 
 security:
   h2-console:
