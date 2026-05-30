@@ -13,6 +13,13 @@ spring:
     baseline-on-migrate: true
     baseline-version: 0
 
+server:
+  port: 443
+  ssl:
+    enabled: true
+    certificate: /etc/letsencrypt/live/yarmspot.store/fullchain.pem
+    certificate-private-key: /etc/letsencrypt/live/yarmspot.store/privkey.pem
+
 decorator:
   datasource:
     p6spy:
