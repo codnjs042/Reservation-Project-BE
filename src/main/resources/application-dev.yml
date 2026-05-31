@@ -11,23 +11,15 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
-  h2:
-    console:
-      enabled: false
-
 cors:
   allowed-origin: http://localhost:5173
-
-security:
-  h2-console:
-    enabled: true
 
 swagger:
   enabled: true
 
 logging:
   level:
-    org.hibernate.SQL: info
+    org.hibernate.SQL: warn
 
 decorator:
   datasource:

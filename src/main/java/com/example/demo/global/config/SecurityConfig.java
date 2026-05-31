@@ -37,9 +37,6 @@ public class SecurityConfig {
     @Value("${cors.allowed-origin}")
     private String allowedOrigin;
 
-    @Value("${security.h2-console.enabled:false}")
-    private boolean h2ConsoleEnabled;
-
     @Value("${swagger.enabled:false}")
     private boolean swaggerEnabled;
 
@@ -49,9 +46,6 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
-                    if (h2ConsoleEnabled) {
-                        auth.requestMatchers("/h2-console/**").permitAll();
-                    }
                     auth
                         .requestMatchers("/admin/**", "/actuator/**").hasRole("ADMIN")
                         .requestMatchers("/stores/*/tables/**", "/owners/**").hasRole("OWNER")
@@ -67,12 +61,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/stores/**").permitAll()
                         .anyRequest().authenticated();
                 })
-                .headers(headers -> headers
-                        .frameOptions(frame -> {
-                            if (h2ConsoleEnabled) frame.sameOrigin();
-                            else frame.deny();
-                        })
-                )
                 .formLogin(login -> login.disable())
                 .logout(logout -> logout.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
