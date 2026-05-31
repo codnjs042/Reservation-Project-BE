@@ -13,16 +13,14 @@ spring:
     baseline-on-migrate: true
     baseline-version: 0
 
-vworld:
-  domain: https://yarmspot.store
+app:
+  frontend-url: https://yarmspot.store
+  backend-url: https://yarmspot.store
 
 decorator:
   datasource:
     p6spy:
       enable-logging: false
-
-cors:
-  allowed-origin: https://yarmspot.store
 
 swagger:
   enabled: false

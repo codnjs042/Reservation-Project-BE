@@ -20,7 +20,7 @@ public class VWorldClient {
     @Value("${vworld.api.key}")
     private String apiKey;
 
-    @Value("${vworld.domain}")
+    @Value("${app.backend-url}")
     private String domain;
 
     private final RestTemplate restTemplate;

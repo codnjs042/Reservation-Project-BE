@@ -34,7 +34,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
-    @Value("${cors.allowed-origin}")
+    @Value("${app.frontend-url}")
     private String allowedOrigin;
 
     @Value("${swagger.enabled:false}")

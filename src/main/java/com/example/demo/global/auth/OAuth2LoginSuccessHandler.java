@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,9 @@ import java.io.IOException;
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final JwtUtil jwtUtil;
     private final RedisUtil redisUtil;
+
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -36,7 +40,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         jwtUtil.addRefreshTokenCookie(response, refreshToken);
 
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/login-callback")
+        String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/login-callback")
                 .queryParam("accessToken", accessToken)
                 .build()
                 .toUriString();
