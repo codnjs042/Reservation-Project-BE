@@ -20,6 +20,9 @@ public class VWorldClient {
     @Value("${vworld.api.key}")
     private String apiKey;
 
+    @Value("${vworld.domain}")
+    private String domain;
+
     private final RestTemplate restTemplate;
 
     public List<AreaResponse> getArea(String cd){
@@ -27,7 +30,7 @@ public class VWorldClient {
                 .queryParam("request", "GetFeature")
                 .queryParam("key", apiKey)
                 .queryParam("geometry", "false")
-                .queryParam("domain", "http://localhost:8081");
+                .queryParam("domain", domain);
 
         if(cd==null || cd.isBlank()){
             URI uri = builder.queryParam("size", "17")

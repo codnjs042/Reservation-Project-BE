@@ -21,6 +21,9 @@ logging:
   level:
     org.hibernate.SQL: warn
 
+vworld:
+  domain: http://localhost:8081
+
 decorator:
   datasource:
     p6spy:

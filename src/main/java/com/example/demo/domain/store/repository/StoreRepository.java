@@ -182,7 +182,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     @Query(nativeQuery=true, value= """
             select * from (
                 select *, (6371 * acos(cos(radians(:latitude)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:longitude)) + sin(radians(:latitude)) * sin(radians(latitude)))) as distance
-                from Stores
+                from stores
                 where status in :status
             ) as result
             where result.distance <=3.0

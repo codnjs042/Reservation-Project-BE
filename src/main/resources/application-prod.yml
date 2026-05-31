@@ -13,6 +13,9 @@ spring:
     baseline-on-migrate: true
     baseline-version: 0
 
+vworld:
+  domain: https://yarmspot.store
+
 decorator:
   datasource:
     p6spy:
@@ -20,10 +23,6 @@ decorator:
 
 cors:
   allowed-origin: https://yarmspot.store
-
-security:
-  h2-console:
-    enabled: false
 
 swagger:
   enabled: false
