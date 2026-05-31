@@ -19,7 +19,7 @@ import java.util.List;
 
 @Tag(name="Store API", description ="가게 관리 API")
 @RestController
-@RequestMapping("/stores")
+@RequestMapping("/api/stores")
 @RequiredArgsConstructor
 public class StoreController {
     private final StoreService storeService;

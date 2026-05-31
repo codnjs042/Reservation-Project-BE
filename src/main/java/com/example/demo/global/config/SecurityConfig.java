@@ -47,18 +47,18 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
                     auth
-                        .requestMatchers("/admin/**", "/actuator/**").hasRole("ADMIN")
-                        .requestMatchers("/stores/*/tables/**", "/owners/**").hasRole("OWNER")
-                        .requestMatchers(HttpMethod.PUT,"/stores/*/schedules/*").hasRole("OWNER")
-                        .requestMatchers("/users/me/**", "/favorites/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/stores", "/stores/*/reservations").authenticated()
-                        .requestMatchers("/users/check-username", "/users/signup", "/users/login",
-                                "/users/logout", "/auth/login", "/auth/refresh",
-                                "/auth/logout", "/area", "/error").permitAll()
+                        .requestMatchers("/api/admin/**", "/actuator/**").hasRole("ADMIN")
+                        .requestMatchers("/api/stores/*/tables/**", "/api/owners/**").hasRole("OWNER")
+                        .requestMatchers(HttpMethod.PUT, "/api/stores/*/schedules/*").hasRole("OWNER")
+                        .requestMatchers("/api/users/me/**", "/api/favorites/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/stores", "/api/stores/*/reservations").authenticated()
+                        .requestMatchers("/api/users/check-username", "/api/users/signup", "/api/users/login",
+                                "/api/users/logout", "/api/auth/login", "/api/auth/refresh",
+                                "/api/auth/logout", "/api/area", "/error").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").access(
                                 (authentication, context) -> new org.springframework.security.authorization.AuthorizationDecision(swaggerEnabled)
                         )
-                        .requestMatchers(HttpMethod.GET, "/stores/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/stores/**").permitAll()
                         .anyRequest().authenticated();
                 })
                 .formLogin(login -> login.disable())

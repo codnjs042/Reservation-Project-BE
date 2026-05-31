@@ -14,7 +14,7 @@ import java.util.List;
 
 @Tag(name="Area API", description ="지역 API")
 @RestController
-@RequestMapping("/area")
+@RequestMapping("/api/area")
 @RequiredArgsConstructor
 public class AreaController {
     private final AreaService areaService;

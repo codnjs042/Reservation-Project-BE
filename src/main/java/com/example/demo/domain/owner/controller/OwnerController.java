@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 
 @Tag(name="Owner API", description ="가게 운영 API")
 @RestController
-@RequestMapping("/owners/stores")
+@RequestMapping("/api/owners/stores")
 @RequiredArgsConstructor
 public class OwnerController {
     private final OwnerFacade ownerFacade;

@@ -18,7 +18,7 @@ import java.util.List;
 
 @Tag(name="Schedule API", description ="영업 시간 관리 API")
 @RestController
-@RequestMapping("/stores/{storeId}/schedules")
+@RequestMapping("/api/stores/{storeId}/schedules")
 @RequiredArgsConstructor
 public class ScheduleController {
     private final ScheduleFacade scheduleFacade;

@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 
 @Tag(name="Admin API", description ="관리자 API")
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class AdminController {
     private final UserService userService;

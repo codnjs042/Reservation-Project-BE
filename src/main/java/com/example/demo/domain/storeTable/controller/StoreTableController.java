@@ -18,7 +18,7 @@ import java.util.List;
 
 @Tag(name="StoreTable API", description ="가게 테이블 관리 API")
 @RestController
-@RequestMapping("/stores/{storeId}/tables")
+@RequestMapping("/api/stores/{storeId}/tables")
 @RequiredArgsConstructor
 public class StoreTableController {
     private final StoreTableFacade storeTableFacade;
