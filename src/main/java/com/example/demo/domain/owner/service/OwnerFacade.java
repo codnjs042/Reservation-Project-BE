@@ -1,6 +1,6 @@
 package com.example.demo.domain.owner.service;
 
-import com.example.demo.domain.favorite.serivce.FavoriteService;
+import com.example.demo.domain.favorite.service.FavoriteService;
 import com.example.demo.domain.owner.dto.*;
 import com.example.demo.domain.owner.dto.ReservationSearchOwnerResponse;
 import com.example.demo.domain.reservation.service.ReservationService;

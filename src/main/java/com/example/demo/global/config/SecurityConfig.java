@@ -40,26 +40,35 @@ public class SecurityConfig {
     @Value("${swagger.enabled:false}")
     private boolean swaggerEnabled;
 
+    @Value("${actuator.secured:true}")
+    private boolean actuatorSecured;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
+                    if (actuatorSecured) {
+                        auth.requestMatchers("/actuator/health").permitAll()
+                            .requestMatchers("/actuator/**").hasRole("ADMIN");
+                    } else {
+                        auth.requestMatchers("/actuator/**").permitAll();
+                    }
                     auth
-                        .requestMatchers("/api/admin/**", "/actuator/**").hasRole("ADMIN")
-                        .requestMatchers("/api/stores/*/tables/**", "/api/owners/**").hasRole("OWNER")
-                        .requestMatchers(HttpMethod.PUT, "/api/stores/*/schedules/*").hasRole("OWNER")
-                        .requestMatchers("/api/users/me/**", "/api/favorites/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/stores", "/api/stores/*/reservations").authenticated()
-                        .requestMatchers("/api/users/check-username", "/api/users/signup", "/api/users/login",
-                                "/api/users/logout", "/api/auth/login", "/api/auth/refresh",
-                                "/api/auth/logout", "/api/area", "/error").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").access(
-                                (authentication, context) -> new org.springframework.security.authorization.AuthorizationDecision(swaggerEnabled)
-                        )
-                        .requestMatchers(HttpMethod.GET, "/api/stores/**").permitAll()
-                        .anyRequest().authenticated();
+                            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                            .requestMatchers("/api/stores/*/tables/**", "/api/owners/**").hasRole("OWNER")
+                            .requestMatchers(HttpMethod.PUT, "/api/stores/*/schedules/*").hasRole("OWNER")
+                            .requestMatchers("/api/users/me/**", "/api/favorites/**").authenticated()
+                            .requestMatchers(HttpMethod.POST, "/api/stores", "/api/stores/*/reservations").authenticated()
+                            .requestMatchers("/api/users/check-username", "/api/users/signup", "/api/users/login",
+                                    "/api/users/logout", "/api/auth/login", "/api/auth/refresh",
+                                    "/api/auth/logout", "/api/area", "/error").permitAll()
+                            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").access(
+                                    (authentication, context) -> new org.springframework.security.authorization.AuthorizationDecision(swaggerEnabled)
+                            )
+                            .requestMatchers(HttpMethod.GET, "/api/stores/**").permitAll()
+                            .anyRequest().authenticated();
                 })
                 .formLogin(login -> login.disable())
                 .logout(logout -> logout.disable())

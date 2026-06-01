@@ -1,7 +1,7 @@
 package com.example.demo.domain.user.controller;
 
 import com.example.demo.domain.favorite.dto.FavoriteResponse;
-import com.example.demo.domain.favorite.serivce.FavoriteService;
+import com.example.demo.domain.favorite.service.FavoriteService;
 import com.example.demo.domain.reservation.dto.ReservationSearchRequest;
 import com.example.demo.domain.reservation.dto.ReservationSearchResponse;
 import com.example.demo.domain.reservation.service.ReservationService;

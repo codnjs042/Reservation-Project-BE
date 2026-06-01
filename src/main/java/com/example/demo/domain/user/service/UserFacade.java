@@ -1,6 +1,6 @@
 package com.example.demo.domain.user.service;
 
-import com.example.demo.domain.favorite.serivce.FavoriteService;
+import com.example.demo.domain.favorite.service.FavoriteService;
 import com.example.demo.domain.store.service.StoreService;
 import com.example.demo.domain.user.domain.User;
 import com.example.demo.domain.user.domain.UserStatus;

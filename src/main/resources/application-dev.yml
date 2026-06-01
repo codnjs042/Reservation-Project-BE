@@ -18,6 +18,9 @@ app:
 swagger:
   enabled: true
 
+actuator:
+  secured: false
+
 logging:
   level:
     org.hibernate.SQL: warn
@@ -28,3 +31,12 @@ decorator:
       enable-logging: true
       multiline: true
       logging: slf4j
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

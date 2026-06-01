@@ -1,6 +1,6 @@
 package com.example.demo.domain.store.service;
 
-import com.example.demo.domain.favorite.serivce.FavoriteService;
+import com.example.demo.domain.favorite.service.FavoriteService;
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.domain.StoreStatus;
 import com.example.demo.domain.store.dto.StoreDetailResponse;

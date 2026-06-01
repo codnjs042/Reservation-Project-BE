@@ -1,4 +1,4 @@
-package com.example.demo.domain.favorite.serivce;
+package com.example.demo.domain.favorite.service;
 
 import com.example.demo.domain.store.domain.Store;
 import com.example.demo.domain.store.service.StoreService;

@@ -1,6 +1,6 @@
 package com.example.demo.domain.favorite.controller;
 
-import com.example.demo.domain.favorite.serivce.FavoriteFacade;
+import com.example.demo.domain.favorite.service.FavoriteFacade;
 import com.example.demo.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

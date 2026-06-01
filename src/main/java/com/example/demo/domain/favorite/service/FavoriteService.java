@@ -1,4 +1,4 @@
-package com.example.demo.domain.favorite.serivce;
+package com.example.demo.domain.favorite.service;
 
 import com.example.demo.domain.favorite.domain.Favorite;
 import com.example.demo.domain.favorite.domain.FavoriteStatus;
