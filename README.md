@@ -3,7 +3,6 @@
 > 유저·점주·관리자 3계층 권한 구조의 식당 예약 플랫폼 백엔드 API 서버
 
 **배포 주소**: https://yarmspot.store  
-**Swagger**: https://yarmspot.store/swagger-ui/index.html _(dev 환경에서만 활성화)_
 
 ---
 
