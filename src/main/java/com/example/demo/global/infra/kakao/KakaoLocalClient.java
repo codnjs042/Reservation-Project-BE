@@ -1,5 +1,7 @@
 package com.example.demo.global.infra.kakao;
 
+import com.example.demo.global.exception.BusinessException;
+import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,12 +51,12 @@ public class KakaoLocalClient {
                         Double.parseDouble(document.y()),
                         Double.parseDouble(document.x())
                 );
-            } else {
-                log.warn("[KakaoAPI Empty] 검색 결과가 없습니다. 주소: {}", address);
             }
+
+            log.warn("[KakaoAPI Empty] 검색 결과가 없습니다. 주소: {}", address);
         } catch (Exception e) {
             log.error("[KakaoAPI Error] API 호출 중 오류 발생: {}", e.getMessage());
         }
-        return null;
+        throw new BusinessException(ErrorCode.ADDRESS_NOT_FOUND);
     }
 }

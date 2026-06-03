@@ -46,9 +46,6 @@ public class StoreService {
         if(isExists)
             throw new BusinessException(ErrorCode.STORE_ALREADY_EXIST);
 
-        Double latitude = coordinates!=null ? coordinates.latitude() : null;
-        Double longitude = coordinates!=null ? coordinates.longitude() : null;
-
         Store store = Store.builder()
                 .name(dto.name())
                 .category(dto.category())
@@ -56,8 +53,8 @@ public class StoreService {
                 .detailAddress(dto.detailAddress())
                 .zipCode(dto.zipCode())
                 .sigunguCode(dto.sigunguCode())
-                .latitude(latitude)
-                .longitude(longitude)
+                .latitude(coordinates.latitude())
+                .longitude(coordinates.longitude())
                 .phone(dto.phone())
                 .owner(user)
                 .ownerName(dto.ownerName())

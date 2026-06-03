@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +51,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 }
             }
             loginType = UserLoginType.KAKAO;
-            providerId = attributes.get("id").toString();
+            Object id = attributes.get("id");
+            if (id == null)
+                throw new OAuth2AuthenticationException(new OAuth2Error("invalid_response"), "카카오 응답에서 id를 찾을 수 없습니다.");
+            providerId = id.toString();
         }
         else if("naver".equals(registrationId)){
             Map<String, Object> attributes = oAuth2User.getAttributes();
@@ -61,6 +66,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 providerId = (String) response.get("id");
             }
             loginType = UserLoginType.NAVER;
+            if (providerId == null)
+                throw new OAuth2AuthenticationException(new OAuth2Error("invalid_response"), "네이버 응답에서 id를 찾을 수 없습니다.");
         }
 
         final String finalEmail = email;

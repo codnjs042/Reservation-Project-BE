@@ -1,5 +1,7 @@
 package com.example.demo.global.infra.vworld;
 
+import com.example.demo.global.exception.BusinessException;
+import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -83,6 +85,7 @@ public class VWorldClient {
             }
         } catch (Exception e) {
             log.error("[V-WORLD API error] API 호출 중 오류 발생: {}", e.getMessage());
+            throw new BusinessException(ErrorCode.EXTERNAL_API_ERROR);
         }
         return List.of();
     }

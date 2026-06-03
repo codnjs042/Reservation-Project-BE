@@ -43,7 +43,7 @@ public class FavoriteService {
          if(exists.isEmpty())
              create(user, store);
          else{
-             Favorite favorite = exists.get();
+             Favorite favorite = exists.orElseThrow();
 
              if(favorite.getStatus() == FavoriteStatus.ACTIVE)
                  throw new BusinessException(ErrorCode.FAVORITE_ALREADY_EXIST);

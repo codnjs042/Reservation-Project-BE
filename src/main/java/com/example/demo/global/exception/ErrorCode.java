@@ -33,6 +33,10 @@ public enum ErrorCode {
     FAVORITE_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "FAVORITE-002", "이미 관심 삭제된 상태입니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON-001", "권한이 없습니다."),
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "COMMON-002", "입력값이 올바르지 않습니다."),
+    LOCK_TIMEOUT(HttpStatus.CONFLICT, "COMMON-003", "잠시 후 다시 시도해 주세요."),
+    DUPLICATE_DATA(HttpStatus.CONFLICT, "COMMON-004", "중복된 데이터가 존재합니다."),
+    ADDRESS_NOT_FOUND(HttpStatus.BAD_REQUEST, "COMMON-005", "주소를 찾을 수 없습니다."),
+    EXTERNAL_API_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "COMMON-006", "외부 서비스 오류가 발생했습니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-001", "유효하지 않은 토큰입니다."),
     LOGIN_FAILED(HttpStatus.BAD_REQUEST, "AUTH-002", "아이디 또는 비밀번호가 일치하지 않습니다.");
 

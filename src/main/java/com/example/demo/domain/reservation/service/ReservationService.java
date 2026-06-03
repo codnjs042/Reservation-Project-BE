@@ -134,6 +134,7 @@ public class ReservationService {
         return reservationRepository.findAllByIdWithLock(reservationIds);
     }
 
+    @Transactional
     public void updateStatus(Long userId, ReservationUpdateOwnerRequest dto){
         List<Reservation> reservations = findAllById(dto.ids());
         reservations.forEach(reservation -> {
