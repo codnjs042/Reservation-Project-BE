@@ -23,6 +23,4 @@ jobs:
             cd Reservation-Project-BE
             git pull origin main
             ./gradlew build -x test
-            sudo nohup java -jar build/libs/demo-0.0.1-SNAPSHOT.jar \
-              --spring.profiles.active=prod \
-              --spring.config.additional-location=file:/home/ubuntu/application-private.yml,file:/home/ubuntu/application-private-prod.yml > app.log 2>&1 &
+            sudo systemctl restart backend
