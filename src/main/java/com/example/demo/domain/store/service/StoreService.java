@@ -27,6 +27,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class StoreService {
+    private static final int FAMOUS_STORE_LIMIT = 9;
+
     private final StoreRepository storeRepository;
 
     public Store findById(Long storeId){
@@ -130,13 +132,14 @@ public class StoreService {
     }
 
     public List<StoreResponse> getFamous(){
-        Pageable TopSix = PageRequest.of(0, 6);
-        List<Store> famousStore = storeRepository.getFamous(List.of(StoreStatus.READY, StoreStatus.OPEN), FavoriteStatus.ACTIVE, TopSix);
-        List<Store> latestStore = storeRepository.findTop12ByStatusOrderByCreatedAtDesc(StoreStatus.OPEN);
+        Pageable topFamous = PageRequest.of(0, FAMOUS_STORE_LIMIT);
+        List<Store> famousStore = storeRepository.getFamous(StoreStatus.OPEN, topFamous);
         Set<Store> combined = new LinkedHashSet<>(famousStore);
-        combined.addAll(latestStore);
+        if (combined.size() < FAMOUS_STORE_LIMIT) {
+            combined.addAll(storeRepository.findTop9ByStatusOrderByCreatedAtDesc(StoreStatus.OPEN));
+        }
         return combined.stream()
-                .limit(6)
+                .limit(FAMOUS_STORE_LIMIT)
                 .map(StoreResponse::from)
                 .toList();
     }

@@ -111,18 +111,15 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             Pageable pageable);
 
     @Query("""
-            select f.store from Favorite f
-            where f.store.status in :storeStatus
-            and f.status = :favoriteStatus
-            group by f.store
-            order by count(f) desc, f.store.id desc
+            select s from Store s
+            where s.status = :storeStatus
+            order by s.favorites desc, s.id desc
             """)
     List<Store> getFamous(
-            @Param("storeStatus") List<StoreStatus> storeStatus,
-            @Param("favoriteStatus") FavoriteStatus favoriteStatus,
+            @Param("storeStatus") StoreStatus storeStatus,
             Pageable pageable);
 
-    List<Store> findTop12ByStatusOrderByCreatedAtDesc(StoreStatus status);
+    List<Store> findTop9ByStatusOrderByCreatedAtDesc(StoreStatus status);
 
     @Modifying
     @Query("""
@@ -184,6 +181,8 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
                 select *, (6371 * acos(cos(radians(:latitude)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:longitude)) + sin(radians(:latitude)) * sin(radians(latitude)))) as distance
                 from stores
                 where status in :status
+                and latitude between :latitude - (3.0 / 111.0) and :latitude + (3.0 / 111.0)
+                and longitude between :longitude - (3.0 / (111.0 * cos(radians(:latitude)))) and :longitude + (3.0 / (111.0 * cos(radians(:latitude))))
             ) as result
             where result.distance <=3.0
             order by result.distance
