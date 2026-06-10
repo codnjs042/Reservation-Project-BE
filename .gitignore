@@ -40,6 +40,7 @@ out/
 src/main/resources/application-private.yml
 src/main/resources/application-private-dev.yml
 src/main/resources/application-private-prod.yml
+spy.log
 
 ### claude ###
 .claude
