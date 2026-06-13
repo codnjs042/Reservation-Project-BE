@@ -37,10 +37,8 @@ out/
 .vscode/
 
 ### private file ###
-src/main/resources/application-private.yml
-src/main/resources/application-private-dev.yml
-src/main/resources/application-private-prod.yml
 spy.log
+.env
 
 ### claude ###
 .claude

@@ -42,7 +42,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
         else if("kakao".equals(registrationId)){
             Map<String, Object> attributes = oAuth2User.getAttributes();
-            log.info("attributes: {}", attributes);
+            //log.info("attributes: {}", attributes);
             Map<String, Object> kakaoAcount = (Map<String, Object>) attributes.get("kakao_account");
             if(kakaoAcount != null){
                 Map<String, Object> profile = (Map<String, Object>) kakaoAcount.get("profile");
@@ -58,7 +58,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
         else if("naver".equals(registrationId)){
             Map<String, Object> attributes = oAuth2User.getAttributes();
-            log.info("attributes: {}", attributes);
+            //log.info("attributes: {}", attributes);
             Map<String, Object> response = (Map<String, Object>) attributes.get("response");
             if(response != null){
                 nickname = (String) response.get("name");

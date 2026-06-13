@@ -84,7 +84,7 @@ public class JwtUtil {
     public void addRefreshTokenCookie(HttpServletResponse response, String token){
         ResponseCookie cookie = ResponseCookie.from("refresh_token", token)
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/auth/refresh")
                 .maxAge(refreshTokenExpiration)
                 .sameSite("Lax")
