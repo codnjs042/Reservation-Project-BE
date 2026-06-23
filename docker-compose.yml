@@ -1,0 +1,42 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: reserve
+      MYSQL_USER: ${PROD_DB_USERNAME}
+      MYSQL_PASSWORD: ${PROD_DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis
+    container_name: redis
+
+  springboot:
+    build: .
+    container_name: springboot
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      - mysql
+      - redis
+
+  nginx:
+    image: nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ../Reservation-Project-FE/dist:/usr/share/nginx/html
+      - /etc/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - springboot
+
+volumes:
+  mysql_data:

@@ -20,8 +20,6 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            sudo kill -9 $(sudo lsof -t -i :8081) || true
             cd Reservation-Project-BE
             git pull origin main
-            ./gradlew build -x test
-            sudo systemctl restart backend
+            docker compose up -d --build
