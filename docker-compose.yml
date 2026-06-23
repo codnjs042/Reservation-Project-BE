@@ -27,6 +27,8 @@ services:
     depends_on:
       - mysql
       - redis
+    extra_hosts:
+      - "api.kcisa.kr:175.125.91.8"
 
   nginx:
     image: nginx
