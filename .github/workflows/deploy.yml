@@ -14,8 +14,25 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/codnjs042/reservation-project-be:latest
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
@@ -25,5 +42,5 @@ jobs:
           script: |
             cd Reservation-Project-BE
             git pull origin main
-            docker compose down
-            docker compose up -d --build
+            docker compose pull
+            docker compose up -d

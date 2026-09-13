@@ -17,7 +17,7 @@ services:
     restart: always
 
   springboot:
-    build: .
+    image: ghcr.io/codnjs042/reservation-project-be:latest
     container_name: springboot
     restart: always
     env_file:
