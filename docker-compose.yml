@@ -3,6 +3,8 @@ services:
     image: mysql:8.0
     container_name: mysql
     restart: always
+    mem_limit: 512m
+    command: --max-connections=50 --innodb-buffer-pool-size=256M
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: reserve
@@ -15,11 +17,13 @@ services:
     image: redis
     container_name: redis
     restart: always
+    mem_limit: 128m
 
   springboot:
     image: ghcr.io/codnjs042/reservation-project-be:latest
     container_name: springboot
     restart: always
+    mem_limit: 768m
     env_file:
       - .env
     environment:
@@ -34,6 +38,7 @@ services:
     image: nginx
     container_name: nginx
     restart: always
+    mem_limit: 64m
     ports:
       - "80:80"
       - "443:443"
