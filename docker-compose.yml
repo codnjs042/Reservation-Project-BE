@@ -33,6 +33,14 @@ services:
       - redis
     extra_hosts:
       - "api.kcisa.kr:175.125.91.8"
+    volumes:
+      - ./heapdumps:/app/dump
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ap-northeast-2
+        awslogs-group: /reservation-project/springboot
+        awslogs-create-group: "true"
 
   nginx:
     image: nginx

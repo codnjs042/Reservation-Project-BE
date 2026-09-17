@@ -9,4 +9,4 @@ RUN gradle build -x test --no-daemon
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=55.0", "-XX:MaxMetaspaceSize=224m", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=55.0", "-XX:MaxMetaspaceSize=224m", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:HeapDumpPath=/app/dump", "-XX:+ExitOnOutOfMemoryError", "-XX:NativeMemoryTracking=summary", "-jar", "app.jar"]
